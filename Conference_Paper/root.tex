@@ -1,0 +1,224 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%2345678901234567890123456789012345678901234567890123456789012345678901234567890
+%        1         2         3         4         5         6         7         8
+
+\documentclass[letterpaper, 10 pt, conference]{ieeeconf}  % Comment this line out if you need a4paper
+
+%\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4 paper
+
+\IEEEoverridecommandlockouts                              % This command is only needed if 
+                                                          % you want to use the \thanks command
+
+\overrideIEEEmargins                                      % Needed to meet printer requirements.
+
+% See the \addtolength command later in the file to balance the column lengths
+% on the last page of the document
+
+% The following packages can be found on http:\\www.ctan.org
+\usepackage{graphics} % for pdf, bitmapped graphics files
+\usepackage{epsfig} % for postscript graphics files
+%\usepackage{mathptmx} % assumes new font selection scheme installed
+%\usepackage{times} % assumes new font selection scheme installed
+\usepackage{amsmath} % assumes amsmath package installed
+\usepackage{amssymb}  % assumes amsmath package installed
+\usepackage{graphicx}
+\bibliographystyle{IEEEtran}
+\graphicspath{ {images/} }
+
+\title{\LARGE \bf
+A Framework for Risk-Sensitive Reachability Analysis}
+
+\author{Margaret P. Chapman$^{1}$, Susmit Jha$^{2}$, Jonathan P. Lacotte$^{3}$, Sumeet Singh$^{3}$, Kevin Smith$^{4}$, \\
+Victoria Cheng$^{5}$, David L. Freyberg$^{6}$, and Claire J. Tomlin$^{1}$% <-this % stops a space
+\thanks{$^{1}$M.C. and C.T. are with the Department of Electrical Engineering and Computer Sciences, University of California, Berkeley, USA.
+        {\tt\small chapmanm@berkeley.edu}}%
+\thanks{$^{2}$S.J. is with SRI International, Menlo Park, California, USA. 
+        }%
+\thanks{$^{3}$J.L. and S.S. are with the Department of Aeronautics and Astronautics, Stanford University, USA.
+        }%
+\thanks{$^{4}$K.S. is with OptiRTC, Inc. and the Department of Civil and Environmental Engineering, Tufts University, USA.
+        }%
+\thanks{$^{5}$V.C. is with the Department of Civil and Environmental Engineering, University of California, Berkeley, USA.
+        }%
+\thanks{$^{6}$D.F. is with the Department of Civil and Environmental Engineering, Stanford University, USA.
+		}%
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\pagestyle{empty}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+\end{abstract}
+% Premise (hypothesis): A description of the problem being addressed, and the basic idea to address it. For an applications article, this would be a description of what the application was designed to do.
+% Process (experiments): A description of what the authors actually did. For an application article, this would be the detail of the application itself; for a design article, the thought process that went in to the design.
+% Outcome (results): What the experiment produced, or how the application performed, or the final design (for a design article).
+% Conclusion: A summary of the lessons learned from the paper.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+Reachability analysis is a formal verification method based on optimal control theory that can be used to prove 
+safety properties of dynamic systems~\cite{bansal2017hamilton}.\footnotemark
+\footnotetext{Reachability analysis is also used to prove performance properties of dynamic systems. 
+The focus of this paper is safety rather than performance for simplicity.}
+A standard safety problem is to compute the set of initial conditions from which the state trajectory of the system 
+is guaranteed to satisfy certain constraints over a pre-specified time horizon; this set is called the \textit{safe set}.
+Typically, the dynamic system has a control signal to be designed to ensure constraint satisfaction 
+and an uncertain disturbance signal that may try to prevent constraint satisfaction (i.e., is \textit{adversarial}). 
+The guarantees enjoyed by the states of the safe set are either deterministic or probabilistic in nature, 
+depending on what we assume about the system dynamics.
+
+For example, we may assume that the control and disturbance signals are bounded, 
+and we may not specify their probability distributions; in this case,
+the dynamics are said to be \textit{nondeterministic}~\cite{mitchell2005toolbox}.
+If the dynamics are nondeterministic and the disturbance signal is adversarial, then the safe set may be defined as the set of states from which the system can 
+start, such that for any disturbance signal,
+there exists a control signal that ensures constraint satisfaction (see~\cite{EECS-2018-41}, Sec. 2.2.1).
+The safety guarantee is deterministic in this case, which has been studied extensively and applied mainly to vehicles (see~\cite{bansal2017hamilton} and the references therein). 
+
+In contrast, we may assume that the state of the system is a random variable that evolves according to some probability distribution 
+(e.g., see~\cite{bertsekas2005dynamic}, Sec. 1.2); here the dynamics are said to be \textit{stochastic}.
+If the dynamics are stochastic and the disturbance input is adversarial, 
+then the safe set may be defined as the set of states from which the system can start, such that for any disturbance signal,
+there exists a control signal that ensures constraint satisfaction with sufficiently high probability (e.g., see~\cite{kamgarpour2011discrete}).
+If the dynamics are stochastic and the disturbance input is non-adversarial (i.e., behaves as random noise),
+then the safe set may be defined as the set of states from which the system can start, such that there exists a control signal 
+that ensures constraint satisfaction with sufficiently high probability (e.g., see~\cite{summers2010verification} and~\cite{abate2008probabilistic}).
+In these last two examples, the safety guarantees are probabilistic.
+
+Whether the safety guarantee is deterministic or probabilistic in nature, 
+its essential purpose is to inform decision-making in an uncertain world.
+The key distinction between deterministic and probabilistic safety guarantees is how the uncertainty is quantified, and 
+whether we assume a pessimistic world, where the uncertainty is adversarial, 
+or a realistic world, where the uncertainty behaves as random noise.
+In this paper, we develop a framework for reachability theory that lies on the spectrum between pessimism and realism,
+by leveraging the theory of risk from finance and mathematics. 
+
+Risk may be defined qualitatively as ``danger, or the possibility of danger, defeat, or loss"~\cite{riskdef}.
+To quantify risk, the mathematical concept of a \textit{risk measure} has been developed.
+A risk measure is a function that maps a random variable, $X$, representing loss into the real line,
+according to the risk associated with $X$ (see~\cite{shapiro2009lectures}, Sec. 6.3; see~\cite{kisiala2015conditional}, Sec. 2.2).
+Risk-sensitive optimization algorithms, which minimize the risk of predicted losses via a risk measure,
+have been receiving more attention in the communities of applied mathematics~\cite{ruszczynski2010risk}, reinforcement learning~\cite{osogami2012robustness},~\cite{chow2015risk},~\cite{ratliff2017risk}, and optimal control~\cite{chow2014framework}.
+Optimization programs that appreciate risk are desirable due to the limitations of alternative methods.
+In particular, formulations that minimize worst-case losses under adversarial disturbances
+may produce conservative results with limited practical utility, and formulations that minimize expected losses under random disturbances do not account for low-probability extreme events~\cite{chow2014framework},~\cite{jha2018safe}. 
+On the other hand, risk-sensitive formulations have the potential to generate decisions that can be used in practice and that also protect
+against particularly damaging outcomes~\cite{serraino2013conditional}.
+
+In this paper, we leverage existing computational results for a particular risk measure, called \textit{Conditional Value-at-Risk} (CVaR),
+to propose a framework for risk-sensitive reachability analysis. 
+CVaR is a well-justified choice for several reasons.
+CVaR is a \textit{coherent risk measure}, meaning that it satisfies several intuitive axioms, such as \textit{subadditivity},
+which can be interpreted as ``diversification decreases risk" (see~\cite{kisiala2015conditional}, Sec. 2.2).
+On finite probability spaces, coherent risk measures are expectations that have been maximized over a collection of perturbed probability distributions,
+or expectations that have been made more robust to large losses~\cite{chow2014framework},~\cite{shapiro2009lectures},~\cite{chow2015risk},~\cite{artzner1999coherent}.
+Recent work~\cite{chow2015risk} provides an algorithm to minimize the Conditional Value-at-Risk of total cost over time, 
+which we leverage to compute risk-sensitive safe sets. Further, probabilistic safety guarantees and 
+risk-sensitive safety guarantees are closely related, if the risk measure is CVaR, as we shall explain in Sec.~\ref{lemmaconnection}.
+
+We propose a formulation for risk-sensitive reachability with several desirable attributes. 
+At a fixed confidence level for CVaR, our formulation partitions the state space into regions of
+varying degrees of safety quantified via the extent of constraint violation likely to be attained by the stochastic dynamic system.
+Quantification of varying degrees of safety is a feature of safety guarantees for non-deterministic systems (see~\cite{EECS-2018-41}, Eq. 2.3) 
+but not for stochastic systems currently. Existing safety guarantees for stochastic systems are binary, meaning that they encode whether the system is likely to be inside or outside a given set
+(e.g., see~\cite{abate2008probabilistic},~\cite{summers2010verification}, and~\cite{kamgarpour2011discrete}).
+Our formulation, however, provides a non-binary quantification of safety for stochastic systems,
+which is particularly useful when constraint violation is not catastrophic (e.g., routine flooding of a pond after a large storm).
+Further, our formulation inherits the benefits of risk-sensitive optimization and the benefits of reachability theory. 
+By using a risk measure, our formulation may protect against rare harmful outcomes,
+which are ignored by reachability formulations that provide safety guarantees in expectation (e.g.,~\cite{abate2008probabilistic},~\cite{summers2010verification}, and~\cite{kamgarpour2011discrete}),
+and may also avoid unnecessary conservatism, which is a common limitation of deterministic safety guarantees (e.g., see~\cite{bansal2017hamilton}).
+Like existing reachability methods, our formulation provides a comprehensive characterization of the state space in terms of safety.
+This is not provided by recent work in risk-sensitive optimization, which computes optimal paths emanating from different initial conditions separately (e.g., see~\cite{chow2014framework} and~\cite{chow2015risk}).
+A comprehensive safety characterization of the state space may be used 
+to inform the cost-effective design of infrastructure that must withstand rare extreme storms,
+to reduce overly conservative error bounds that arise in safe dynamic motion planning (e.g.,~\cite{herbert2017fastrack}), 
+and to increase the amount of time that an autonomous vehicle can operate safely while simultaneously optimizing for performance.
+
+Our formulation also inherits the disadvantages of risk-sensitive optimization and reachability analysis.
+Since we evoke existing methods for risk-sensitive optimization, we are required to assume finite probability spaces.
+Since we are not yet learning probability mass functions on-line, we assume that estimates of these functions are available, which is the case for evaluating designs of stormwater infrastructure
+but not the case for real-time motion planning of a vehicle. Further, like existing methods for risk-sensitive optimization and reachability, 
+our formulation generally requires a dynamic programming algorithm that is computationally expensive.
+
+%every state contained in the risk-sensitive safe set that we will define enjoys a probabilistic safety guarantee, to be discussed in Sec.~\ref{lemmaconnection}. 
+%We are interested in developing a framework for risk-sensitive reachability theory to inform decision-making in an uncertain world, where it may not be sensible to ensure safety by assuming worst-case circumstances.
+% Want to quantify varying degrees of safety in a way that realistically (rather than pessimistically) appreciates/prepares for low-probability extreme events through the use of a financial risk measure (i.e., a ``robustified" expected value).
+% Extends upon HJ Reachability analysis~\cite{mitchell2005time}, \cite{bansal2017hamilton} because it allows for stochastic dynamic systems.
+% Extends upon Stochastic Reachability analysis~\cite{summers2010verification}, \cite{kamgarpour2011discrete} because it quantifies varying degrees of safety.
+
+\section{Problem Statement}
+Consider a stochastic dynamic system over a finite time horizon of length $T \in \mathbb{N}$,
+\begin{equation}
+x_{k+1} = f_k(x_k,u_k,w_k), \text{ }\text{ } k = 0, 1, \dots, T-1,
+\end{equation}
+such that $x_k \in S$ is the random state of the system at time $k$,
+$u_k \in C$ is the (non-random) control input at time $k$, and
+$w_k \in D_k$ is the random disturbance input at time $k$.
+We assume that a time-dependent probability mass function, $\mathbb{P}_k[w_k = d_j^k] = p_j^k$,
+that is defined over a finite probability space is known at each time point. [Cite Bertsekas - this is essentially the form that he uses]
+Overall, we want to verify that the given system will satisfy certain constraints. 
+In other words, we want $x_k \in \mathcal{K}$ for all $k \in \{0, 1, \dots, T-1\}$, where $\mathcal{K}\subset S$ is the given constraint set.
+We characterize this set implicitly through the use of a surface function, $g : S \rightarrow \mathbb{R}$, such that
+\begin{equation}
+x \in \mathcal{K} \iff g(x) < 0,
+\end{equation} 
+where we adopt Akametalu's convention [cite Kene's paper]. Please see Table~\ref{terms} for a summary of relevant notation.
+
+\textit{Problem 1}. An important problem is to compute the set of initial states for which there exists an admissible control policy that keeps
+the system inside the constraint set over time with sufficiently high probability. The \textit{safe set} with confidence $1-\delta \in (0,1)$ is defined as,
+\begin{equation}
+\mathcal{S}(\delta) := \{ x \in S\text{ }|\text{ } \exists \pi \in \Pi \text{ such that } \mathbb{P}[ \forall k \in \mathbb{T}\text{, } \xi_x^\pi(k)\in \mathcal{K}] > 1-\delta \}.
+\end{equation}
+
+\begin{table}
+\begin{center}
+\caption{}
+\begin{tabular}{| p{1.5cm} | p{6cm} | p{7cm} |}
+\hline
+Symbol & Definition & Expression (if applicable) \\ \hline
+$g$ & Surface function that characterizes the constraint set, $\mathcal{K}$ & $x \in \mathcal{K} \iff g(x) < 0$ \\ \hline
+$C$ & Set of possible values for the control input & \\ \hline
+$D_k$ & Sample space for the random disturbance input at time $k$ & $D_k := \{d_1^k, d_2^k, \dots, d_N^k\}$ \\ \hline
+$S$ & Set of (continuous) states  & $S := \mathbb{R}^n$ \\ \hline
+$\mathcal{K}$ & Constraint set & $\mathcal{K} \subset S$ \\ \hline
+$\Pi$ & Set of admissible control policies & $\Pi := \{ (\mu_0, \mu_1, \dots, \mu_{T-1}), \text{ such that } \mu_k: S\rightarrow C \}$ \\ \hline
+$\mathbb{P}$ & The probability measure with respect to $(w_0, w_1, \dots, w_{T-1})$ & \\ \hline
+$\mathbb{T}$ & Finite discrete time horizon & $\mathbb{T} := \{0, 1, \dots, T\}$ \\ \hline
+$\xi_x^\pi(k)$ & Random state at time $k$ under (fixed) policy $\pi$, starting from (fixed) initial condition, $x \in S$, at time 0 &  \\ \hline
+\end{tabular}
+\begin{flushleft}\end{flushleft}
+\label{terms}
+\end{center}
+\end{table}
+
+\section{Relation between Probablistic Safety and CVaR safety}\label{lemmaconnection}
+
+
+
+
+
+
+
+\section{Conclusion}\label{conclusion}
+
+\section*{ACKNOWLEDGMENT}
+We thank Mo Chen and Jaime Fisac for discussions.
+M.C. is supported in part by a NSF Graduate Research Fellowship.
+This work is supported in part by NSF CPS 1740079.
+
+%\section*{APPENDIX}\label{appendix}
+
+\addtolength{\textheight}{-2cm}   % This command serves to balance the column lengths
+                                  % on the last page of the document manually. It shortens
+                                  % the textheight of the last page by a suitable amount.
+                                  % This command does not take effect until the next page
+                                  % so it should come on the page before the last. Make
+                                  % sure that you do not shorten the textheight too much.
+
+\bibliography{references}
+
+\end{document}
