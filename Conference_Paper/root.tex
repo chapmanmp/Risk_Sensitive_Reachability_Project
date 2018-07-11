@@ -150,14 +150,36 @@ our formulation generally requires a dynamic programming algorithm that is compu
 % Extends upon HJ Reachability analysis~\cite{mitchell2005time}, \cite{bansal2017hamilton} because it allows for stochastic dynamic systems.
 % Extends upon Stochastic Reachability analysis~\cite{summers2010verification}, \cite{kamgarpour2011discrete} because it quantifies varying degrees of safety.
 
-\section{Problem Statement}
-Consider a stochastic dynamic system over a finite time horizon of length $T \in \mathbb{N}$,
+\section{System Model}
+We consider a stochastic discrete-time dynamic system over a finite time horizon of the form,
 \begin{equation}
 x_{k+1} = f_k(x_k,u_k,w_k), \text{ }\text{ } k = 0, 1, \dots, T-1,
 \end{equation}
 such that $x_k \in S$ is the random state of the system at time $k$,
 $u_k \in C$ is the (non-random) control input at time $k$, and
-$w_k \in D_k$ is the random disturbance input at time $k$.
+$w_k \in D_k = \{d_1^k,\dots,d_N^k\}$ is the random disturbance input at time $k$ on a finite probability space.
+The collection of admissible control policies is,
+\begin{equation}
+\Pi = \{ (\mu_0, \mu_1, \dots, \mu_{T-1}), \text{ such that } \mu_k: S\rightarrow C \}.
+\end{equation}
+The random disturbance at time $k$, $w_k$, is characterized by a 
+time-dependent probability mass function that is independent of control policy, $\pi \in \Pi$, and other disturbances, $w^{\not k} = (w_0, \dots, w_{k-1}, w_{k+1}, \dots, w_{T-1})$.\footnotemark
+\footnotetext{The probability mass function may be state-dependent as well.}
+Formally, we have
+\begin{equation}\begin{aligned}
+P_k( w_k = d^k_j | x_k ) & = p_j^k, \\
+\textstyle\sum_{j=1}^N p_j^k & = 1, \text{ } p_j^k \geq 0, \\
+P_k( w_k = d^k_j | x_k, \pi, w^{\not k}) & = P_k( w_k = d^k_j | x_k ),
+\end{aligned}\end{equation}
+for each time $k = 0, 1, \dots, T-1$ and disturbance sample $j = 1,\dots,N$.
+The above system model is a special case of the model given by~\cite{bertsekas2005dynamic} in Sec. 1.2.
+
+\section{Problem Statement}
+Suppose that we want the state trajectory of our system to remain within a constraint set, $\mathcal{K} \subset S$,
+over time. For example, if our system is the flow of water through a network of ponds and streams, $\mathcal{K}$ may represent
+the absence of overflow. We denote $\xi_y^\pi(k)$ 
+
+
 We assume that a time-dependent probability mass function, $\mathbb{P}_k[w_k = d_j^k] = p_j^k$,
 that is defined over a finite probability space is known at each time point. [Cite Bertsekas - this is essentially the form that he uses]
 Overall, we want to verify that the given system will satisfy certain constraints. 
