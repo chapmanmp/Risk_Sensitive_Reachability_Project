@@ -24,6 +24,9 @@
 \usepackage{graphicx}
 \bibliographystyle{IEEEtran}
 \graphicspath{ {images/} }
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
 
 \title{\LARGE \bf
 A Framework for Risk-Sensitive Reachability Analysis}
@@ -150,45 +153,144 @@ our formulation generally requires a dynamic programming algorithm that is compu
 % Extends upon HJ Reachability analysis~\cite{mitchell2005time}, \cite{bansal2017hamilton} because it allows for stochastic dynamic systems.
 % Extends upon Stochastic Reachability analysis~\cite{summers2010verification}, \cite{kamgarpour2011discrete} because it quantifies varying degrees of safety.
 
-\section{System Model}
-We consider a stochastic discrete-time dynamic system over a finite time horizon of the form,
+\section{System Model}\label{model}
+The system model is a special case of the model given by~\cite{bertsekas2005dynamic} in Sec. 1.2.
+We consider a stochastic discrete-time dynamic system over a finite time horizon,
 \begin{equation}
 x_{k+1} = f_k(x_k,u_k,w_k), \text{ }\text{ } k = 0, 1, \dots, T-1,
-\end{equation}
-such that $x_k \in S$ is the random state of the system at time $k$,
-$u_k \in C$ is the (non-random) control input at time $k$, and
-$w_k \in D_k = \{d_1^k,\dots,d_N^k\}$ is the random disturbance input at time $k$ on a finite probability space.
+\label{sys}\end{equation}
+such that $x_k \in S$ is the state of the system at time $k$,
+$u_k \in C$ is the control input at time $k$, and
+$w_k \in D_k = \{d_1^k,\dots,d_N^k\}$ is the random disturbance input at time $k$ defined over a finite probability space.
+The control input is not random, but the state generally is random because it depends on random disturbances.
+The initial condition, $x_0$, is not random for simplicity.
 The collection of admissible control policies is,
 \begin{equation}
 \Pi = \{ (\mu_0, \mu_1, \dots, \mu_{T-1}), \text{ such that } \mu_k: S\rightarrow C \}.
 \end{equation}
 The random disturbance at time $k$, $w_k$, is characterized by a 
-time-dependent probability mass function that is independent of control policy, $\pi \in \Pi$, and other disturbances, $w^{\not k} = (w_0, \dots, w_{k-1}, w_{k+1}, \dots, w_{T-1})$.\footnotemark
+time-dependent probability mass function that is independent of any control policy, $\pi \in \Pi$, and other disturbances, $w_{\not k} = (w_0, \dots, w_{k-1}, w_{k+1}, \dots, w_{T-1})$.\footnotemark
 \footnotetext{The probability mass function may be state-dependent as well.}
 Formally, we have
 \begin{equation}\begin{aligned}
 P_k( w_k = d^k_j | x_k ) & = p_j^k, \\
 \textstyle\sum_{j=1}^N p_j^k & = 1, \text{ } p_j^k \geq 0, \\
-P_k( w_k = d^k_j | x_k, \pi, w^{\not k}) & = P_k( w_k = d^k_j | x_k ),
+P_k( w_k = d^k_j | x_k, \pi, w_{\not k}) & = P_k( w_k = d^k_j | x_k ),
 \end{aligned}\end{equation}
-for each time $k = 0, 1, \dots, T-1$ and disturbance sample $j = 1,\dots,N$.
-The above system model is a special case of the model given by~\cite{bertsekas2005dynamic} in Sec. 1.2.
+for each disturbance sample $j = 1,\dots,N$ and each time point $k = 0, 1, \dots, T-1$.
+We are given a (non-empty) constraint set, $\mathcal{K} \subset S$, and the safety criterion that 
+the state of the system should stay inside $\mathcal{K}$ over time.
+For example, if our application is the flow of water through a network of ponds and streams, $\mathcal{K}$ may indicate that the water does not overflow the banks during a storm event.
 
 \section{Problem Statement}
-Suppose that we want the state trajectory of our system to remain within a constraint set, $\mathcal{K} \subset S$,
-over time. For example, if our system is the flow of water through a network of ponds and streams, $\mathcal{K}$ may represent
-the absence of overflow. We denote $\xi_y^\pi(k)$ 
+The goal of this paper is to design an algorithm that computes a \textit{risk-sensitive safe set} 
+for a system of the form specified in Sec.~\ref{model}.
+A risk-sensitive safe set is, informally, the set of initial conditions of the system, from which there is small risk of large constraint violations over time.
 
+We quantify risk using the well-established risk measure, \textit{Conditional Value-at-Risk} (CVaR), which is equal to,
+\begin{equation}
+\text{CVaR}_\delta(Z) = {\underset{c \in \mathbb{R}}\min} \text{ }\Big\{ c + \frac{1}{\delta}\mathbb{E}\big[\max\{Z-c,0\}\big] \Big\},
+\end{equation}
+where $\delta \in (0,1)$, and $Z$ is a random variable representing loss~\cite{rockafellar2000optimization}.\footnotemark
+\footnotetext{Definitions of CVaR are presented in various forms. The original paper is~\cite{rockafellar2000optimization}.
+Other references on CVaR include~\cite{serraino2013conditional} (see Eq. (9)) and~\cite{kisiala2015conditional}.}
+If $Z$ is a continuous random variable, then $\text{CVaR}_\delta(Z)$ is the expected value of $Z$ over large realizations of $Z$,
+where the meaning of large is based on $\delta$ (Fig.~\ref{cvar}).
 
-We assume that a time-dependent probability mass function, $\mathbb{P}_k[w_k = d_j^k] = p_j^k$,
-that is defined over a finite probability space is known at each time point. [Cite Bertsekas - this is essentially the form that he uses]
-Overall, we want to verify that the given system will satisfy certain constraints. 
-In other words, we want $x_k \in \mathcal{K}$ for all $k \in \{0, 1, \dots, T-1\}$, where $\mathcal{K}\subset S$ is the given constraint set.
-We characterize this set implicitly through the use of a surface function, $g : S \rightarrow \mathbb{R}$, such that
+\begin{figure}[thpb]
+      \centering
+      \includegraphics[scale=0.5]{cvar.jpg}
+      \caption{An illustration of $\text{CVaR}_\delta(Z) \in \mathbb{R}$, if $Z$ is a continuous random variable. 
+	  The graph shows the probability density function of $Z$ versus the realizations of $Z$.
+	  The area of the right portion under the curve, shown in red, is $\delta \in (0,1)$.	  
+	  The area of the left portion under the curve, shown in grey, is $1-\delta$.
+	  $\text{CVaR}_\delta(Z)$ is the expectation of the values along the right portion under the curve, indicated by a yellow circle.}
+      \label{cvar}
+\end{figure}
+
+We quantify the extent of constraint violation via a surface function that characterizes the constraint set, $\mathcal{K}$.
+Let $g: S \rightarrow \mathbb{R}$ satisfy,
 \begin{equation}
 x \in \mathcal{K} \iff g(x) < 0,
-\end{equation} 
-where we adopt Akametalu's convention [cite Kene's paper]. Please see Table~\ref{terms} for a summary of relevant notation.
+\label{g}
+\end{equation}
+where we adopt the convention provided by~\cite{EECS-2018-41} in Eq. (2.3). 
+The particular form of $g$ is chosen based on how safety of the system changes with distance to the boundary of $\mathcal{K}$ for the application at hand.
+For example, if the relationship between safety and distance to the boundary of $\mathcal{K}$ is linear, 
+then the signed distance function for $\mathcal{K}$ is a suitable choice for $g$ (Fig.~\ref{exg}, dotted).
+However, if the relationship between safety and distance to the boundary of $\mathcal{K}$ is non-linear,
+then a quadratic function may be more appropriate (Fig.~\ref{exg}, solid).
+
+\begin{figure}[thpb]
+      \centering
+      \includegraphics[scale=0.25]{examples_of_g.jpg}
+      \caption{Different choices for the particular form of $g$, see~\eqref{g}, for an example constraint set, $\mathcal{K} = (0, 10)$. The relationship between
+		safety and distance to the boundary of $\mathcal{K}$ is linear for $g_1(x) = |x-5|-5$ (dotted), and non-linear for $g_2(x) = x(x-10)$ (solid).
+		For example, the degree of safety at $x=6$ characterized by the linear relationship is, $g_1(6) = -4$, since the closest distance 
+		from $x=6$ to the boundary of $\mathcal{K}$ is 4, and $x=6$ is inside $\mathcal{K}$.}
+      \label{exg}
+\end{figure}
+
+We are now ready to define the risk-sensitive safe set formally.
+Let $\xi_y^\pi(k) \in S$ be the random state of the system at time $k$ that satisfies~\eqref{sys} under a given control policy $\pi \in \Pi$,
+starting from a given (non-random) state $y \in S$ at time 0.  
+The maximum extent of constraint violation attained by the system under policy $\pi \in \Pi$, starting from initial condition $y \in S$, 
+is given by the random variable,
+\begin{equation}
+X_y^\pi = {\underset{k \in \{0, \dots, T\}}\max} \Big\{ g\big(\xi_y^\pi(k)\big) \Big\},
+\label{xpiy}\end{equation}
+where $g$ satisfies~\eqref{g}.
+For any $\delta \in (0,1)$, the risk-sensitive safe set is,
+\begin{equation} \begin{aligned}
+\mathcal{U}_\delta := &  \Big\{y \in S\text{ }|\text{ }\exists \pi \in \Pi \text{ such that } \text{CVaR}_\delta\left(X_y^\pi\right) < 0 \Big\} \\
+= & \Big\{y \in S \text{ }|\text{ } {\underset{\pi \in \Pi}\min}\text{ } \big\{\text{CVaR}_\delta\left(X_y^\pi\right)\big\} < 0 \Big\},
+\label{U}\end{aligned}\end{equation}
+where the random variable, $X_y^\pi$, is defined in~\eqref{xpiy},
+and the conditional value-at-risk is taken with respect to the probability distribution of $(w_0, \dots, w_{T-1})$. 
+To summarize, the risk-sensitive safe set is the set of initial conditions from which
+the risk of large constraint violations can be made small by an appropriate control policy.
+The problem addressed in this paper is how to compute~\eqref{U}.
+
+\section{Properties of $\mathcal{U}_\delta$}
+Here we present two key properties of the risk-sensitive safe set.
+The first property is that every state in $\mathcal{U}_\delta$ enjoys a probabilistic safety guarantee.
+To prove this property, we need the following result that is essentially provided by~\cite{shapiro2009lectures} on pp. 257-258.
+\begin{lemma}\label{lemma1}
+Let $\delta \in (0,1)$, and $Z$ be a random variable. If $\text{CVaR}_\delta(Z) < 0$, then $\mathbb{P}[Z\geq 0] < \delta$.
+\end{lemma}
+\begin{proof} This fact is explained by~\cite{shapiro2009lectures} on pp. 257-258. We provide a proof 
+\end{proof}
+\begin{corollary}
+Let $\delta \in (0,1)$. Then, $\mathcal{U}_\delta \subset \mathcal{S}_\delta$, where $\mathcal{S}_\delta$ is given by,
+\begin{equation}
+\mathcal{S}_\delta = \Big\{y \in S\text{ }|\text{ }\exists \pi \in \Pi\text{, } \mathbb{P}\left[\forall k \in \mathbb{T}\text{, }\xi_y^\pi(k) \in \mathcal{K} \right]  > 1-\delta \Big\}, \\
+\label{S}\end{equation}
+$\mathbb{P}$ is the probability measure for the state trajectory, and $\mathbb{T} = \{0, 1, \dots, T\}$ is the time horizon.
+\end{corollary}
+\begin{proof}
+Take $y \in \mathcal{U}_\delta$. We need to show that $y \in \mathcal{S}_\delta$.
+Since $y \in \mathcal{U}_\delta$, there exists $\pi \in \Pi$ such that $\text{CVaR}_\delta(X_y^\pi) < 0$.
+By Lemma~\ref{lemma1}, $\text{CVaR}_\delta(X_y^\pi) < 0 \implies \mathbb{P}[X_y^\pi \geq 0] < \delta$.
+Thus, there exists $\pi \in \Pi$ such that
+\begin{equation}\begin{aligned}
+& \mathbb{P}[X_y^\pi \geq 0] < \delta && \iff \\
+& \mathbb{P}\left[{\underset{k \in \mathbb{T}}\max} \Big\{ g\big(\xi_y^\pi(k)\big) \Big\} \geq 0\right] < \delta && \iff \\
+& \mathbb{P}\left[\exists k \in \mathbb{T}\text{, }g\big(\xi_y^\pi(k)\big) \geq 0 \right] < \delta && \iff \\
+& \mathbb{P}\left[\forall k \in \mathbb{T}\text{, }g\big(\xi_y^\pi(k)\big) < 0 \right] > 1-\delta && \iff \\
+& \mathbb{P}\left[\forall k \in \mathbb{T}\text{, } \xi_y^\pi(k) \in \mathcal{K} \right] > 1-\delta.
+\end{aligned}\end{equation}
+The fourth line holds since for any event $E$ with probability measure $P$, $P[E] > 1-\delta \iff P[\neg E] < \delta$,
+where $\neg E$ is the logical negation of $E$. The last line holds because $g$ satisfies~\eqref{g}.
+We have shown that there exists $\pi \in \Pi$ such that $\mathbb{P}\left[\forall k \in \mathbb{T}\text{, } \xi_y^\pi(k) \in \mathcal{K} \right] > 1-\delta$,
+which means that $y \in \mathcal{S}_\delta$.
+
+
+\end{proof}
+
+
+
+
+Please see Table~\ref{terms} for a summary of relevant notation.
 
 \textit{Problem 1}. An important problem is to compute the set of initial states for which there exists an admissible control policy that keeps
 the system inside the constraint set over time with sufficiently high probability. The \textit{safe set} with confidence $1-\delta \in (0,1)$ is defined as,
