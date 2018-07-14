@@ -184,10 +184,10 @@ the state of the system should stay inside $\mathcal{K}$ over time.
 For example, if our application is the flow of water through a network of ponds and streams, $\mathcal{K}$ may indicate that the water does not overflow the banks during a storm event.
 
 \section{Problem Statement}
-The goal of this paper is to design an algorithm that computes \textit{risk-sensitive sets} 
+The goal of this paper is to design an algorithm that computes risk-sensitive sets 
 for a system of the form specified in Sec.~\ref{model}.
-A risk-sensitive set is, informally, the set of initial conditions of the system, from which 
-the risk of large constraint violations over time can be made sufficiently small by an appropriate control policy.
+A \textit{risk-sensitive set} is, informally, the set of initial conditions of the system, from which 
+the risk of large constraint violations over time can be made small by an admissible control policy.
 %there is sufficiently small risk of large constraint violations over time.
 
 We quantify risk using the well-established risk measure, \textit{Conditional Value-at-Risk} (CVaR), which is equal to,
@@ -198,7 +198,7 @@ where $\delta \in (0,1)$, and $Z$ is a random variable representing loss~\cite{r
 \footnotetext{Definitions of CVaR are presented in various forms. The original paper is~\cite{rockafellar2000optimization}.
 Other references on CVaR include~\cite{serraino2013conditional} (see Eq. (9)) and~\cite{kisiala2015conditional}.}
 If $Z$ is a continuous random variable, then $\text{CVaR}_\delta(Z)$ is the expected value of $Z$ over large realizations of $Z$,
-where the meaning of large is based on $\delta$ (Fig.~\ref{cvar}).
+where the meaning of large is determined by the value of $\delta$ (Fig.~\ref{cvar}).
 
 \begin{figure}[thpb]
       \centering
@@ -236,31 +236,26 @@ then a quadratic function may be more appropriate (Fig.~\ref{exg}, solid).
 
 We are now ready to define a risk-sensitive set formally.
 Let $\xi_y^\pi(k) \in S$ be the random state of the system at time $k$ that satisfies~\eqref{sys} under a given control policy $\pi \in \Pi$,
-starting from a given (non-random) state $y \in S$ at time 0.  
+starting from a given (non-random) state $y \in S$ at time zero.  
 The maximum extent of constraint violation attained by the system under policy $\pi \in \Pi$, starting from initial condition $y \in S$, 
 is given by the random variable,
 \begin{equation}
-X_y^\pi = {\underset{k \in \{0, \dots, T\}}\max} \Big\{ g\big(\xi_y^\pi(k)\big) \Big\},
+X_y^\pi := {\underset{k \in \{0, \dots, T\}}\max} \Big\{ g\big(\xi_y^\pi(k)\big) \Big\},
 \label{xpiy}\end{equation}
-where $g$ satisfies~\eqref{g}. 
-The expression, $\text{CVaR}_\delta\left(X_y^\pi\right)$, means that the conditional value-at-risk is taken with respect to the probability distribution of $(w_0, \dots, w_{T-1})$.
-For any $\delta \in (0,1)$ and any $r \in \mathbb{R}$ START HERE!, the \textit{risk-sensitive safe set} is defined by,
-\begin{equation}
-\mathcal{U}_{\delta,0} := \Big\{y \in S\text{ }|\text{ }\exists \pi \in \Pi \text{ such that } \text{CVaR}_\delta\left(X_y^\pi\right) < 0 \Big\},
-\label{U0}\end{equation}
-where the random variable, $X_y^\pi$, is defined in~\eqref{xpiy}.
-More generally, for any $\delta \in (0,1)$, we can define the \textit{risk-sensitive $r$-sublevel set} as follows,
+where $g$ satisfies~\eqref{g}, and the randomness in $X_y^\pi$ comes from the disturbance sequence, $(w_0, w_1, \dots, w_{T-1})$.
+Given $\delta \in (0,1)$, the \textit{risk-sensitive $r$-sublevel set} is defined by,
 \begin{equation} \begin{aligned}
 \mathcal{U}_{\delta,r} := &  \Big\{y \in S\text{ }|\text{ }\exists \pi \in \Pi \text{ such that } \text{CVaR}_\delta\left(X_y^\pi\right) < r \Big\} \\
 = & \Big\{y \in S \text{ }|\text{ } {\underset{\pi \in \Pi}\min}\text{ } \big\{\text{CVaR}_\delta\left(X_y^\pi\right)\big\} < r \Big\},
 \label{Ur}\end{aligned}\end{equation}
-where $r \in \mathbb{R}$.
-A \textit{risk-sensitive set} is shorthand for any \textit{risk-sensitive $r$-sublevel set}.
-The problem addressed in this paper is how to compute~\eqref{Ur} for a finite collection of $r \in \mathbb{R}$.
+where $r \in \mathbb{R}$, and the conditional value-at-risk 
+is taken with respect to the probability distribution of $(w_0, w_1, \dots, w_{T-1})$.
+[Take out?: We give the risk-sensitive zero-sublevel set a particular name: the \textit{risk-sensitive safe set}.]
+In this paper, we seek to compute $\mathcal{U}_{\delta,r}$ for a finite collection of $(\delta, r) \in (0,1)\times \mathbb{R}$.
 
-\section{Properties of $\mathcal{U}_\delta$}\label{prop}
-Here we present two key properties of the risk-sensitive safe set.
-The first property is that every state in $\mathcal{U}_\delta$ enjoys a probabilistic safety guarantee.
+\section{Properties of Risk-Sensitive Sets}\label{prop}
+Here we present key properties of risk-sensitive sets.
+The first property is that every state in the risk-sensitive zero-sublevel set, $\mathcal{U}_{\delta,0}$, enjoys a probabilistic safety guarantee.
 To prove this property, we need the following result adopted from~\cite{shapiro2009lectures}.
 \begin{lemma}\label{lemma1}
  Let $\delta \in (0,1)$, and $Z$ be a random variable. If $\text{CVaR}_\delta(Z) < 0$, then $\mathbb{P}[Z\geq 0] < \delta$ (see~\cite{shapiro2009lectures}, Sec. 6.2.4).\footnotemark
@@ -283,7 +278,7 @@ Since $\max\{Z+\alpha,0\}$ is a non-negative random variable, we can use Markov'
 \end{equation}
 Thus, $\exists \alpha>0$ such that $\mathbb{P}[\max\{Z+\alpha,0\}\geq \alpha] < \delta$.\\
 If $\mathbb{P}[\max\{Z+\alpha,0\}\geq \alpha] = \mathbb{P}[Z \geq 0]$, then $\mathbb{P}[Z \geq 0]<\delta$, which would complete the proof.
-We now prove the sufficient condition:
+We now prove this sufficient condition:
 \begin{equation}\begin{aligned}
 \mathbb{P}&[\max\{Z+\alpha,0\}\geq \alpha]\\
 &=\mathbb{P}\left[\left\{Z+\alpha\geq \alpha \cap Z+\alpha\geq 0\right\} \cup \left\{0 \geq \alpha \cap Z+\alpha < 0\right\}\right] \\
@@ -301,9 +296,9 @@ $\{Z+\alpha\geq \alpha\} \cap \{Z+\alpha\geq 0\}$ is equivalent to $\{Z+\alpha\g
 $\text{CVaR}_\delta(Z) \leq 0$ is written as ``$\text{AV@R}_\alpha(Z_x) \leq 0$'' in~\cite{shapiro2009lectures}, see (6.24).
 $\mathbb{P}[ Z > 0] \leq \delta$ is equivalent to $\mathbb{P}[ Z\leq 0] \geq 1 - \delta$, 
 which is written as ``$\text{Pr}(Z_x \leq 0) \geq 1 - \alpha$" in~\cite{shapiro2009lectures}, see text below (6.18).}
-The next corollary indicates that every state in $\mathcal{U}_\delta$ enjoys a probabilistic safety guarantee.
+The next result uses Lemma~\ref{lemma1} to indicate that every state in $\mathcal{U}_{\delta,0}$ enjoys a probabilistic safety guarantee.
 \begin{corollary}
-$\mathcal{U}_\delta$, as defined in~\eqref{U}, is a subset of $\mathcal{S}_\delta$,
+$\mathcal{U}_{\delta,0}$, as defined in~\eqref{Ur} for $r=0$, is a subset of $\mathcal{S}_\delta$,
 \begin{equation}
 \mathcal{S}_\delta := \Big\{y \in S\text{ }|\text{ }\exists \pi \in \Pi\text{, } \mathbb{P}\left[\forall k \in \mathbb{T}\text{, }\xi_y^\pi(k) \in \mathcal{K} \right]  > 1-\delta \Big\}, \\
 \label{S}\end{equation}
