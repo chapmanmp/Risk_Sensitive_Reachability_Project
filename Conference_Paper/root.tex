@@ -22,6 +22,9 @@
 \usepackage{amsmath} % assumes amsmath package installed
 \usepackage{amssymb}  % assumes amsmath package installed
 \usepackage{graphicx}
+
+\usepackage{xcolor}
+
 \bibliographystyle{IEEEtran}
 \graphicspath{ {images/} }
 \newtheorem{theorem}{Theorem}
@@ -121,7 +124,7 @@ On finite probability spaces, coherent risk measures are expectations that have 
 or expectations that have been made more robust to large losses~\cite{chow2014framework},~\cite{shapiro2009lectures},~\cite{chow2015risk},~\cite{artzner1999coherent}.
 Recent work~\cite{chow2015risk} provides an algorithm to minimize the Conditional Value-at-Risk of total cost over time, 
 which we leverage to compute risk-sensitive safe sets. Further, probabilistic safety guarantees and 
-risk-sensitive safety guarantees are closely related, if the risk measure is CVaR, as we shall explain in Sec.~\ref{prop}.
+risk-sensitive safety guarantees are closely related, if the risk measure is CVaR, as we shall explain in Sec.~\ref{lemmaconnection}.
 
 We propose a formulation for risk-sensitive reachability with several desirable attributes. 
 At a fixed confidence level for CVaR, our formulation partitions the state space into regions of
@@ -184,21 +187,20 @@ the state of the system should stay inside $\mathcal{K}$ over time.
 For example, if our application is the flow of water through a network of ponds and streams, $\mathcal{K}$ may indicate that the water does not overflow the banks during a storm event.
 
 \section{Problem Statement}
-The goal of this paper is to design an algorithm that computes risk-sensitive sets 
+The goal of this paper is to design an algorithm that computes a \textit{risk-sensitive safe set} 
 for a system of the form specified in Sec.~\ref{model}.
-A \textit{risk-sensitive set} is, informally, the set of initial conditions of the system, from which 
-the risk of large constraint violations over time can be made small by an admissible control policy.
-%there is sufficiently small risk of large constraint violations over time.
+A risk-sensitive safe set is, informally, the set of initial conditions of the system, from which there is small risk of large constraint violations over time.
 
 We quantify risk using the well-established risk measure, \textit{Conditional Value-at-Risk} (CVaR), which is equal to,
 \begin{equation}
 \text{CVaR}_\delta(Z) = {\underset{c \in \mathbb{R}}\min} \text{ }\Big\{ c + \frac{1}{\delta}\mathbb{E}\big[\max\{Z-c,0\}\big] \Big\},
+\label{cvareqn}
 \end{equation}
 where $\delta \in (0,1)$, and $Z$ is a random variable representing loss~\cite{rockafellar2000optimization}.\footnotemark
 \footnotetext{Definitions of CVaR are presented in various forms. The original paper is~\cite{rockafellar2000optimization}.
 Other references on CVaR include~\cite{serraino2013conditional} (see Eq. (9)) and~\cite{kisiala2015conditional}.}
 If $Z$ is a continuous random variable, then $\text{CVaR}_\delta(Z)$ is the expected value of $Z$ over large realizations of $Z$,
-where the meaning of large is determined by the value of $\delta$ (Fig.~\ref{cvar}).
+where the meaning of large is based on $\delta$ (Fig.~\ref{cvar}).
 
 \begin{figure}[thpb]
       \centering
@@ -234,92 +236,85 @@ then a quadratic function may be more appropriate (Fig.~\ref{exg}, solid).
       \label{exg}
 \end{figure}
 
-We are now ready to define a risk-sensitive set formally.
+We are now ready to define the risk-sensitive safe set formally.
 Let $\xi_y^\pi(k) \in S$ be the random state of the system at time $k$ that satisfies~\eqref{sys} under a given control policy $\pi \in \Pi$,
-starting from a given (non-random) state $y \in S$ at time zero.  
+starting from a given (non-random) state $y \in S$ at time 0.  
 The maximum extent of constraint violation attained by the system under policy $\pi \in \Pi$, starting from initial condition $y \in S$, 
 is given by the random variable,
 \begin{equation}
-X_y^\pi := {\underset{k \in \{0, \dots, T\}}\max} \Big\{ g\big(\xi_y^\pi(k)\big) \Big\},
+X_y^\pi = {\underset{k \in \{0, \dots, T\}}\max} \Big\{ g\big(\xi_y^\pi(k)\big) \Big\},
 \label{xpiy}\end{equation}
-where $g$ satisfies~\eqref{g}, and the randomness in $X_y^\pi$ comes from the disturbance sequence, $(w_0, w_1, \dots, w_{T-1})$.
-Given $\delta \in (0,1)$, the \textit{risk-sensitive $r$-sublevel set} is defined by,
+where $g$ satisfies~\eqref{g}.
+For any $\delta \in (0,1)$, the risk-sensitive safe set is,
 \begin{equation} \begin{aligned}
-\mathcal{U}_{\delta,r} := &  \Big\{y \in S\text{ }|\text{ }\exists \pi \in \Pi \text{ such that } \text{CVaR}_\delta\left(X_y^\pi\right) < r \Big\} \\
-= & \Big\{y \in S \text{ }|\text{ } {\underset{\pi \in \Pi}\min}\text{ } \big\{\text{CVaR}_\delta\left(X_y^\pi\right)\big\} < r \Big\},
-\label{Ur}\end{aligned}\end{equation}
-where $r \in \mathbb{R}$, and the conditional value-at-risk 
-is taken with respect to the probability distribution of $(w_0, w_1, \dots, w_{T-1})$.
-[Take out?: We give the risk-sensitive zero-sublevel set a particular name: the \textit{risk-sensitive safe set}.]
-In this paper, we seek to compute $\mathcal{U}_{\delta,r}$ for a finite collection of $(\delta, r) \in (0,1)\times \mathbb{R}$.
+\mathcal{U}_\delta := &  \Big\{y \in S\text{ }|\text{ }\exists \pi \in \Pi \text{ such that } \text{CVaR}_\delta\left(X_y^\pi\right) < 0 \Big\} \\
+= & \Big\{y \in S \text{ }|\text{ } {\underset{\pi \in \Pi}\min}\text{ } \big\{\text{CVaR}_\delta\left(X_y^\pi\right)\big\} < 0 \Big\},
+\label{U}\end{aligned}\end{equation}
+where the random variable, $X_y^\pi$, is defined in~\eqref{xpiy},
+and the conditional value-at-risk is taken with respect to the probability distribution of $(w_0, \dots, w_{T-1})$. 
+To summarize, the risk-sensitive safe set is the set of initial conditions from which
+the risk of large constraint violations can be made small by an appropriate control policy.
+The problem addressed in this paper is how to compute~\eqref{U}.
 
-\section{Properties of Risk-Sensitive Sets}\label{prop}
-Here we present key properties of risk-sensitive sets.
-The first property is that every state in the risk-sensitive zero-sublevel set, $\mathcal{U}_{\delta,0}$, enjoys a probabilistic safety guarantee.
-To prove this property, we need the following result adopted from~\cite{shapiro2009lectures}.
+\section{Properties of $\mathcal{U}_\delta$}
+Here we present two key properties of the risk-sensitive safe set.
+The first property is that every state in $\mathcal{U}_\delta$ enjoys a probabilistic safety guarantee.
+To prove this property, we need the following result adopted from~\cite{shapiro2009lectures}.\\
+\textcolor{blue}{SJ: The simplified proof is using $\delta = 1 - \alpha$. I suggest we use this notation throughout the paper. }\\
 \begin{lemma}\label{lemma1}
  Let $\delta \in (0,1)$, and $Z$ be a random variable. If $\text{CVaR}_\delta(Z) < 0$, then $\mathbb{P}[Z\geq 0] < \delta$ (see~\cite{shapiro2009lectures}, Sec. 6.2.4).\footnotemark
 \end{lemma}
-\begin{proof}
-Suppose $\text{CVaR}_\delta(Z) < 0$. \\
-$\exists c \in \mathbb{R}$ such that $c + \frac{1}{\delta}\mathbb{E}\big[\max\{Z-c,0\}\big] < 0$, by~\eqref{cvar}.\\
-But, $\frac{1}{\delta}\mathbb{E}\big[\max\{Z-c,0\}\big] \geq 0$, so $c < 0$.\\
-Thus, $\exists c<0$ such that $c + \frac{1}{\delta}\mathbb{E}\big[\max\{Z-c,0\}\big] < 0$.\\
-Set $\alpha := -c$.\\
-Then, $\exists \alpha>0$ such that
-\begin{equation}\begin{aligned}
--\alpha + \frac{1}{\delta}\mathbb{E}\big[\max\{Z+\alpha,0\}\big] & < 0 && \iff\\
-\mathbb{E}\big[\max\{Z+\alpha,0\}\big] & < \delta\alpha && \iff \\
-\frac{1}{\alpha}\mathbb{E}\big[\max\{Z+\alpha,0\}\big] & < \delta.
-\end{aligned}\end{equation}
-Since $\max\{Z+\alpha,0\}$ is a non-negative random variable, we can use Markov's Inequality, 
-\begin{equation}
-\mathbb{P}[\max\{Z+\alpha,0\}\geq \alpha]\leq \frac{1}{\alpha}\mathbb{E}\big[\max\{Z+\alpha,0\}\big].
-\end{equation}
-Thus, $\exists \alpha>0$ such that $\mathbb{P}[\max\{Z+\alpha,0\}\geq \alpha] < \delta$.\\
-If $\mathbb{P}[\max\{Z+\alpha,0\}\geq \alpha] = \mathbb{P}[Z \geq 0]$, then $\mathbb{P}[Z \geq 0]<\delta$, which would complete the proof.
-We now prove this sufficient condition:
-\begin{equation}\begin{aligned}
-\mathbb{P}&[\max\{Z+\alpha,0\}\geq \alpha]\\
-&=\mathbb{P}\left[\left\{Z+\alpha\geq \alpha \cap Z+\alpha\geq 0\right\} \cup \left\{0 \geq \alpha \cap Z+\alpha < 0\right\}\right] \\
-&=\mathbb{P}\left[\{Z+\alpha\geq \alpha\} \cap \{Z+\alpha\geq 0\}\right] + \mathbb{P}\left[\{0 \geq \alpha\} \cap \{Z+\alpha < 0\}\right] \\
-&=\mathbb{P}[\{Z+\alpha\geq \alpha\} \cap \{Z+\alpha\geq 0\}] \\
-&=\mathbb{P}[Z\geq0].
-\end{aligned}\end{equation}
-The first equality holds by the definition of $\max\{Z+\alpha,0\}$. 
-The second equality holds since the probability of a disjoint union of events
-is the sum of the probabilities of the individual events.
-The third and fourth equalities hold because $\alpha > 0$; 
-$\{Z+\alpha\geq \alpha\} \cap \{Z+\alpha\geq 0\}$ is equivalent to $\{Z+\alpha\geq \alpha\}$, which is equivalent to $\{Z\geq 0\}$.
+\textcolor{blue}{\begin{proof} SJ: simplifying the proof below. 
+\begin{align}
+& \text{CVaR}_{1-\alpha}(Z) < 0 \nonumber \\ 
+\iff & \frac{1}{1-\alpha} \mathbb{E}\big[\max\{Z-c,0\}\big] < -c \nonumber \\
+\iff & \exists c \in \mathbb{R} \;\; c + \frac{1}{1-\alpha}\mathbb{E}\big[\max\{Z-c,0\}\big] < 0 \; [\text{using }~\eqref{cvareqn}] \nonumber \\
+\iff & \mathbb{E}\big[\max\{Z-c,0\}\big] < -c(1-\alpha) \label{proofeqn1}
+\end{align} 
+Now, the LHS of the inequality,  $\mathbb{E}\big[\max\{Z-c,0\}\big] \geq 0$ because the expectation of non-negative values cannot be negative. Consequently, the RHS of the inequality must also be non-negative, that is, $-c(1-\alpha) \geq 0$, that is, $c \leq 0$ since $1-\alpha \geq 0$. So, we can rewrite  inequality~\eqref{proofeqn1} using $ a = -c \geq 0$ as follows: 
+\begin{align}
+& \mathbb{E}\big[\max\{Z+a,0\}\big] < a(1-\alpha), \; \text{where} \; a \geq 0 \nonumber \\
+\iff & \; \frac{1}{a}\mathbb{E}\big[\max\{Z+a,0\}\big] < 1-\alpha, \; \text{where}  \; a \geq 0 \label{proofeqn2}
+\end{align}
+Using Markov's Inequality,
+$\mathbb{P}\big[\max\{Z+a,0\} \geq a \big] \leq  \frac{1}{a}\mathbb{E}\big[\max\{Z+a,0\}\big]$. Combining with inequality~\eqref{proofeqn2},\\
+\begin{align}
+& \mathbb{P}\big[\max\{Z+a,0\} \geq a \big] \leq  \frac{1}{a}\mathbb{E}\big[\max\{Z+a,0\}\big] < 1-\alpha \nonumber \\
+\Rightarrow \;\; & \mathbb{P}\big[\max\{Z+a,0\} \geq a \big] < 1-\alpha \label{proofeqn3}
+\end{align}
+Now, $Z \geq 0 \iff Z+a \geq a \iff \max\{Z+a,0\} \geq a $ since $a \geq 0$, and so,\\
+$\mathbb{P}\big[Z \geq 0\big] = \mathbb{P}\big[\max\{Z+a,0\} \geq a\big]$.
+Combining with the inequality~\eqref{proofeqn3},
+\begin{align*}
+& \mathbb{P}\big[Z \geq 0\big] = \mathbb{P}\big[\max\{Z+a,0\} \geq a\big] < 1-\alpha \\
+\iff \;\; & \mathbb{P}\big[Z \geq 0\big] < 1-\alpha 
+\end{align*}
 \end{proof}
+The only one-sided implication is in the use of Markov's Inequality to get inequality~\eqref{proofeqn2}, and this corresponds to the approximation gap in using 
+ $\text{CVaR}_{1-\alpha}(Z) < 0$
+ to approximate $\mathbb{P}[Z\geq 0] < 1-\alpha$.\\}
+%% sj: end new proof
 \footnotetext{Ref.~\cite{shapiro2009lectures} indicates that the constraint, $\text{CVaR}_\delta(Z) \leq 0$, gives a conservative approximation of the chance constraint, $\mathbb{P}[Z > 0] \leq \delta$. %pp. 257-258 
 $\text{CVaR}_\delta(Z) \leq 0$ is written as ``$\text{AV@R}_\alpha(Z_x) \leq 0$'' in~\cite{shapiro2009lectures}, see (6.24).
 $\mathbb{P}[ Z > 0] \leq \delta$ is equivalent to $\mathbb{P}[ Z\leq 0] \geq 1 - \delta$, 
 which is written as ``$\text{Pr}(Z_x \leq 0) \geq 1 - \alpha$" in~\cite{shapiro2009lectures}, see text below (6.18).}
-The next result uses Lemma~\ref{lemma1} to indicate that every state in $\mathcal{U}_{\delta,0}$ enjoys a probabilistic safety guarantee.
+The next corollary indicates that every state in $\mathcal{U}_\delta$ enjoys a probabilistic safety guarantee.
 \begin{corollary}
-$\mathcal{U}_{\delta,0}$, as defined in~\eqref{Ur} for $r=0$, is a subset of $\mathcal{S}_\delta$,
+$\mathcal{U}_\delta$, as defined in~\eqref{U}, is a subset of $\mathcal{S}_\delta$,
 \begin{equation}
 \mathcal{S}_\delta := \Big\{y \in S\text{ }|\text{ }\exists \pi \in \Pi\text{, } \mathbb{P}\left[\forall k \in \mathbb{T}\text{, }\xi_y^\pi(k) \in \mathcal{K} \right]  > 1-\delta \Big\}, \\
 \label{S}\end{equation}
 where $\mathbb{P}$ is the probability measure for the state trajectory, and $\mathbb{T} = \{0, 1, \dots, T\}$ is the time horizon.
 \end{corollary}
 \begin{proof}
-Take $y \in \mathcal{U}_\delta$. We need to show that $y \in \mathcal{S}_\delta$.
-Since $y \in \mathcal{U}_\delta$, there exists $\pi \in \Pi$ such that $\text{CVaR}_\delta(X_y^\pi) < 0$.
-By Lemma~\ref{lemma1}, $\text{CVaR}_\delta(X_y^\pi) < 0 \implies \mathbb{P}[X_y^\pi \geq 0] < \delta$.
-Thus, there exists $\pi \in \Pi$ such that
-\begin{equation}\begin{aligned}
-& \mathbb{P}[X_y^\pi \geq 0] < \delta && \iff \\
-& \mathbb{P}\left[{\underset{k \in \mathbb{T}}\max} \Big\{ g\big(\xi_y^\pi(k)\big) \Big\} \geq 0\right] < \delta && \iff \\
-& \mathbb{P}\left[\exists k \in \mathbb{T}\text{, }g\big(\xi_y^\pi(k)\big) \geq 0 \right] < \delta && \iff \\
-& \mathbb{P}\left[\forall k \in \mathbb{T}\text{, }g\big(\xi_y^\pi(k)\big) < 0 \right] > 1-\delta && \iff \\
-& \mathbb{P}\left[\forall k \in \mathbb{T}\text{, } \xi_y^\pi(k) \in \mathcal{K} \right] > 1-\delta.
-\end{aligned}\end{equation}
-The fourth line holds since for any event $E$ with probability measure $P$, $P[E] > 1-\delta \iff P[\neg E] < \delta$,
-where $\neg E$ is the logical negation of $E$. The last line holds because $g$ satisfies~\eqref{g}.
-We have shown that there exists $\pi \in \Pi$ such that $\mathbb{P}\left[\forall k \in \mathbb{T}\text{, } \xi_y^\pi(k) \in \mathcal{K} \right] > 1-\delta$,
-which means that $y \in \mathcal{S}_\delta$.
+\textcolor{blue}{may want to remove this proof b/c it's not very important?}
+Take $y \in \mathcal{U}_\delta$. Then, there exists $\pi \in \Pi$ such that $\text{CVaR}_\delta(X_y^\pi) < 0$, 
+which implies $\mathbb{P}[X_y^\pi \geq 0] < \delta$ by Lemma~\ref{lemma1}.
+After some algrebra using~\eqref{g} and~\eqref{xpiy},
+\begin{equation}
+\mathbb{P}[X_y^\pi \geq 0] = 1 - \mathbb{P}\left[\forall k \in \mathbb{T}\text{, } \xi_y^\pi(k) \in \mathcal{K} \right].
+\end{equation}
+So, $\exists \pi \in \Pi$ such that $\mathbb{P}\left[\forall k \in \mathbb{T}\text{, } \xi_y^\pi(k) \in \mathcal{K} \right] > 1- \delta$, implying that $y \in \mathcal{S}_\delta$.
 \end{proof}
 The second key property of the risk-sensitive safe set, $\mathcal{U}_\delta$, is, as $\delta$ decreases,
 the states of $\mathcal{U}_\delta$ enjoy a stronger probabilistic safety guarantee, and $\mathcal{U}_\delta$ becomes smaller.
