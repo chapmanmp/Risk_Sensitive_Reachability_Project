@@ -16,17 +16,18 @@
 
 function bigexp = maxExp( J_kPLUS1, x, u, y, X, L )
 
-nd = 3; % # of possible values that disturbance can take on
+nd = 2; % # of possible values that disturbance can take on
 
-w = [ -1; 0; 1 ]; % possible values of the disturbance
+w = [ -1; 1 ]; % possible values of the disturbance
 
-p = [ 1/3; 1/3; 1/3 ]; % p(j) = probability that w(j) occurs
+p = [ 1/2; 1/2 ]; % p(j) = probability that w(j) occurs
 
 cvx_begin
 
     variable R(nd,1)
     
-    maximize( R'*[0.1; 4; -0.7] ) % need to write the objective function!
+    % intoJ does not work. cvx does not like line search over r
+    maximize(  R(1)*p(1)*intoJ( x+u+w(1), y, R(1), X, L, J_kPLUS1 ) + R(2)*p(2)*intoJ( x+u+w(2), y, R(2), X, L, J_kPLUS1 ) )
     
     subject to
     
