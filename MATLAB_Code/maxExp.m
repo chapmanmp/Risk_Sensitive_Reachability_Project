@@ -17,14 +17,14 @@
 
 function bigexp = maxExp( J_kPLUS1, x, u, y, xs, ls )
 
-nd = 3; % # of possible values that disturbance can take on
-
 ws = [ -1; 0; 1 ]; % possible values of the disturbance
 
-P = [ 1/3; 1/3; 1/3 ]; % p(j) = probability that w(j) occurs
+nd = length(ws); % # of possible values that disturbance can take on
 
-[ As, bs ] = getLMIs( x, u, ws, xs, ls, J_kPLUS1 ); % As{1} & bs{1} are column vectors; 
-% Each LMI encodes the linear interpolation of Z*J_k+1( x_k+1, Z ) versus Z, at fixed x_k+1
+P = [ 1/3; 1/3; 1/3 ]; % P(j) = probability that disturbance value ws(j) occurs
+
+[ As, bs ] = getLMIs( x, u, ws, xs, ls, J_kPLUS1 ); % As{i} & bs{i} are column vectors; 
+% Each LMI encodes the linear interpolation of y*J_k+1( x_k+1, y ) versus y, at fixed x_k+1
 
 cvx_begin
 
@@ -33,13 +33,10 @@ cvx_begin
     maximize( P' * t / y )
     
     subject to
-                                     % one LMI per disturbance realization (equivalently, per next state realization)
-        As{1}*Z(1) + bs{1} >= t(1);  % column vector * scalar + column vector
-        
-        As{2}*Z(2) + bs{2} >= t(2);  
-        
-        As{3}*Z(3) + bs{3} >= t(3);
     
+        % one LMI per disturbance realization (equivalently, per next state realization)
+        for i = 1 : nd,  As{i}*Z(i) + bs{i} >= t(i); end 
+          
         Z <= 1;
     
         Z >= 0;

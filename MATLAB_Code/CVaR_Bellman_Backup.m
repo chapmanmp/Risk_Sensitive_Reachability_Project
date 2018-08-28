@@ -11,27 +11,29 @@
 % DATE: August 24, 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function J_k = CVaR_Bellman_Backup( J_kPLUS1, X, L ) 
+function J_k = CVaR_Bellman_Backup( J_kPLUS1, X, L )
 
-us = [ -1, 1 ];         % possible control actions
+xs = X(1,:); ls = L(:,1); % discretized states, discretized confidence levels
 
-[ nl, nx ] = size( X ); % nx = # states in grid, nl = # confidence levels in grid
+[ nl, nx ] = size( X ); % nl = # discrete confidence levels, nx = # discrete states
 
 J_k = J_kPLUS1;         % initialization
 
-for i = 1 : nx
+for i = 1 : nx          % <--x's change along columns of J_k, X, L-->
     
     for j = 1 : nl
         
-        x = X(i,j); % state at (i,j)-grid point
+        x = X(j,i);     % state at (j,i)-grid point
         
-        y = L(i,j); % confidence level at (i,j)-grid point
+        y = L(j,i);     % confidence level at (j,i)-grid point
         
-        maxExp_u1 = maxExp( J_kPLUS1, x, us(1), y, X, L ); 
+        us = getPossControls( x, xs ); % returns possible control actions at state x
         
-        maxExp_u2 = maxExp( J_kPLUS1, x, us(2), y, X, L );
+        maxExp_u1 = maxExp( J_kPLUS1, x, us(1), y, xs, ls ); 
         
-        J_k(i,j) = stage_cost(x) + min( maxExp_u1, maxExp_u2 );
+        maxExp_u2 = maxExp( J_kPLUS1, x, us(2), y, xs, ls );
+        
+        J_k(j,i) =  min( stage_cost(x) + maxExp_u1, stage_cost(x) + maxExp_u2 ); % Jk(x,y)
         
     end
     

@@ -8,11 +8,13 @@
     % ls : confidence levels, row vector
     % J_k+1 : optimal cost-to-go at time k+1, array
 % OUTPUT: 
-    % As{i} & bs{i} are column vectors that encode the linear interpolation of Z*J_k+1( x_k+1, Z ) versus Z, at the ith realization of x_k+1
+    % As{i} & bs{i} are column vectors that encode the linear interpolation of y*J_k+1( x_k+1, y ) vs. y, at the ith realization of x_k+1
     % ith realization of x_k+1 = x + u + ws(i)
 % NOTE:
-    % max_t,Z { t | As{1}(i)*Z + bs{1}(i) >= t } is equivalent to max_Z { g(Z) := min_i As{1}(i)*Z + bs{1}(i) }                                          
-    % g(Z) = linear interpolation of Z*J_k+1(x,Z) versus Z, at fixed x; concave & piecewise linear in Z
+    % max_t,y { t | As{1}(i)*y + bs{1}(i) >= t } is equivalent to max_y { g(y) := min_i As{1}(i)*y + bs{1}(i) }                                          
+    % g(y) = linear interpolation of y*J_k+1(x,y) vs. y, at fixed x; concave & piecewise linear in y
+    % uses Chow, et al. NIPS 2015 to manage continuous confidence level
+    % uses linear interpolation to manage continuous state space
 % AUTHOR: Margaret Chapman
 % DATE: August 27, 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,19 +33,21 @@ for i = 1 : nd % for each disturbance realization
     
     Ai = zeros(nl-1,1); bi = zeros(nl-1,1);
         
-    for j = 1 : nl-1 % for each confidence level line segment, [z_j, z_j+1]
-        
-        % Vq = interp1(X,V,Xq,'linear') interpolates to find Vq, the values of the underlying function V=F(X) at the query points Xq. 
-        J_j = interp1( xs, J_kPLUS1(j,:), x_kPLUS1, 'linear'); 
-        % approximates J_k+1(x_k+1, z_j) via J_k+1(xL, z_j) and J_k+1(xU, z_j), xL <= x_k+1 <= xU
-        
-        J_jPLUS1 = interp1( xs, J_kPLUS1(j+1,:), x_kPLUS1, 'linear'); 
-        % approximates J_k+1(x_k+1, z_j+1) via J_k+1(xL, z_j+1) and J_k+1(xU, z_j+1), xL <= x_k+1 <= xU
+    for j = nl-1: -1: 1 % for each confidence level line segment, [l_j+1, l_j], e.g., ls = [l_1 = 0.95, l_2 = 1/2, l_3 = 0.05] 
+                        % [l_3, l_2] = [0.05, 1/2] 
+                        % [l_2, l_1] = [1/2, 0.95]
                 
-        Ai(j) = ( ls(j+1)*J_jPLUS1 - ls(j)*J_j )/( ls(j+1) - ls(j) ); % approx slope of Z*J_k+1( x_k+1, Z ) versus Z
+        J_jPLUS1 = interp1( xs, J_kPLUS1(j+1,:), x_kPLUS1, 'linear' ); 
+        % approximates J_k+1(x_k+1, l_j+1) using J_k+1(xL, l_j+1) and J_k+1(xU, l_j+1), xL <= x_k+1 <= xU
+        % Vq = interp1(X,V,Xq,'linear') interpolates to find Vq, the values of the underlying function V=F(X) at the query points Xq. 
+
+        J_j = interp1( xs, J_kPLUS1(j,:), x_kPLUS1, 'linear' ); 
         
-        bi(j) = ls(j) * (J_j - Ai(j));                                % approx y-intersept of Z*J_k+1( x_k+1, Z ) versus Z
+        Ai(j) = ( ls(j)*J_j - ls(j+1)*J_jPLUS1 )/( ls(j)-ls(j+1) ); 
+        % approx. slope of jth line segment of linear_interp( y*J_k+1( x_k+1, y ) vs. y ) 
         
+        bi(j) = ls(j+1) * (J_jPLUS1 - Ai(j));                       
+        % approx. y-int of jth line segment of linear_interp( y*J_k+1( x_k+1, y ) vs. y )
     end
     
     As{i} = Ai; bs{i} = bi;
