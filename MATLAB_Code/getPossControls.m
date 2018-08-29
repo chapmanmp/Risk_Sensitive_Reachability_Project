@@ -5,7 +5,6 @@
     % xs : discretized state space (array)
 % OUTPUT:
     % us : possible control actions at current state (array)
-% NOTE: Need to revise for dx not equal to 1
 
 % AUTHOR: Margaret Chapman
 % DATE: August 28, 2018
@@ -15,17 +14,19 @@ function us = getPossControls( x, xs )
 
 na = 2;                     % two possible control actions at each time point
 
-if x <= min(xs) + 1         % if x = 1 or 2, set u = +1 to stay in grid (regardless of disturbance)
-    
-    us = ones(na,1);
+BIG_STEP = 2;               % largest | x_k+1 - x_k |; since max|u_k| = max|w_k| = 1 and x_k+1 = x_k + u_k + w_k
 
-elseif x >= max(xs) - 1   % if x = 4 or 5, set u = -1 to stay in grid (regardless of disturbance)
+if x < min(xs) + BIG_STEP   
     
-    us = -ones(na,1);
+    us = ones(na,1);        % set u = +1 to stay in grid
+
+elseif x > max(xs) - BIG_STEP   
     
-else                        % otherwise, allow u to take on -1 or 1
+    us = -ones(na,1);       % set u = -1 to stay in grid
     
-    us = [-1; 1];
+else                        
+    
+    us = [-1; 1];           % otherwise, allow u = -1 or 1
     
 end
 

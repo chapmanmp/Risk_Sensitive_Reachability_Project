@@ -10,13 +10,13 @@
 
 close all; clearvars; clc;
 
-dx = 1;                                         % State discretization
+dx = 1/4;                                       % State discretization
 
 K_lb = 2; K_ub = 4;                             % Constraint set, K = (2, 4)
 
-xs = K_lb - 2*dx : dx : K_ub + 2*dx;            % Discretized states
+xs = K_lb - 1 : dx : K_ub + 1;                  % Discretized states
 
-ls = [ 0.95, 3/4, 1/2, 1/4, 0.05 ];             % Discretized confidence levels
+ls = [ 0.95, 1/2, 0.05 ];                       % Discretized confidence levels
 
 [ X, L ] = meshgrid( xs, ls );
 

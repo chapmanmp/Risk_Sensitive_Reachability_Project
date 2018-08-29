@@ -28,7 +28,7 @@ nl = length(ls); % # confidence levels
 As = cell(nd, 1); bs = cell(nd, 1); 
 
 for i = 1 : nd % for each disturbance realization
-    
+
     x_kPLUS1 = x + u + ws(i); % get next state realization
     
     Ai = zeros(nl-1,1); bi = zeros(nl-1,1);
