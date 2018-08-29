@@ -37,6 +37,8 @@ for k = N: -1: 1
 
 end
 
+%% Brute Force implementation by Donggun
+
 
                                                 
 
