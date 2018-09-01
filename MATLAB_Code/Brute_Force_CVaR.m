@@ -6,7 +6,7 @@
     % N = 2
     % Distribution of w_k is time-invariant
 % INPUT:
-    % type_sum: flag to choose between cost_sum or cost_max (not yet implemented)
+    % type_sum = 1 specifies cost_sum.m; type_sum = 0 specifies cost_max.m
     % xs: discretized states, a vector
     % ls: discretized confidence levels, a vector
     % ws: ws(i) is the ith possible value of wk
@@ -29,16 +29,15 @@ for x_index = 1 : length(xs), x0 = xs( x_index );
         for kk = 1 : length(ws)                 % for each (w0, w1)
         for ll = 1 : length(ws) 
             
-            u0s = getPossControls( x0, xs );    % to ensure scenario tree is equivalent to that used in DP
+            u0s = getPossControls( x0, xs );    % ensures scenario tree is equivalent to that used in DP
             x1 = x0 + u0s(ii) + ws(kk);         % x1
                 
-            u1s = getPossControls( x1, xs );
+            u1s = getPossControls( x1, xs );    % ensures scenario tree is equivalent to that used in DP
             x2 = x1 + u1s(jj) + ws(ll);         % x2
             
-            path_real = [ x0, x1, x2 ];         % path realization
-            
-            cost_real{ii,jj}(kk,ll) = cost_sum( path_real ); % cost realization
-            
+            if type_sum, my_cost = cost_sum([x0, x1, x2]); else, my_cost = cost_max([x0, x1, x2]); end
+               
+            cost_real{ii,jj}(kk,ll) = my_cost;  % cost realization
             prob{ii,jj}(kk,ll) = P(kk) * P(ll); % probability of cost realization
             
         end         
