@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 AUTHOR: Margaret Chapman
 DATE: August 28, 2018
-DESCRIPTION: Notes on J0.fig, J1.fig, J2.fig
+DESCRIPTION: Notes on Ji_dp_coarse_Aug28.fig
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 -System: x_k+1 = x_k + u_k + w_k, for k = 0, 1
@@ -16,6 +16,6 @@ DESCRIPTION: Notes on J0.fig, J1.fig, J2.fig
 -J1.fig, J2.fig are intermediary value functions
 -Used method of Chow NIPS 2015 to interpolate over y
 -Used linear interpolation to deal with continuous state space
--x \in {1, 1.25, 1.5, ..., 4.75, 5}, discretized states
+-x \in {1, 1.25, 1.5, ..., 4.75, 5}, discretized states (dx = 1/4)
 -y \in {0.95, 0.5, 0.05}, discretized confidence levels
 

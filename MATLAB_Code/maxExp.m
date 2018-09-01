@@ -9,19 +9,16 @@
     % y : confidence level at time k, real number
     % xs : x values, row vector
     % ls : confidence levels, row vector
-% OUTPUT: 
-    % approximation of maximum over R \in risk envelope of E[ R*J_k+1( x_k+1, y*R ) | x_k, y, u_k ]
+    % ws(i): ith possible value of w_k
+    % P(i): probability that w_k = ws(i)
+% OUTPUT: approximation of maximum over R \in risk envelope of E[ R*J_k+1( x_k+1, y*R ) | x_k, y, u_k ]
 % AUTHOR: Margaret Chapman
 % DATE: August 24, 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function bigexp = maxExp( J_kPLUS1, x, u, y, xs, ls )
-
-ws = [ -1; 0; 1 ]; % possible values of the disturbance
+function bigexp = maxExp( J_kPLUS1, x, u, y, xs, ls, ws, P )
 
 nd = length(ws); % # of possible values that disturbance can take on
-
-P = [ 1/3; 1/3; 1/3 ]; % P(j) = probability that disturbance value ws(j) occurs
 
 [ As, bs ] = getLMIs( x, u, ws, xs, ls, J_kPLUS1 ); % As{i} & bs{i} are column vectors; 
 % Each LMI encodes the linear interpolation of y*J_k+1( x_k+1, y ) versus y, at fixed x_k+1
