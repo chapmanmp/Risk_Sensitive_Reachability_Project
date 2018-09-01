@@ -8,7 +8,7 @@
 
 close all; clearvars; clc;
 
-load('Results_LTISystem\brute_force_computation_LTI_aug31.mat');
+load('Results_LTISystem\brute_force_cost_sum_LTI_aug31.mat');
 % J0_Brute_Force(l_index, x_index): J0 evaluated at state xs(x_index), confidence level ls(l_index) computed via Main_BruteForce.m
 
 load('Results_LTISystem\dynamic_programming_LTI_aug31.mat');
