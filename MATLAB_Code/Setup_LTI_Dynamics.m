@@ -20,3 +20,5 @@ N = 2;                                          % Time horizon: {0, 1, ..., N}
 ws = [ -1; 0; 1 ];                              % ws(i): ith possible value of wk
 
 P = [ 1/3; 1/3; 1/3 ];                          % P(i): probability that wk = ws(i)
+
+m = 1;                                          % soft-max parameter
