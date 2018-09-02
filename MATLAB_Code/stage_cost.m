@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DESCRIPTION: Defines the stage cost as an exponential of the signed distance w.r.t. constraint set, K = (2, 4)
 % INPUT: 
-    % x: State xk, or state trajectory (x0, x1, ..., xN)
+    % x: array of states (vector or matrix)
     % m: greater than or equal to 1, soft-max parameter
 % OUTPUT: Stage cost
 % AUTHOR: Margaret Chapman

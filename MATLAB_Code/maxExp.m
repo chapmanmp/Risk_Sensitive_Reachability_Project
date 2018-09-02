@@ -42,4 +42,6 @@ cvx_begin
     
 cvx_end
 
+if isinf(cvx_optval) || isnan(cvx_optval), error('maxExp.m LP solution not found.'); end
+
 bigexp = cvx_optval;

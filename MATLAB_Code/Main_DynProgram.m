@@ -16,21 +16,15 @@ Js = cell( N+1, 1 );            % Contains optimal value functions to be solved 
 mus{N} = cell( N, 1 );          % Optimal policy, mus{N} is \mu_N-1, ..., mus{1} is \mu_0
                                 % mu_k(x,y) provides optimal control action at time k, state x, confidence level y
 
-Js{N+1} = stage_cost( X );      % Initial value function, JN(x,y) = stage_cost(x) for each y
+Js{N+1} = stage_cost( X, m );   % Initial value function, JN(x,y) = stage_cost(x) for each y
 
-figure(N+1); FigureSettings; mesh( X, L, Js{N+1} ); title('Dynamic programming');
+% Do CVaR-Bellman Recursion
+for k = N: -1: 1,  [ Js{k} , mus{k} ] = CVaR_Bellman_Backup( Js{k+1}, X, L, ws, P, m ); end
 
-xlabel('State, x'); ylabel('Confidence level, y'); zlabel(['J_', num2str(N), '(x,y)']);
-
-%% Do CVaR-Bellman Recursion
-
-for k = N: -1: 1,  [ Js{k} , mus{k} ] = CVaR_Bellman_Backup( Js{k+1}, X, L, ws, P ); end
-
-%% View Results
-
-for k = N: -1: 1
+% See Results
+for k = N+1: -1: 1
     
-    figure(k); FigureSettings; mesh( X, L, Js{k} ); title('Dynamic programming');
+    figure(k); FigureSettings; mesh( X, L, Js{k} ); title(['Dynamic programming, m = ', num2str(m)]);
     
     xlabel('State, x'); ylabel('Confidence level, y'); zlabel(['J_', num2str(k-1), '(x,y)']);
     

@@ -6,6 +6,7 @@
     % L : column of confidence levels repeated [ ls ls ... ], array
     % ws(i): ith possible value of wk
     % P(i): probability that wk = ws(i)
+    % m : soft-max parameter for stage_cost.m
 % OUTPUT: 
     % J_k : optimal cost-to-go starting at time k, array
     % mu_k : optimal controller at time k, array
@@ -13,7 +14,7 @@
 % DATE: August 24, 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [ J_k, mu_k ] = CVaR_Bellman_Backup( J_kPLUS1, X, L, ws, P )
+function [ J_k, mu_k ] = CVaR_Bellman_Backup( J_kPLUS1, X, L, ws, P, m )
 
 xs = X(1,:); ls = L(:,1); % discretized states, discretized confidence levels
 
@@ -37,7 +38,7 @@ for i = 1 : nx          % <--x's change along columns of J_k, X, L-->
         
         if maxExp_u1 >= maxExp_u2, uStar = us(2); else uStar = us(1); end
         
-        J_k(j,i) =  min( stage_cost(x) + maxExp_u1, stage_cost(x) + maxExp_u2 ); % Jk(x,y)
+        J_k(j,i) =  min( stage_cost(x,m) + maxExp_u1, stage_cost(x,m) + maxExp_u2 ); % Jk(x,y)
         
         mu_k(j,i) = uStar;
         
