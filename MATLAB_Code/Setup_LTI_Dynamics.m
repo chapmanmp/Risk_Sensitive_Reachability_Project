@@ -21,4 +21,4 @@ ws = [ -1; 0; 1 ];                              % ws(i): ith possible value of w
 
 P = [ 1/3; 1/3; 1/3 ];                          % P(i): probability that wk = ws(i)
 
-m = 1;                                          % soft-max parameter
+m = 10;                                         % soft-max parameter

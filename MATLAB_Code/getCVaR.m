@@ -23,4 +23,6 @@ cvx_begin quiet
 
 cvx_end
 
+if isinf(cvx_optval) || isnan(cvx_optval), error('getCVaR.m LP solution not found. m too high.'); end
+
 CVaR = cvx_optval;

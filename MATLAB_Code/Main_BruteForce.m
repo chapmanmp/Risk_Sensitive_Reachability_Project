@@ -12,7 +12,7 @@ close all; clearvars; clc;
 
 Setup_LTI_Dynamics;             % provides grid, constraint set, probability distribution, time horizon, etc.
 
-type_sum = 0;                   % choose 1 if cost_sum, choose 0 if cost_max
+type_sum = 1;                   % choose 1 if cost_sum, choose 0 if cost_max
 
 J0_Brute_Force = Brute_Force_CVaR( type_sum, xs, ls, ws, P, m ); 
 
