@@ -40,16 +40,16 @@ for r_index = 1 : nr, r = rs(r_index); subplot(1, nr, r_index);
             if J0_cost_max(l_index, x_index) < r,        S_ry = [ S_ry, xs(x_index) ]; end
     
         end
+        
+        if ~isempty(U_ry), plot(U_ry, ones(size(U_ry))*y, '*r'); hold on; end; U{r_index}{l_index} = U_ry;
     
-        plot(U_ry, ones(size(U_ry))*y, '*r'); hold on; U{r_index}{l_index} = U_ry;
-    
-        plot(S_ry, ones(size(S_ry))*y, 'ob'); hold on; S{r_index}{l_index} = S_ry;
+        plot(S_ry, ones(size(S_ry))*y, 'ob', 'linewidth', 1); hold on; S{r_index}{l_index} = S_ry;
         
     end
     
-    if r_index==1, ylabel('Confidence level, y'); end; title(['Risk level, r = ', num2str(r)]); xlabel('State, x');
+    if r_index==1, ylabel('Confidence level, y'); end; title(['r = ', num2str(r)]); xlabel('State, x');
     
-    grid on; yticks(sort(ls)); xticks(xs);
+    axis([min(xs) max(xs) min(ls) max(ls)]); grid on; yticks(sort(ls)); xticks(xs);
     
     xticklabels({'1','','','','','1.5','','','','','2','','','','','2.5','','','','','3',... % hard-coded
                      '','','','','3.5','','','','','4','','','','','4.5','','','','','5'});    
