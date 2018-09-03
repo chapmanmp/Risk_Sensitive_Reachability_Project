@@ -1,14 +1,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% DESCRIPTION: Computes J0(x,y) := min_pi CVaR_y[ exp(g(x0)) + ... + exp(g(xN)) | x0 = x, pi ] via dynamic programming
+% DESCRIPTION: Computes J0(x,y) := min_pi CVaR_y[ exp(m*g(x0)) + ... + exp(m*g(xN)) | x0 = x, pi ] via dynamic programming
     % CVaR Bellman recursion & interpolation over y proposed originally by Chow et al., NIPS, 2015
-% DYNAMICS: xk+1 = xk + uk + wk, wk \in {-1, 0, 1} equally probable
+    % m: soft-max parameter, g: signed distance with respect to constraint set
+    % LTI dynamics: xk+1 = xk + uk + wk, wk \in {-1, 0, 1} equally probable
 % AUTHORS: Margaret Chapman, Donggun Lee, Jonathan Lacotte
 % DATE: August 30, 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 close all; clearvars; clc;
 
-Setup_LTI_Dynamics;             % provides grid, constraint set, probability distribution, time horizon, etc.
+Setup_LTI_Example;              % Provides grid, constraint set, soft-max parameter, probability distribution, horizon, etc.
 
 Js = cell( N+1, 1 );            % Contains optimal value functions to be solved via dynamic programming
                                 % Js{1} is J0, Js{2} is J1, ..., Js{N+1} is JN

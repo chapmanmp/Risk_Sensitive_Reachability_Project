@@ -23,7 +23,7 @@ nd = length(ws); % # of possible values that disturbance can take on
 [ As, bs ] = getLMIs( x, u, ws, xs, ls, J_kPLUS1 ); % As{i} & bs{i} are column vectors; 
 % Each LMI encodes the linear interpolation of y*J_k+1( x_k+1, y ) versus y, at fixed x_k+1
 
-cvx_begin
+cvx_begin quiet
 
     variables Z(nd,1) t(nd,1)
     
