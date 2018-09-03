@@ -31,10 +31,10 @@ for x_index = 1 : length(xs), x0 = xs( x_index );
         for ll = 1 : length(ws) 
             
             u0s = getPossControls( x0, xs );    % ensures scenario tree is equivalent to that used in DP
-            x1 = x0 + u0s(ii) + ws(kk);         % x1
+            x1 = LTIDynamics( x0, u0s(ii), ws(kk) ); % x1
                 
             u1s = getPossControls( x1, xs );    % ensures scenario tree is equivalent to that used in DP
-            x2 = x1 + u1s(jj) + ws(ll);         % x2
+            x2 = LTIDynamics( x1, u1s(jj), ws(ll) ); % x2 
             
             if type_sum, my_cost = cost_sum([x0, x1, x2],m); else, my_cost = cost_max([x0, x1, x2]); end
                
