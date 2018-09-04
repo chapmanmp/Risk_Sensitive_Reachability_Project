@@ -33,21 +33,21 @@
 \newtheorem{remark}{Remark}
 
 \title{\LARGE \bf
-A Framework for Risk-Sensitive Reachability Analysis}
+A Risk-Sensitive Finite-Time Reachability Problem for Safety of Stochastic Dynamic Systems}
 
-\author{Margaret P. Chapman$^{1}$, Susmit Jha$^{2}$, Jonathan P. Lacotte$^{3}$, Sumeet Singh$^{3}$, Kevin Smith$^{4}$, \\
-Victoria Cheng$^{5}$, David L. Freyberg$^{6}$, and Claire J. Tomlin$^{1}$% <-this % stops a space
-\thanks{$^{1}$M.C. and C.T. are with the Department of Electrical Engineering and Computer Sciences, University of California, Berkeley, USA.
+\author{Margaret P. Chapman$^{1}$, Jonathan P. Lacotte$^{2}$, Donggun Lee$^{3}$, Kevin Smith$^{4}$, Victoria Cheng$^{5}$,\\ 
+Jaime Fernandez-Fisac$^{1}$, Aviv Tamar$^{1}$, Susmit Jha$^{6}$, Claire J. Tomlin$^{1}$% <-this % stops a space
+\thanks{$^{1}$M.C., J.F., A.T., and C.T. are with the Department of Electrical Engineering and Computer Sciences, University of California, Berkeley, USA.
         {\tt\small chapmanm@berkeley.edu}}%
-\thanks{$^{2}$S.J. is with SRI International, Menlo Park, California, USA. 
+\thanks{$^{2}$J.L. is with the Department of Aeronautics and Astronautics, Stanford University, USA.
         }%
-\thanks{$^{3}$J.L. and S.S. are with the Department of Aeronautics and Astronautics, Stanford University, USA.
+\thanks{$^{3}$D.L. is with the Department of Mechanical Engineering, University of California, Berkeley, USA.
         }%
 \thanks{$^{4}$K.S. is with OptiRTC, Inc. and the Department of Civil and Environmental Engineering, Tufts University, USA.
         }%
 \thanks{$^{5}$V.C. is with the Department of Civil and Environmental Engineering, University of California, Berkeley, USA.
         }%
-\thanks{$^{6}$D.F. is with the Department of Civil and Environmental Engineering, Stanford University, USA.
+\thanks{$^{6}$S.J. is with SRI International, Menlo Park, California, USA.
 		}%
 }
 
@@ -59,6 +59,29 @@ Victoria Cheng$^{5}$, David L. Freyberg$^{6}$, and Claire J. Tomlin$^{1}$% <-thi
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
+A classic reachability analysis problem for safety of dynamic systems is to compute the set of initial states from which 
+the state trajectory is guaranteed to stay inside a given constraint set over some time horizon. 
+In this paper, we leverage existing theory in reachability analysis and risk measures 
+to formulate a \textit{risk-sensitive} reachability problem for safety of stochastic dynamic systems under non-adversarial disturbances
+over a finite time horizon.
+We provide two key contributions to reachability literature. 
+First, our formulation accounts for rare high-consequence events by posing the optimal control problem in terms of a risk measure, 
+called \textit{Conditional Value-at-Risk} (CVaR).
+Stochastic reachability does not explicitly account for rare high-consequence events,
+since the optimal control problem is posed in terms of the expectation operator.
+Second, our formulation quantifies the distance between the boundary of the constraint set and the state trajectory in a stochastic setting. 
+Stochastic reachability quantifies the probability that the state trajectory stays within the constraint set,
+and Hamilton-Jacobi reachability quantifies the distance between the boundary of the constraint set and the state trajectory
+in a deterministic setting.
+We define a \textit{risk-sensitive safe set} as the set of initial states from which the risk of extreme constraint violation
+can be made small via an appropriate control policy, where risk is quantified using CVaR.
+We show that certain risk-sensitive safe sets enjoy probabilistic safety guarantees.
+We provide a dynamic programming algorithm to compute under-approximations for risk-sensitive safe sets
+and prove the correctness of the algorithm under the assumption of finite probability spaces. 
+Our proof is a key contribution to reinforcement learning literature, as it does not require the assumption of strong duality,
+which was required in a previous paper.
+Finally, we demonstrate the utility of risk-sensitive reachability analysis as a design tool for stormwater infrastructure,
+which is required to operate safely in the presence of rainfall uncertainty.
 \end{abstract}
 % Premise (hypothesis): A description of the problem being addressed, and the basic idea to address it. For an applications article, this would be a description of what the application was designed to do.
 % Process (experiments): A description of what the authors actually did. For an application article, this would be the detail of the application itself; for a design article, the thought process that went in to the design.
@@ -67,11 +90,12 @@ Victoria Cheng$^{5}$, David L. Freyberg$^{6}$, and Claire J. Tomlin$^{1}$% <-thi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 Reachability analysis is a formal verification method based on optimal control theory that can be used to prove 
-safety properties of dynamic systems~\cite{bansal2017hamilton}.\footnotemark
-\footnotetext{Reachability analysis is also used to prove performance properties of dynamic systems. 
-The focus of this paper is safety rather than performance for simplicity.}
-A standard safety problem is to compute the set of initial conditions from which the state trajectory of the system 
-is guaranteed to satisfy certain constraints over a pre-specified time horizon; this set is called the \textit{safe set}.
+safety or performance properties of dynamic systems~\cite{bansal2017hamilton}.
+A classic reachability problem for safety is to compute the set of initial states from which 
+the state trajectory is guaranteed to stay inside a given constraint set over some time horizon.
+ 
+ 
+ 
 Typically, the dynamic system has a control signal to be designed to ensure constraint satisfaction 
 and an uncertain disturbance signal that may try to prevent constraint satisfaction (i.e., is \textit{adversarial}). 
 The guarantees enjoyed by the states of the safe set are either deterministic or probabilistic in nature, 
