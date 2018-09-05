@@ -59,29 +59,28 @@ Jaime Fernandez-Fisac$^{1}$, Aviv Tamar$^{1}$, Susmit Jha$^{6}$, Claire J. Tomli
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
-A classic reachability analysis problem for safety of dynamic systems is to compute the set of initial states from which 
+A classic reachability problem for safety of dynamic systems is to compute the set of initial states from which 
 the state trajectory is guaranteed to stay inside a given constraint set over some time horizon. 
-In this paper, we leverage existing theory in reachability analysis and risk measures 
+In this paper, we leverage existing theory of reachability analysis and risk measures 
 to formulate a \textit{risk-sensitive} reachability problem for safety of stochastic dynamic systems under non-adversarial disturbances
 over a finite time horizon.
-We provide two key contributions to reachability literature. 
-First, our formulation accounts for rare high-consequence events by posing the optimal control problem in terms of a risk measure, 
+We provide two key contributions to the reachability literature. 
+First, our formulation quantifies the distance between the boundary of the constraint set and the state trajectory for a stochastic dynamic system.
+In the literature, Hamilton-Jacobi (HJ) reachability methods quantify this distance for non-deterministic systems subject to adversarial disturbances, while
+stochastic reachability methods reduce the distance to a binary random variable in order to quantify the probability of safety. 
+Second, our formulation accounts for rare high-consequence events by posing the optimal control problem in terms of a risk measure, 
 called \textit{Conditional Value-at-Risk} (CVaR).
-Stochastic reachability does not explicitly account for rare high-consequence events,
+HJ reachability assumes that high-consequence events occur always, which may yield overly conservative solutions in practice,
+whereas stochastic reachability does not explicitly account for rare high-consequence events,
 since the optimal control problem is posed in terms of the expectation operator.
-Second, our formulation quantifies the distance between the boundary of the constraint set and the state trajectory in a stochastic setting. 
-Stochastic reachability quantifies the probability that the state trajectory stays within the constraint set,
-and Hamilton-Jacobi reachability quantifies the distance between the boundary of the constraint set and the state trajectory
-in a deterministic setting.
-We define a \textit{risk-sensitive safe set} as the set of initial states from which the risk of extreme constraint violation
+We define a \textit{risk-sensitive safe set} as the set of initial states from which the risk of extreme constraint violations
 can be made small via an appropriate control policy, where risk is quantified using CVaR.
 We show that certain risk-sensitive safe sets enjoy probabilistic safety guarantees.
-We provide a dynamic programming algorithm to compute under-approximations for risk-sensitive safe sets
-and prove the correctness of the algorithm under the assumption of finite probability spaces. 
-Our proof is a key contribution to reinforcement learning literature, as it does not require the assumption of strong duality,
-which was required in a previous paper.
-Finally, we demonstrate the utility of risk-sensitive reachability analysis as a design tool for stormwater infrastructure,
-which is required to operate safely in the presence of rainfall uncertainty.
+We provide a dynamic programming algorithm to compute under-approximations of risk-sensitive safe sets
+and prove the correctness of the algorithm for finite probability spaces.
+Our proof is a novel contribution, as it does not require the assumption of strong duality, which was required in a previous paper.
+Finally, we demonstrate the utility of risk-sensitive reachability analysis on a numerical example.
+%as a design tool for stormwater infrastructure which is required to operate safely in the presence of rainfall uncertainty.
 \end{abstract}
 % Premise (hypothesis): A description of the problem being addressed, and the basic idea to address it. For an applications article, this would be a description of what the application was designed to do.
 % Process (experiments): A description of what the authors actually did. For an application article, this would be the detail of the application itself; for a design article, the thought process that went in to the design.
@@ -102,27 +101,30 @@ in which disturbances behave adversarially and safety is described as a binary n
 In practice, minimax formulations can yield overly conservative solutions, particularly because disturbances are not often adversarial.
 Most storms do not cause major floods, and most vehicles are not involved in pursuit-evader games.
 If there are enough observations of the system, one can estimate a probability distribution
-for the disturbance, and then assess safety properties of the system using this distribution.\footnotemark
+for the disturbance, and then assess safety properties of the system in a more realistic context.\footnotemark
 \footnotetext{Ref.~\cite{silverman2018density} presents methods for estimating probability distributions.} 
-Assuming a probabilistic description for the uncertainty is available, 
-Abate et al. developed an algorithm to compute the set of initial states
-from which the probability of constraint satisfaction over a finite time horizon
-can be made sufficiently large by an appropriate control policy~\cite{abate2008probabilistic}. 
-Summers and Lygeros extended the work of Abate et al. to quantify the probability that the state trajectory 
-reaches a target set, while also staying inside a constraint set beforehand, over a finite time horizon~\cite{summers2010verification}. 
+For stochastic discrete-time dynamic systems, %Assuming that a probabilistic discrete-time dynamics model is available, 
+Abate et al. developed an algorithm that computes the set of initial states
+from which the probability of safety of the state trajectory can be made large by an appropriate control policy~\cite{abate2008probabilistic}.\footnotemark
+\footnotetext{Safety of the state trajectory is the event that the state trajectory stays in the constraint set over a finite time horizon.} 
+Summers and Lygeros extended the algorithm of Abate et al. to quantify the probability of safety and performance
+of the state trajectory, by specifying that the state trajectory should also reach a target set~\cite{summers2010verification}.   
 
-As in the minimax reachability formulations for discrete-time systems~\cite{bertsekas1971control},~\cite{bertsekas1971minimax},~\cite{bertsekas2005dynamic},
-the stochastic reachability formulations~\cite{abate2008probabilistic},~\cite{summers2010verification}
+Both the stochastic reachability methods~\cite{abate2008probabilistic},~\cite{summers2010verification} and the minimax reachability methods~\cite{bertsekas1971control},~\cite{bertsekas1971minimax},~\cite{bertsekas2005dynamic} for discrete-time dynamic systems
 describe safety as a binary notion based on set membership.
 In Abate et al., for example, the probability of safety to be optimized is the expectation of the product (or maximum)
-of indicator functions, where each indicator encodes whether a state of the trajectory is inside or outside a given set~\cite{abate2008probabilistic}.
-The stochastic reachability formulations~\cite{abate2008probabilistic},~\cite{summers2010verification} 
+of indicator functions, where each indicator encodes whether a state is inside or outside a given set~\cite{abate2008probabilistic}.
+The stochastic reachability methods~\cite{abate2008probabilistic},~\cite{summers2010verification} 
 do not generalize to quantify the (random) distance between the state trajectory and the boundary of the constraint set,
 since they use indicator functions to convert probabilities to expectations to be optimized.
-%a Bernoulli random variable, which encodes the probability that the state trajectory stays in the constraint set~\cite{abate2008probabilistic}.
-Quantifying the distance between the state trajectory and the boundary of the constraint set may be important in 
-applications where the constraint set is not known exactly, or where mild constraint violations are inevitable, but
-extreme constraint violations must be avoided.
+Quantifying this distance may be important in applications where the boundary of the constraint set is not known exactly, 
+or where mild constraint violations are inevitable, but extreme constraint violations must be avoided.
+%The minimax reachability methods~\cite{bertsekas1971control},~\cite{bertsekas1971minimax},~\cite{bertsekas2005dynamic} also use indicator functions to encode whether the state trajectory ever leaves a given family of sets.
+
+Hamilton-Jacobi (HJ) reachability methods quantify the (deterministic) distance between the state trajectory and the boundary of the constraint set
+for continuous-time systems subject to adversarial disturbances (e.g., see~\cite{bansal2017hamilton},~\cite{herbert2017fastrack},~\cite{EECS-2018-41},~\cite{mitchell2005toolbox}).
+In this paper, we adopt a technique used in HJ reachability to encode the random analogue of this distance.
+
 
 Further, the stochastic reachability formulations~\cite{abate2008probabilistic},~\cite{summers2010verification} 
 do not explicitly account for rare high-consequence events because they optimize in terms of the expectation operator.
