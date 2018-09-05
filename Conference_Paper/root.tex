@@ -89,77 +89,47 @@ which is required to operate safely in the presence of rainfall uncertainty.
 % Conclusion: A summary of the lessons learned from the paper.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
-Reachability analysis is a formal verification method based on optimal control theory that can be used to prove 
+Reachability analysis is a formal verification method based on optimal control theory that is used to prove 
 safety or performance properties of dynamic systems~\cite{bansal2017hamilton}.
 A classic reachability problem for safety is to compute the set of initial states from which 
 the state trajectory is guaranteed to stay inside a given constraint set over some time horizon.
-This problem was first considered for discrete-time dynamic systems by Bertsekas and Rhodes under the assumption that the uncertain disturbances
-live in given sets, but whose probability distributions are unknown~\cite{bertsekas1971control},~\cite{bertsekas1971minimax}.\footnotemark
-\footnotetext{See also~\cite{bertsekas2005dynamic}, Sec. 3.6.2 ``Control within a Target Tube"}
-In this context, the problem is solved using a minimax formulation~\cite{bertsekas1971control},~\cite{bertsekas1971minimax}, 
-where the disturbances are adversarial and safety is described solely as a binary notion according to set membership. 
+This problem was first considered for discrete-time dynamic systems by Bertsekas and Rhodes 
+under the assumption that disturbances are uncertain but belong to known sets~\cite{bertsekas1971control},~\cite{bertsekas1971minimax},~\cite{bertsekas2005dynamic}.
+In this context, the problem is solved using a minimax formulation,
+in which disturbances behave adversarially and safety is described as a binary notion based on set membership~\cite{bertsekas1971control},~\cite{bertsekas1971minimax},~\cite{bertsekas2005dynamic}.\footnotemark 
+\footnotetext{in ref.~\cite{bertsekas2005dynamic}, see Sec. 3.6.2, ``Control within a Target Tube"}
 
-In practice, however, disturbances do not usually behave adversarially: most storms do not cause major floods; most drivers are not involved
-in car chases; most drones (outside of war) do not intend to collide with one another or with humans. 
-In applications where assuming adversarial disturbances yields overly conservative solutions, instead one may 
-assume that the disturbances are drawn from a given probability distribution. %(Estimating probability distributions from data is an active area of research~\cite{kearns1994learnability},~\cite{feldman2008learning}.)
-Abate et al. posed the stochastic reachability problem for safety in terms of maximizing the probability that the (stochastic) state trajectory 
-stays inside a given constraint set over time~\cite{abate2008probabilistic}. 
-Summers and Lygeros extended the formulation of Abate et al. to also encode the goal of the state trajectory reaching a given target set~\cite{summers2010verification}. 
+In practice, minimax formulations can yield overly conservative solutions, particularly because disturbances are not often adversarial.
+Most storms do not cause major floods, and most vehicles are not involved in pursuit-evader games.
+If there are enough observations of the system, one can estimate a probability distribution
+for the disturbance, and then assess safety properties of the system using this distribution.\footnotemark
+\footnotetext{Ref.~\cite{silverman2018density} presents methods for estimating probability distributions.} 
+Assuming a probabilistic description for the uncertainty is available, 
+Abate et al. developed an algorithm to compute the set of initial states
+from which the probability of constraint satisfaction over a finite time horizon
+can be made sufficiently large by an appropriate control policy~\cite{abate2008probabilistic}. 
+Summers and Lygeros extended the work of Abate et al. to quantify the probability that the state trajectory 
+reaches a target set, while also staying inside a constraint set beforehand, over a finite time horizon~\cite{summers2010verification}. 
 
-Similar to the minimax formulation~\cite{bertsekas1971control},~\cite{bertsekas1971minimax},
-the stochastic formulations~\cite{abate2008probabilistic},~\cite{summers2010verification}
-describe safety solely as a binary notion according to set membership.
-In particular, the optimal control problem is expressed as an expectation of the summation (or maximum)
-of indicator functions, where each indicator encodes whether a given state is inside or outside a particular set~\cite{abate2008probabilistic}.
-Stochastic formulations~\cite{abate2008probabilistic},~\cite{summers2010verification} 
+As in the minimax reachability formulations for discrete-time systems~\cite{bertsekas1971control},~\cite{bertsekas1971minimax},~\cite{bertsekas2005dynamic},
+the stochastic reachability formulations~\cite{abate2008probabilistic},~\cite{summers2010verification}
+describe safety as a binary notion based on set membership.
+In Abate et al., for example, the probability of safety to be optimized is the expectation of the product (or maximum)
+of indicator functions, where each indicator encodes whether a state of the trajectory is inside or outside a given set~\cite{abate2008probabilistic}.
+The stochastic reachability formulations~\cite{abate2008probabilistic},~\cite{summers2010verification} 
 do not generalize to quantify the (random) distance between the state trajectory and the boundary of the constraint set,
-because they rely on indicator functions to encode the (random) position of a state with respect to a particular set.
+since they use indicator functions to convert probabilities to expectations to be optimized.
 %a Bernoulli random variable, which encodes the probability that the state trajectory stays in the constraint set~\cite{abate2008probabilistic}.
-Quantification of the (random) distance between the state trajectory and the boundary of the constraint set may be important in practical 
-applications where the boundary of the constraint set is not known exactly, or where minor constraint violations are inevitable, but
-extreme constraint violations are particularly damaging.
+Quantifying the distance between the state trajectory and the boundary of the constraint set may be important in 
+applications where the constraint set is not known exactly, or where mild constraint violations are inevitable, but
+extreme constraint violations must be avoided.
 
-In this work, we provide a formulation for reachability analysis of stochastic dynamic systems
-
-Stochastic formulations~\cite{abate2008probabilistic},~\cite{summers2010verification} 
-pose the optimal control problem in terms of expectation, which   
-
-
+Further, the stochastic reachability formulations~\cite{abate2008probabilistic},~\cite{summers2010verification} 
+do not explicitly account for rare high-consequence events because they optimize in terms of the expectation operator.
+The communities of operations research and management science have developed~\textit{risk measures}, which are related to expectation 
+but also account for rare high-consequence events. 
 
 
- 
- 
-Typically, the dynamic system has a control signal to be designed to ensure constraint satisfaction 
-and an uncertain disturbance signal that may try to prevent constraint satisfaction (i.e., is \textit{adversarial}). 
-The guarantees enjoyed by the states of the safe set are either deterministic or probabilistic in nature, 
-depending on what we assume about the system dynamics.
-
-For example, we may assume that the control and disturbance signals are bounded, 
-and we may not specify their probability distributions; in this case,
-the dynamics are said to be \textit{nondeterministic}~\cite{mitchell2005toolbox}.
-If the dynamics are nondeterministic and the disturbance signal is adversarial, then the safe set may be defined as the set of states from which the system can 
-start, such that for any disturbance signal,
-there exists a control signal that ensures constraint satisfaction (see~\cite{EECS-2018-41}, Sec. 2.2.1).
-The safety guarantee is deterministic in this case, which has been studied extensively and applied mainly to vehicles (see~\cite{bansal2017hamilton} and the references therein). 
-
-In contrast, we may assume that the state of the system is a random variable that evolves according to some probability distribution 
-(e.g., see~\cite{bertsekas2005dynamic}, Sec. 1.2); here the dynamics are said to be \textit{stochastic}.
-If the dynamics are stochastic and the disturbance input is adversarial, 
-then the safe set may be defined as the set of states from which the system can start, such that for any disturbance signal,
-there exists a control signal that ensures constraint satisfaction with sufficiently high probability (e.g., see~\cite{kamgarpour2011discrete}).
-If the dynamics are stochastic and the disturbance input is non-adversarial (i.e., behaves as random noise),
-then the safe set may be defined as the set of states from which the system can start, such that there exists a control signal 
-that ensures constraint satisfaction with sufficiently high probability (e.g., see~\cite{summers2010verification} and~\cite{abate2008probabilistic}).
-In these last two examples, the safety guarantees are probabilistic.
-
-Whether the safety guarantee is deterministic or probabilistic in nature, 
-its essential purpose is to inform decision-making in an uncertain world.
-The key distinction between deterministic and probabilistic safety guarantees is how the uncertainty is quantified, and 
-whether we assume a pessimistic world, where the uncertainty is adversarial, 
-or a realistic world, where the uncertainty behaves as random noise.
-In this paper, we develop a framework for reachability theory that lies on the spectrum between pessimism and realism,
-by leveraging the theory of risk from finance and mathematics. 
 
 Risk may be defined qualitatively as ``danger, or the possibility of danger, defeat, or loss"~\cite{riskdef}.
 To quantify risk, the mathematical concept of a \textit{risk measure} has been developed.
