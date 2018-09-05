@@ -1,25 +1,33 @@
-% Script to generate probability distribution of surface runoff into first pond
-% Pr{wk = ws(i)} = P(i)
-% Fix possible values of wk & expected value of wk to generate P
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DESCRIPTION: Generates finite probability distribution of surface runoff rate [ft^3/s] into pond
+% INPUT: 
+    % ws(i): = ith possible value of wk
+% OUTPUT: 
+    % P(i): probability that wk = ws(i)
+% AUTHOR: Margaret Chapman
+% DATE: September 5, 2018
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ws = 38000:1000:48000; %ft^3, possible values of wk
+function P = getProbDist( ws )
 
 nw = length(ws);
 
-cvx_begin
+cvx_begin quiet
 
-variables P(nw,1)
+    variables p(nw,1)
 
-    minimize ( 1 )
+        maximize ( p(1) + p(2) + p(3) + p(4) )
 
-    subject to
+        subject to
     
-        ws*P == 45000; % expected value of wk
+            ws*p == 40; % expected value of wk [ft^3/s]
         
-        P>=0;
+            p>=0.01;
         
-        P<=1;
+            p<=1;
         
-        sum(P) == 1;
+            sum(p) == 1;
     
 cvx_end
+
+P = p;
