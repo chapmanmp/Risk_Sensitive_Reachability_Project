@@ -54,6 +54,7 @@ for x_index = 1 : nx
     var = quantile( sample_costs, 1-y ); % VaR_y[Z] is the (1-y)-quantile of the distribution of Z
     
     J0(l_index, x_index) = estimateCVaR( sample_costs, y, var );
-                               
+    
+    disp(['grid point ', num2str(l_index), ' ', num2str(x_index), ' done']);                           
 end
 end
