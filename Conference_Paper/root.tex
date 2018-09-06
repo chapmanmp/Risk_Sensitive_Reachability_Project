@@ -113,16 +113,40 @@ of the state trajectory, by specifying that the state trajectory should also rea
 Both the stochastic reachability methods~\cite{abate2008probabilistic},~\cite{summers2010verification} and the minimax reachability methods~\cite{bertsekas1971control},~\cite{bertsekas1971minimax},~\cite{bertsekas2005dynamic} for discrete-time dynamic systems
 describe safety as a binary notion based on set membership.
 In Abate et al., for example, the probability of safety to be optimized is the expectation of the product (or maximum)
-of indicator functions, where each indicator encodes whether a state is inside or outside a given set~\cite{abate2008probabilistic}.
+of indicator functions, where each indicator encodes the event that the state at a particular time point is inside a given set~\cite{abate2008probabilistic}.
 The stochastic reachability methods~\cite{abate2008probabilistic},~\cite{summers2010verification} 
-do not generalize to quantify the (random) distance between the state trajectory and the boundary of the constraint set,
+do not generalize to quantify the random distance between the state trajectory and the boundary of the constraint set,
 since they use indicator functions to convert probabilities to expectations to be optimized.
-Quantifying this distance may be important in applications where the boundary of the constraint set is not known exactly, 
-or where mild constraint violations are inevitable, but extreme constraint violations must be avoided.
-%The minimax reachability methods~\cite{bertsekas1971control},~\cite{bertsekas1971minimax},~\cite{bertsekas2005dynamic} also use indicator functions to encode whether the state trajectory ever leaves a given family of sets.
 
-Hamilton-Jacobi (HJ) reachability methods quantify the (deterministic) distance between the state trajectory and the boundary of the constraint set
-for continuous-time systems subject to adversarial disturbances (e.g., see~\cite{bansal2017hamilton},~\cite{herbert2017fastrack},~\cite{EECS-2018-41},~\cite{mitchell2005toolbox}).
+In contrast, Hamilton-Jacobi (HJ) reachability methods quantify the deterministic analogue of this distance
+for continuous-time systems subject to adversarial disturbances 
+(e.g., see~\cite{bansal2017hamilton},~\cite{herbert2017fastrack},~\cite{EECS-2018-41},~\cite{mitchell2005toolbox}).
+Quantifying the distance between the state trajectory and the boundary of the constraint set in a non-binary fashion
+may be important in applications where the boundary is not known exactly,
+or where mild constraint violations are inevitable, but extreme constraint violations must be avoided.
+
+Further, it is imperative that reachability methods for safety take into account the possibility that rare events can occur in practice
+with potentially damaging consequences. 
+Reachability methods that assume adversarial disturbances account for the possibility that harmful outcomes can always occur,
+which may yield solutions with limited practical utility, especially in applications with large uncertainty sets.
+Stochastic reachability methods~\cite{abate2008probabilistic},~\cite{summers2010verification} do not explicitly account for rare high-consequence events
+because the optimal control problem is expressed as an expectation. 
+
+In this paper, we take a realistic viewpoint
+  
+ 
+
+In this paper, we formulate a risk-sensitive reachability problem for safety of stochastic dynamic systems under non-adversarial disturbances
+over a finite time horizon. 
+
+
+
+between the state trajectory and the boundary of the constraint set
+
+Similar to the minimax formulations~\cite{bertsekas1971control},~\cite{bertsekas1971minimax},~\cite{bertsekas2005dynamic}, 
+HJ reachability methods also assume that high-consequence events occur always, which may lead to overly conservative solutions.
+In contrast, stochastic reachability methods~\cite{abate2008probabilistic},~\cite{summers2010verification}  
+ 
 In this paper, we adopt a technique used in HJ reachability to encode the random analogue of this distance.
 
 
