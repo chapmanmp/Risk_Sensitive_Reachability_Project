@@ -27,6 +27,6 @@ for k = N+1: -1: 1
     
     figure(k); FigureSettings; mesh( X, L, Js{k} ); title(['Dynamic programming, m = ', num2str(m)]);
     
-    xlabel('State, x'); ylabel('Confidence level, y'); zlabel(['J_', num2str(k-1), '(x,y)']);
+    xlabel('State, x'); ylabel('Confidence level, y'); zlabel(['J_{', num2str(k-1), '}(x,y)']);
     
 end
