@@ -16,11 +16,11 @@ cvx_begin quiet
 
     variables p(nw,1)
 
-        maximize ( p(1) + p(2) + p(3) + p(4) )
+        maximize ( p(2)+p(nw-3)+p(nw-2)+p(nw-1)+p(nw) ) % fat tail
 
         subject to
     
-            ws*p == 40; % expected value of wk [ft^3/s]
+            ws*p == 10; % expected value of wk [ft^3/s]
         
             p>=0.01;
         
