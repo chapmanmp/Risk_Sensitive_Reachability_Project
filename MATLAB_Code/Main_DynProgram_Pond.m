@@ -17,7 +17,7 @@ Js = cell( N+1, 1 );            % Contains optimal value functions to be solved 
 mus{N} = cell( N, 1 );          % Optimal policy, mus{N} is \mu_N-1, ..., mus{1} is \mu_0
                                 % mu_k(x,y) provides optimal control action at time k, state x, confidence level y
 
-Js{N+1} = stage_cost_pond( X, m );   % Initial value function, JN(x,y) = exp(g(x)) for each y
+Js{N+1} = stage_cost_pond( X, m );   % Initial value function, JN(x,y) = beta*exp(g(x)) for each y
 
 % Do CVaR-Bellman Recursion
 for k = N: -1: 1,  [ Js{k} , mus{k} ] = CVaR_Bellman_Backup_pond( Js{k+1}, X, L, ws, P, m, dt, A ); end

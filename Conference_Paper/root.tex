@@ -125,120 +125,94 @@ Quantifying the distance between the state trajectory and the boundary of the co
 may be important in applications where the boundary is not known exactly,
 or where mild constraint violations are inevitable, but extreme constraint violations must be avoided.
 
-Further, it is imperative that reachability methods for safety take into account the possibility that rare events can occur in practice
+It is imperative that reachability methods for safety take into account the possibility that rare events can occur
 with potentially damaging consequences. 
-Reachability methods that assume adversarial disturbances account for the possibility that harmful outcomes can always occur,
+Reachability methods that assume adversarial disturbances (e.g.,~\cite{bansal2017hamilton},~\cite{bertsekas1971minimax}) suppose that harmful events can always occur,
 which may yield solutions with limited practical utility, especially in applications with large uncertainty sets.
 Stochastic reachability methods~\cite{abate2008probabilistic},~\cite{summers2010verification} do not explicitly account for rare high-consequence events
 because the optimal control problem is expressed as an expectation. 
 
-In this paper, we take a realistic viewpoint
-  
- 
+In contrast, we leverage existing results on \textit{risk measures} to formulate an optimal control problem
+that explicitly encodes a realistic viewpoint on the possibility of rare high-consequence events: 
+harmful events are likely to occur at some point, but they are unlikely to occur always.
+A \textit{risk measure} is a function that maps a random variable, $Z$, representing loss into the real line,
+according to the risk associated with $Z$ (see~\cite{shapiro2009lectures}, Sec. 6.3; see~\cite{kisiala2015conditional}, Sec. 2.2).
+Risk-sensitive optimization
+is being studied in applied mathematics~\cite{ruszczynski2010risk}, reinforcement learning~\cite{osogami2012robustness},~\cite{chow2015risk},~\cite{ratliff2017risk}, and optimal control~\cite{chow2014framework}.\footnotemark
+\footnotetext{In risk-sensitive optimization, the risk of a cost is minimized, where risk is quantified using a risk measure.
+Conversely, in stochastic optimization, we usually minimize the expected value of a cost.} 
+Risk-sensitive formulations have the potential to inform practical decision-making that also protects
+against damaging outcomes~\cite{serraino2013conditional}, where the level of conservatism can be modified as needed.
+%~\cite{serraino2013conditional} says "Cvar protects against outcomes that hurt the most", do i need citation in the sentence above?
 
-In this paper, we formulate a risk-sensitive reachability problem for safety of stochastic dynamic systems under non-adversarial disturbances
-over a finite time horizon. 
-
-
-
-between the state trajectory and the boundary of the constraint set
-
-Similar to the minimax formulations~\cite{bertsekas1971control},~\cite{bertsekas1971minimax},~\cite{bertsekas2005dynamic}, 
-HJ reachability methods also assume that high-consequence events occur always, which may lead to overly conservative solutions.
-In contrast, stochastic reachability methods~\cite{abate2008probabilistic},~\cite{summers2010verification}  
- 
-In this paper, we adopt a technique used in HJ reachability to encode the random analogue of this distance.
-
-
-Further, the stochastic reachability formulations~\cite{abate2008probabilistic},~\cite{summers2010verification} 
-do not explicitly account for rare high-consequence events because they optimize in terms of the expectation operator.
-The communities of operations research and management science have developed~\textit{risk measures}, which are related to expectation 
-but also account for rare high-consequence events. 
-
-
-
-Risk may be defined qualitatively as ``danger, or the possibility of danger, defeat, or loss"~\cite{riskdef}.
-To quantify risk, the mathematical concept of a \textit{risk measure} has been developed.
-A risk measure is a function that maps a random variable, $X$, representing loss into the real line,
-according to the risk associated with $X$ (see~\cite{shapiro2009lectures}, Sec. 6.3; see~\cite{kisiala2015conditional}, Sec. 2.2).
-Risk-sensitive optimization algorithms, which minimize the risk of predicted losses via a risk measure,
-have been receiving more attention in the communities of applied mathematics~\cite{ruszczynski2010risk}, reinforcement learning~\cite{osogami2012robustness},~\cite{chow2015risk},~\cite{ratliff2017risk}, and optimal control~\cite{chow2014framework}.
-Optimization programs that appreciate risk are desirable due to the limitations of alternative methods.
-In particular, formulations that minimize worst-case losses under adversarial disturbances
-may produce conservative results with limited practical utility, and formulations that minimize expected losses under random disturbances do not account for low-probability extreme events~\cite{chow2014framework},~\cite{jha2018safe}. 
-On the other hand, risk-sensitive formulations have the potential to generate decisions that can be used in practice and that also protect
-against particularly damaging outcomes~\cite{serraino2013conditional}.
-
-In this paper, we leverage existing computational results for a particular risk measure, called \textit{Conditional Value-at-Risk} (CVaR),
-to propose a framework for risk-sensitive reachability analysis. 
-CVaR is a well-justified choice for several reasons.
-CVaR is a \textit{coherent risk measure}, meaning that it satisfies several intuitive axioms, such as \textit{subadditivity},
-which can be interpreted as ``diversification decreases risk" (see~\cite{kisiala2015conditional}, Sec. 2.2).
-On finite probability spaces, coherent risk measures are expectations that have been maximized over a collection of perturbed probability distributions,
-or expectations that have been made more robust to large losses~\cite{chow2014framework},~\cite{shapiro2009lectures},~\cite{chow2015risk},~\cite{artzner1999coherent}.
-Recent work~\cite{chow2015risk} provides an algorithm to minimize the Conditional Value-at-Risk of total cost over time, 
-which we leverage to compute risk-sensitive safe sets. Further, probabilistic safety guarantees and 
-risk-sensitive safety guarantees are closely related, if the risk measure is CVaR, as we shall explain in Sec.~\ref{lemmaconnection}.
-
-We propose a formulation for risk-sensitive reachability with several desirable attributes. 
-At a fixed confidence level for CVaR, our formulation partitions the state space into regions of
-varying degrees of safety quantified via the extent of constraint violation likely to be attained by the stochastic dynamic system.
-Quantification of varying degrees of safety is a feature of safety guarantees for non-deterministic systems (see~\cite{EECS-2018-41}, Eq. 2.3) 
-but not for stochastic systems currently. Existing safety guarantees for stochastic systems are binary, meaning that they encode whether the system is likely to be inside or outside a given set
-(e.g., see~\cite{abate2008probabilistic},~\cite{summers2010verification}, and~\cite{kamgarpour2011discrete}).
-Our formulation, however, provides a non-binary quantification of safety for stochastic systems,
-which is particularly useful when constraint violation is not catastrophic (e.g., routine flooding of a pond after a large storm).
-Further, our formulation inherits the benefits of risk-sensitive optimization and the benefits of reachability theory. 
-By using a risk measure, our formulation may protect against rare harmful outcomes,
-which are ignored by reachability formulations that provide safety guarantees in expectation (e.g.,~\cite{abate2008probabilistic},~\cite{summers2010verification}, and~\cite{kamgarpour2011discrete}),
-and may also avoid unnecessary conservatism, which is a common limitation of deterministic safety guarantees (e.g., see~\cite{bansal2017hamilton}).
-Like existing reachability methods, our formulation provides a comprehensive characterization of the state space in terms of safety.
-This is not provided by recent work in risk-sensitive optimization, which computes optimal paths emanating from different initial conditions separately (e.g., see~\cite{chow2014framework} and~\cite{chow2015risk}).
-A comprehensive safety characterization of the state space may be used 
-to inform the cost-effective design of infrastructure that must withstand rare extreme storms,
-to reduce overly conservative error bounds that arise in safe dynamic motion planning (e.g.,~\cite{herbert2017fastrack}), 
-and to increase the amount of time that an autonomous vehicle can operate safely while simultaneously optimizing for performance.
-
-Our formulation also inherits the disadvantages of risk-sensitive optimization and reachability analysis.
-Since we evoke existing methods for risk-sensitive optimization, we are required to assume finite probability spaces.
-Since we are not yet learning probability mass functions on-line, we assume that estimates of these functions are available, which is the case for evaluating designs of stormwater infrastructure
-but not the case for real-time motion planning of a vehicle. Further, like existing methods for risk-sensitive optimization and reachability, 
-our formulation generally requires a dynamic programming algorithm that is computationally expensive.
-
-%every state contained in the risk-sensitive safe set that we will define enjoys a probabilistic safety guarantee, to be discussed in Sec.~\ref{lemmaconnection}. 
-%We are interested in developing a framework for risk-sensitive reachability theory to inform decision-making in an uncertain world, where it may not be sensible to ensure safety by assuming worst-case circumstances.
-% Want to quantify varying degrees of safety in a way that realistically (rather than pessimistically) appreciates/prepares for low-probability extreme events through the use of a financial risk measure (i.e., a ``robustified" expected value).
-% Extends upon HJ Reachability analysis~\cite{mitchell2005time}, \cite{bansal2017hamilton} because it allows for stochastic dynamic systems.
-% Extends upon Stochastic Reachability analysis~\cite{summers2010verification}, \cite{kamgarpour2011discrete} because it quantifies varying degrees of safety.
-
-\section{System Model}\label{model}
-The system model is a special case of the model given by~\cite{bertsekas2005dynamic} in Sec. 1.2.
-We consider a stochastic discrete-time dynamic system over a finite time horizon,
+We use a particular risk measure, called \textit{Conditional Value-at-Risk} (CVaR), in this paper.
+If $Z$ is a random cost with finite expectation, then the Conditional Value-of-Risk of $Z$ at confidence level $\alpha \in (0,1)$
+is, 
 \begin{equation}
-x_{k+1} = f_k(x_k,u_k,w_k), \text{ }\text{ } k = 0, 1, \dots, T-1,
+\text{CVaR}_\alpha[Z] = {\underset{t \in \mathbb{R}}\min} \text{ }\Big\{ t + \frac{1}{\alpha}\mathbb{E}\big[\max\{Z-t,0\}\big] \Big\};
+\label{cvareqn}
+\end{equation}
+see~\cite{shapiro2009lectures}, Equation 6.22.\footnotemark
+\footnotetext{Conditional Value-at-Risk is also called \textit{Average Value-at-Risk}, which is abbreviated as AV@R in~\cite{shapiro2009lectures}.}
+Note that $\text{CVaR}_\alpha[Z]$ increases from $\mathbb{E}[Z]$ to $\sup Z$, as $\alpha$ decreases from 1 to 0.\footnotemark
+\footnotetext{Technically, $\text{CVaR}_\alpha[Z] \rightarrow \text{ess}\sup Z$ as $\alpha \rightarrow 0$, 
+where $\text{ess}\sup Z$ is the \textit{essential supremum} of $Z$. Informally, essential supremum is a supremum for random variables.}
+Further, there is a well-established relationship between CVaR and chance constraints
+that we use to obtain probabilistic safety guarantees. 
+Chow et al. provides tractable methods to compute the CVaR of a cumulative cost
+incurred by a Markov Decision Process~\cite{chow2015risk} that we also leverage.
+CVaR has additional desirable properties that are of particular interest to researchers in financial risk management and are summarized in ref.~\cite{serraino2013conditional}. 
+
+The key contributions of this paper follow.
+We formulate a risk-sensitive reachability problem for safety of stochastic dynamic systems under non-adversarial disturbances
+over a finite time horizon. In particular, our formulation quantifies the non-binary distance between the boundary of the constraint set and the
+state trajectory for a stochastic dynamic system. This is an extension of stochastic 
+reachability methods (e.g.,~\cite{abate2008probabilistic},~\cite{summers2010verification}), which reduce this distance to a binary random variable.
+Further, in contrast to stochastic reachability methods, our formulation explicitly accounts for rare high-consequence events by posing the optimal control problem
+in terms of Conditional Value-at-Risk instead of expectation. This is the first use of risk measures in the reachability literature to our knowledge.
+In Sec.~\ref{problem}, we define the notion of a \textit{risk-sensitive safe set} and formalize the problem statement.
+Sec.~\ref{prop} summarizes properties of risk-sensitive safe sets, including their relation to probabilistic safety.
+Sec.~\ref{alg} provides a dynamic programming algorithm to compute under-approximations of risk-sensitive safe sets. %include proof?
+In Sec.~\ref{ex}, we provide a numerical example in the context of the design of stormwater infrastructure. Sec.~\ref{conc} provides steps for future work.
+% Extends upon HJ Reachability analysis~\cite{mitchell2005time}, \cite{bansal2017hamilton} - quantifies distance but for stochastic dynamic systems.
+
+\section{Problem Statement}\label{problem}
+We consider a stochastic discrete-time dynamic system over a finite time horizon,\footnotemark
+\footnotetext{The system model is a special case of the model given by~\cite{bertsekas2005dynamic} in Sec. 1.2.}
+\begin{equation}
+x_{k+1} = f(x_k,u_k,w_k), \text{ }\text{ } k = 0, 1, \dots, N-1,
 \label{sys}\end{equation}
-such that $x_k \in S$ is the state of the system at time $k$,
-$u_k \in C$ is the control input at time $k$, and
-$w_k \in D_k = \{d_1^k,\dots,d_N^k\}$ is the random disturbance input at time $k$ defined over a finite probability space.
-The control input is not random, but the state generally is random because it depends on random disturbances.
-The initial condition, $x_0$, is not random for simplicity.
+such that $x_k \in \mathbb{R}^n$ is the state of the system at time $k$,
+$u_k \in U$ is the control at time $k$, and
+$w_k \in D$ is the random disturbance at time $k$. Both $U$ and $D$ are finite sets.
+$\mathbb{P}[w_k = d_j] = p_j$ 
+is the probability that the disturbance has the value $d_j \in D$ at time $k$, where $0 \leq p_j \leq 1$ and $\sum_{j=1}^W p_j = 1$.\footnotemark
+\footnotetext{We also assume that $w_k$ is independent of $x_k$, $u_k$, and disturbances at any other times.}  
+We assume that the initial condition, $x_0$, is not random.
+We are given a (non-empty) constraint set, $\mathcal{K} \subset \mathbb{R}^n$, and the safety criterion that 
+the state of the system should stay inside $\mathcal{K}$ over time. 
+For example, if the system is a pond with an outlet, then $x_k$ may be the water level at time $k$,
+$u_k$ may  suppose that our system is a pond with an outlet. if our system is a pond with an outlet
+
 The collection of admissible control policies is,
 \begin{equation}
 \Pi = \{ (\mu_0, \mu_1, \dots, \mu_{T-1}), \text{ such that } \mu_k: S\rightarrow C \}.
 \end{equation}
-The random disturbance at time $k$, $w_k$, is characterized by a 
-time-dependent probability mass function that is independent of any control policy, $\pi \in \Pi$, and other disturbances, $w_{\not k} = (w_0, \dots, w_{k-1}, w_{k+1}, \dots, w_{T-1})$.\footnotemark
-\footnotetext{The probability mass function may be state-dependent as well.}
-Formally, we have
-\begin{equation}\begin{aligned}
-P_k( w_k = d^k_j | x_k ) & = p_j^k, \\
-\textstyle\sum_{j=1}^N p_j^k & = 1, \text{ } p_j^k \geq 0, \\
-P_k( w_k = d^k_j | x_k, \pi, w_{\not k}) & = P_k( w_k = d^k_j | x_k ),
-\end{aligned}\end{equation}
-for each disturbance sample $j = 1,\dots,N$ and each time point $k = 0, 1, \dots, T-1$.
-We are given a (non-empty) constraint set, $\mathcal{K} \subset S$, and the safety criterion that 
-the state of the system should stay inside $\mathcal{K}$ over time.
-For example, if our application is the flow of water through a network of ponds and streams, $\mathcal{K}$ may indicate that the water does not overflow the banks during a storm event.
+
+
+
+For example, if our application is the flow of water through a network of ponds and streams, 
+$\mathcal{K}$ may indicate that the water does not overflow the banks during a storm event.
+
+\section{Properties of Risk-Sensitive Safe Sets}\label{prop}
+
+\section{Computational Method}\label{alg}
+
+\section{Numerical Example}\label{ex}
+
+\section{Conclusion}\label{conc}
+
+
 
 \section{Problem Statement}
 The goal of this paper is to design an algorithm that computes a \textit{risk-sensitive safe set} 
@@ -251,8 +225,7 @@ We quantify risk using the well-established risk measure, \textit{Conditional Va
 \label{cvareqn}
 \end{equation}
 where $\delta \in (0,1)$, and $Z$ is a random variable representing loss~\cite{rockafellar2000optimization}.\footnotemark
-\footnotetext{Definitions of CVaR are presented in various forms. The original paper is~\cite{rockafellar2000optimization}.
-Other references on CVaR include~\cite{serraino2013conditional} (see Eq. (9)) and~\cite{kisiala2015conditional}.}
+
 If $Z$ is a continuous random variable, then $\text{CVaR}_\delta(Z)$ is the expected value of $Z$ over large realizations of $Z$,
 where the meaning of large is based on $\delta$ (Fig.~\ref{cvar}).
 
@@ -422,6 +395,13 @@ $\xi_x^\pi(k)$ & Random state at time $k$ under (fixed) policy $\pi$, starting f
 
 
 \section{Conclusion}\label{conclusion}
+-inform the cost-effective design of infrastructure that must withstand rare extreme storms,
+-possible other applications: to reduce overly conservative error bounds that arise in safe dynamic motion planning (e.g.,~\cite{herbert2017fastrack}), 
+and to increase the amount of time that an autonomous vehicle can operate safely while simultaneously optimizing for performance.
+
+%every state contained in the risk-sensitive safe set that we will define enjoys a probabilistic safety guarantee, to be discussed in Sec.~\ref{lemmaconnection}. 
+%We are interested in developing a framework for risk-sensitive reachability theory to inform decision-making in an uncertain world, where it may not be sensible to ensure safety by assuming worst-case circumstances.
+% Want to quantify varying degrees of safety in a way that realistically (rather than pessimistically) appreciates/prepares for low-probability extreme events through the use of a financial risk measure (i.e., a ``robustified" expected value).
 
 \section*{ACKNOWLEDGMENT}
 We thank Mo Chen and Jaime Fisac for discussions.
