@@ -12,4 +12,6 @@ function c = stage_cost_pond( x, m )
 
 gx = signed_distance_pond( x );  % signed distance with respect to the constraint set, K = (0, 5)
 
-c = exp( m*gx );
+beta = 10^(-6);                  % scale down so LP CVX solver works for large m
+
+c = beta * exp( m*gx );

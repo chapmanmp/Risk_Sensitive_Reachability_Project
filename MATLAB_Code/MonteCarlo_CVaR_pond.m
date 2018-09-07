@@ -27,7 +27,7 @@ for i = 1 : nw, tick_P(i+1) = tick_P(i) + P(i); end                 % tick_P = [
 
 nl = length(ls); nx = length(xs); J0 = zeros( nl, nx );
 
-nt = 10000;                                                         % number of trials per grid point
+nt = 100000;                                                        % number of trials per grid point
 
 for l_index = 1 : nl                                                % for each grid point
 for x_index = 1 : nx
@@ -48,6 +48,8 @@ for x_index = 1 : nx
         if type_sum,    sample_costs(q) = cost_sum_pond( myTraj, m ); % get cost of trajectory sample
         else,           sample_costs(q) = cost_max_pond( myTraj );
         end
+        
+        sample_costs(q) = sample_costs(q) + 0.001*randn(1); % + ~N(0, sigma=0.001), add small Gaussian noise so we can use CVaR estimator for continuous random variables
         
     end
     

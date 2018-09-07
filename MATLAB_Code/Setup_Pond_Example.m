@@ -25,7 +25,7 @@ ws = [8:12, 14, 18, 20];                % ws(i): ith possible value of wk (ft^3/
 
 P = getProbDist(ws);                    % P(i): probability that wk = ws(i)
 
-m = 1;                                  % soft-max parameter
+m = 10;                                 % soft-max parameter
 
 A = 28292;                              % approx. surface area, pond 1 (south) [ft^2]
 

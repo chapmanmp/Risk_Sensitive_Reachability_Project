@@ -21,6 +21,8 @@ ind = (Z >= var);       % ind(i) = 1 if Z(i) >= var
                         
 N = length(Z);          % number of samples of Z
                         
-cvar = sum( Z.*ind ) / (y*N);                        
+cvar = sum( Z.*ind ) / (y*N); 
+    
+
 
 
