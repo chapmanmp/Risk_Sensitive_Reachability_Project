@@ -8,4 +8,6 @@
 
 function gx = signed_distance_pond( x )
 
-gx = abs( x - 2.5 ) - 2.5;
+%gx = abs( x - 2.5 ) - 2.5;
+
+gx = x - 5; % one-sided signed distance since we only care about overflowing and x will never be <0

@@ -15,12 +15,12 @@ load('Pond_Results\monte_carlo_max_pond_results\monte_carlo_max_addnoise_nt10000
 
 J0_cost_max = J0_MonteCarlo;
 
-load('Pond_Results\dyn_prog_mis1_pond_results\dyn_program_mis1_pond.mat');
-% Results from Main_DynamicProgramming_Pond.m, m = 1
-% J0(x,y) := min_pi CVaR_y[ exp(m*g(x0)) + ... + exp(m*g(xN)) | x0 = x, pi ] via dynamic programming for pond example
+load('Pond_Results\dyn_prog_m10_beta10minus6_pond_results\dyn_prog_m10_beta10minus6_pond.mat');
+% Results from Main_DynamicProgramming_Pond.m, m = 10, beta = 10^(-6)
+% J0(x,y) := min_pi CVaR_y[ beta*exp(m*g(x0)) + ... + beta*exp(m*g(xN)) | x0 = x, pi ] via dynamic programming for pond example
 
-J0_cost_sum = Js{1};
+J0_cost_sum = Js{1}; beta = 10^(-6); % see stage_cost_pond.m
 
-rs = [-0.1, 0, 0.5, 1.6 ]; % risk levels to be plotted
+rs = [ -0.1, 0, 0.1, 0.5 ]; % risk levels to be plotted
 
-[ U, S ] = getRiskySets_pond( ls, xs, rs, m, J0_cost_sum, J0_cost_max ); % xticklabels are hardcoded, should be function of xs
+[ U, S ] = getRiskySets_pond( ls, xs, rs, m, J0_cost_sum, J0_cost_max, beta );
