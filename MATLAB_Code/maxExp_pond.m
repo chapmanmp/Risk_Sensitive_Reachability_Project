@@ -44,6 +44,8 @@ cvx_begin quiet
     
 cvx_end
 
-if isinf(cvx_optval) || isnan(cvx_optval), display(cvx_optval); error('maxExp.m LP solution not found.'); end
+if ~strcmpi(cvx_status, 'Solved'), error('maxExp.m: cvx not solved.'); end
+
+if isinf(cvx_optval) || isnan(cvx_optval), display(cvx_optval); error('maxExp.m: solution is inf or nan.'); end
 
 bigexp = cvx_optval;

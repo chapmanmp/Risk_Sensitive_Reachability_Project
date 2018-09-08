@@ -184,25 +184,42 @@ x_{k+1} = f(x_k,u_k,w_k), \text{ }\text{ } k = 0, 1, \dots, N-1,
 \label{sys}\end{equation}
 such that $x_k \in \mathbb{R}^n$ is the state of the system at time $k$,
 $u_k \in U$ is the control at time $k$, and
-$w_k \in D$ is the random disturbance at time $k$. Both $U$ and $D$ are finite sets.
-$\mathbb{P}[w_k = d_j] = p_j$ 
-is the probability that the disturbance has the value $d_j \in D$ at time $k$, where $0 \leq p_j \leq 1$ and $\sum_{j=1}^W p_j = 1$.\footnotemark
+$w_k \in D$ is the random disturbance at time $k$. $U$ and $D$ are finite sets.
+The probability that the disturbance takes the value $d_j \in D$ at time $k$ is, $\mathbb{P}[w_k = d_j] = p_j$, 
+where $0 \leq p_j \leq 1$ and $\sum_{j=1}^W p_j = 1$.\footnotemark
 \footnotetext{We also assume that $w_k$ is independent of $x_k$, $u_k$, and disturbances at any other times.}  
 We assume that the initial condition, $x_0$, is not random.
-We are given a (non-empty) constraint set, $\mathcal{K} \subset \mathbb{R}^n$, and the safety criterion that 
+
+We are given a constraint set, $\mathcal{K} \subset \mathbb{R}^n$, and the safety criterion that 
 the state of the system should stay inside $\mathcal{K}$ over time. 
-For example, if the system is a pond with an outlet, then $x_k$ may be the water level at time $k$,
-$u_k$ may  suppose that our system is a pond with an outlet. if our system is a pond with an outlet
+For example, if the system is a pond, then $x_k\geq 0$ may be the water level of the pond at time $k$,
+and $\mathcal{K} := [0, 5\text{ft})$ indicates that the pond overflows if the water level exceeds 5ft.
+We quantify the extent of constraint violation/satisfaction using a surface function that characterizes the constraint set.
+Let $g: \mathbb{R}^n \rightarrow \mathbb{R}$ satisfy,
+\begin{equation}
+x \in \mathcal{K} \iff g(x) < 0,
+\label{g}
+\end{equation}
+where we adopt the convention provided by~\cite{EECS-2018-41} in Equation 2.3.
+For example, we may choose $g(x) := x - 5$ to characterize $\mathcal{K} := [0, 5\text{ft})$ on the state space, 
+$\mathbb{R}_+ := [0, \infty)$.
+
+WeThe goal of this paper is to compute the sets of initial states from which the risk of extreme constraint violations can be made small via a control policy, where risk is quantified
+using Conditional Value-at-Risk.
+
+the set of initial conditions from which there is small risk of large constraint violations over the finite time horizon.
+
+
+
+design an algorithm that computes a \textit{risk-sensitive safe set} 
+for a system of the form specified in Sec.~\ref{model}.
+A risk-sensitive safe set is, informally, the set of initial conditions of the system, from which there is small risk of large constraint violations over time.
 
 The collection of admissible control policies is,
 \begin{equation}
 \Pi = \{ (\mu_0, \mu_1, \dots, \mu_{T-1}), \text{ such that } \mu_k: S\rightarrow C \}.
 \end{equation}
 
-
-
-For example, if our application is the flow of water through a network of ponds and streams, 
-$\mathcal{K}$ may indicate that the water does not overflow the banks during a storm event.
 
 \section{Properties of Risk-Sensitive Safe Sets}\label{prop}
 
@@ -214,20 +231,8 @@ $\mathcal{K}$ may indicate that the water does not overflow the banks during a s
 
 
 
-\section{Problem Statement}
-The goal of this paper is to design an algorithm that computes a \textit{risk-sensitive safe set} 
-for a system of the form specified in Sec.~\ref{model}.
-A risk-sensitive safe set is, informally, the set of initial conditions of the system, from which there is small risk of large constraint violations over time.
 
-We quantify risk using the well-established risk measure, \textit{Conditional Value-at-Risk} (CVaR), which is equal to,
-\begin{equation}
-\text{CVaR}_\delta(Z) = {\underset{c \in \mathbb{R}}\min} \text{ }\Big\{ c + \frac{1}{\delta}\mathbb{E}\big[\max\{Z-c,0\}\big] \Big\},
-\label{cvareqn}
-\end{equation}
-where $\delta \in (0,1)$, and $Z$ is a random variable representing loss~\cite{rockafellar2000optimization}.\footnotemark
 
-If $Z$ is a continuous random variable, then $\text{CVaR}_\delta(Z)$ is the expected value of $Z$ over large realizations of $Z$,
-where the meaning of large is based on $\delta$ (Fig.~\ref{cvar}).
 
 \begin{figure}[thpb]
       \centering
@@ -238,29 +243,6 @@ where the meaning of large is based on $\delta$ (Fig.~\ref{cvar}).
 	  The area of the left portion under the curve, shown in grey, is $1-\delta$.
 	  $\text{CVaR}_\delta(Z)$ is the expectation of the values along the right portion under the curve, indicated by a yellow circle.}
       \label{cvar}
-\end{figure}
-
-We quantify the extent of constraint violation via a surface function that characterizes the constraint set, $\mathcal{K}$.
-Let $g: S \rightarrow \mathbb{R}$ satisfy,
-\begin{equation}
-x \in \mathcal{K} \iff g(x) < 0,
-\label{g}
-\end{equation}
-where we adopt the convention provided by~\cite{EECS-2018-41} in Eq. (2.3). 
-The particular form of $g$ is chosen based on how safety of the system changes with distance to the boundary of $\mathcal{K}$ for the application at hand.
-For example, if the relationship between safety and distance to the boundary of $\mathcal{K}$ is linear, 
-then the signed distance function for $\mathcal{K}$ is a suitable choice for $g$ (Fig.~\ref{exg}, dotted).
-However, if the relationship between safety and distance to the boundary of $\mathcal{K}$ is non-linear,
-then a quadratic function may be more appropriate (Fig.~\ref{exg}, solid).
-
-\begin{figure}[thpb]
-      \centering
-      \includegraphics[scale=0.25]{examples_of_g.jpg}
-      \caption{Different choices for the particular form of $g$, see~\eqref{g}, for an example constraint set, $\mathcal{K} = (0, 10)$. The relationship between
-		safety and distance to the boundary of $\mathcal{K}$ is linear for $g_1(x) = |x-5|-5$ (dotted), and non-linear for $g_2(x) = x(x-10)$ (solid).
-		For example, the degree of safety at $x=6$ characterized by the linear relationship is, $g_1(6) = -4$, since the closest distance 
-		from $x=6$ to the boundary of $\mathcal{K}$ is 4, and $x=6$ is inside $\mathcal{K}$.}
-      \label{exg}
 \end{figure}
 
 We are now ready to define the risk-sensitive safe set formally.

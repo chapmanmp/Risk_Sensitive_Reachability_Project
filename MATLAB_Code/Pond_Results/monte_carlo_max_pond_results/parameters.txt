@@ -1,0 +1,7 @@
+nt = 100,000
+
+signed distance: g(x) = x - 5
+
+cost_type: max
+
+added zero-mean Gaussian noise with standard deviation 0.001 to cost realization
