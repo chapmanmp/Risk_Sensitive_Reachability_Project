@@ -184,15 +184,23 @@ x_{k+1} = f(x_k,u_k,w_k), \text{ }\text{ } k = 0, 1, \dots, N-1,
 \label{sys}\end{equation}
 such that $x_k \in \mathbb{R}^n$ is the state of the system at time $k$,
 $u_k \in U$ is the control at time $k$, and
-$w_k \in D$ is the random disturbance at time $k$. $U$ and $D$ are finite sets.
-The probability that the disturbance takes the value $d_j \in D$ at time $k$ is, $\mathbb{P}[w_k = d_j] = p_j$, 
+$w_k \in D$ is the random disturbance at time $k$. $U$ and $D$ are finite sets of real-valued vectors.
+The dynamics function, $f : \mathbb{R}^n \times U \times D \rightarrow \mathbb{R}^n$, is bounded and Lipschitz continuous.
+The probability that the disturbance equals $d_j \in D$ at time $k$ is, $\mathbb{P}[w_k = d_j] = p_j$, 
 where $0 \leq p_j \leq 1$ and $\sum_{j=1}^W p_j = 1$.\footnotemark
 \footnotetext{We also assume that $w_k$ is independent of $x_k$, $u_k$, and disturbances at any other times.}  
-We assume that the initial condition, $x_0$, is not random.
+The only source of randomness in the system is the disturbance. The controls are not random.
+The initial condition, $x_0$, is not random. 
+The states, $(x_1, \dots, x_N)$, are random because they depend on the random disturbance. 
+The collection of \textit{admissible control policies} is,
+\begin{equation}
+\Pi := \big\{ (\mu_0, \mu_1, \dots, \mu_{N-1}), \text{ where } \mu_k: \mathbb{R}^n \rightarrow U \big\}.
+\label{pi}
+\end{equation}
 
 We are given a constraint set, $\mathcal{K} \subset \mathbb{R}^n$, and the safety criterion that 
 the state of the system should stay inside $\mathcal{K}$ over time. 
-For example, if the system is a pond, then $x_k\geq 0$ may be the water level of the pond at time $k$,
+For example, if the system is a pond, then $x_k$ may be the water level of the pond at time $k$,
 and $\mathcal{K} := [0, 5\text{ft})$ indicates that the pond overflows if the water level exceeds 5ft.
 We quantify the extent of constraint violation/satisfaction using a surface function that characterizes the constraint set.
 Let $g: \mathbb{R}^n \rightarrow \mathbb{R}$ satisfy,
@@ -204,34 +212,218 @@ where we adopt the convention provided by~\cite{EECS-2018-41} in Equation 2.3.
 For example, we may choose $g(x) := x - 5$ to characterize $\mathcal{K} := [0, 5\text{ft})$ on the state space, 
 $\mathbb{R}_+ := [0, \infty)$.
 
-WeThe goal of this paper is to compute the sets of initial states from which the risk of extreme constraint violations can be made small via a control policy, where risk is quantified
-using Conditional Value-at-Risk.
-
-the set of initial conditions from which there is small risk of large constraint violations over the finite time horizon.
-
-
-
-design an algorithm that computes a \textit{risk-sensitive safe set} 
-for a system of the form specified in Sec.~\ref{model}.
-A risk-sensitive safe set is, informally, the set of initial conditions of the system, from which there is small risk of large constraint violations over time.
-
-The collection of admissible control policies is,
+We define a \textit{risk-sensitive safe set} as a set of initial states from which 
+risk of extreme constraint violation over time can be made small using an admissible control policy~\eqref{pi}, where risk is quantified by \textit{Conditional Value-at-Risk}~\eqref{cvareqn}.
+Formally, the risk-sensitive safe set at the confidence level, $\alpha \in (0,1)$, and the risk level, $r \in \mathbb{R}$, is defined as,
+\begin{subequations}\label{myS}
 \begin{equation}
-\Pi = \{ (\mu_0, \mu_1, \dots, \mu_{T-1}), \text{ such that } \mu_k: S\rightarrow C \}.
+\mathcal{S}_\alpha^r := \Big\{x \in \mathbb{R}^n \Big| {\underset{\pi \in \Pi}\inf} \text{ CVaR}_\alpha\big[ Z^\pi_{x} \big] < r \Big\}, \\
 \end{equation}
+where 
+\begin{equation}
+Z^\pi_{x} := \max \big\{ g(x_k) \mid k = 0, \dots, N \big\},
+\end{equation}
+\end{subequations}
+such that the state trajectory $(x_0, x_1, ..., x_N)$
+evolves according to the dynamics model~\eqref{sys} with the initial state, $x_0 := x$, under the admissible policy, $\pi \in \Pi$.
+Note that $g$ characterizes the constraint set, $\mathcal{K}$, according to~\eqref{g}.
+The goal of this paper is to compute a family of risk-sensitive safe sets at different levels of confidence, $\alpha \in (0,1)$, and risk, $r \in \mathbb{R}$.
 
+\section{Rationale}
+Computing risk-sensitive safe sets is a well-motivated problem for several reasons. 
+\textcolor{blue}{This problem is more general than the stochastic reachability problem that is addressed by Abate et al.~\cite{abate2008probabilistic}.
+Abate et al. solves for the \textit{maximal probabilistic safe set} at any safety level, $\epsilon \in [0, 1]$,
+\begin{subequations}\label{abateS}
+\begin{equation}
+S^*(\epsilon) = \{ x \mid {\underset{\pi \in \Pi}\inf}\text{ }\mathbb{E}[ Q_x^\pi ] \leq \epsilon \},
+\end{equation}
+where
+\begin{equation}
+Q_x^\pi := \max \big\{ \textbf{1}_\mathcal{\bar{K}}(x_k) \mid k = 0,\dots, N \big\},
+\end{equation}
+such that the state trajectory $(x_0, x_1, ..., x_N)$ evolves according to a hybrid dynamics model with the initial state, $x_0 := x$,
+under the admissible policy, $\pi \in \Pi$, and 
+\begin{equation}
+\textbf{1}_\mathcal{\bar{K}}(x) := \begin{cases} 1 \text{ if } x \notin \mathcal{K} \\ 0 \text{ if } x \in \mathcal{K} \end{cases};
+\end{equation}
+\end{subequations}
+see~\cite{abate2008probabilistic}, Equations 11 and 13. 
+If we choose $\alpha := 1$, $g(x) := \textbf{1}_\mathcal{\bar{K}}(x) - \frac{1}{2}$, and $r:= \epsilon-\frac{1}{2}$ in~\eqref{myS},
+then we can compute~\eqref{abateS}. [Do you agree? What about the non-strict inequality in $S^*(\epsilon)$? 
+What is the difference between the set of Markov policies $\mathcal{M}_m$ in Abate, and our $\Pi$? 
+Abate did his formulation for hybrid systems, but we are not doing this explicitly]} 
 
-\section{Properties of Risk-Sensitive Safe Sets}\label{prop}
+Further, risk-sensitive safe sets have two desirable mathematical properties.
+The first property is that $\mathcal{S}_\alpha^r$ shrinks as the risk level, $r$, or the confidence level, $\alpha$, decrease.
+Since $\mathcal{S}_\alpha^r$ is an $r$-sublevel set and $\text{CVaR}_\alpha$ increases as $\alpha$ decreases,
+one can show that,
+\begin{equation}\begin{aligned}
+& \mathcal{S}_{\alpha_2}^{r_2} \subseteq \mathcal{S}_{\alpha_1}^{r_2} \subseteq \mathcal{S}_{\alpha_1}^{r_1}, \text{ and } \\
+& \mathcal{S}_{\alpha_2}^{r_2} \subseteq \mathcal{S}_{\alpha_2}^{r_1} \subseteq \mathcal{S}_{\alpha_1}^{r_1}
+\end{aligned}\end{equation}
+hold for any $r_1 \geq r_2$ and $1 > \alpha_1 \geq \alpha_2 > 0$.
+In other words, as the allowable level of risk of constraint violation ($r$) decreases, or
+\textcolor{blue}{as the fraction of damaging outcomes that are not fully addressed ($\alpha$) decreases},
+$\mathcal{S}_\alpha^r$ encodes a higher degree of safety.
+
+The second property is that the risk-sensitive safe sets at risk level, $r := 0$, enjoy probabilistic safety guarantees.
+\begin{lemma}\label{mylemma1}
+If $x \in \mathcal{S}_\alpha^0$, then the probability that the state trajectory initialized at $x$ exits the constraint set can be made strictly
+less than $\alpha$ by an admissible control policy.
+\end{lemma}
+\begin{proof}
+The proof follows from the fact,\footnotemark \\
+\footnotetext{The constraint, $\text{CVaR}_\alpha[Z] \leq 0$, gives a conservative approximation of the chance constraint, $\mathbb{P}[Z > 0] \leq \alpha$,
+for any random variable $Z$ with finite expectation (see~\cite{shapiro2009lectures}, Sec. 6.2.4).
+We do not show $\text{CVaR}_\alpha[Z] < 0 \implies \mathbb{P}[Z\geq 0] < \alpha$ for brevity.} %pp. 257-258
+$\text{CVaR}_\alpha[Z_x^\pi] < 0 \implies \mathbb{P}[Z_x^\pi\geq 0] < \alpha$. \\
+Further, the event, $Z_x^\pi\geq 0$, is equivalent to the event that there exists a state, $x_k$, of the associated trajectory 
+that exits the constraint set, since $g(x) \geq 0 \iff x \notin \mathcal{K}$.\footnotemark
+\footnotetext{``Associated trajectory" refers to the trajectory that is initialized at $x$ and evolves under the policy, $\pi \in \Pi$,
+according to the dynamics model~\eqref{sys}.}
+\end{proof}
+\begin{remark}{}
+Lemma~\ref{mylemma1} indicates that $\mathcal{S}_\alpha^0$ is a subset of Abate et al.'s \textit{maximal probabilistic safe set} at the safety level, $\alpha$;
+see~\cite{abate2008probabilistic}, Equations 9 and 11.
+\end{remark}
 
 \section{Computational Method}\label{alg}
+The computation of risk-sensitive safe sets is challenging due to the presence of the maximum (as opposed to a summation)
+and the use of Conditional Value-at-Risk (as opposed to an expectation). In this paper, we provide under-approximations 
+for risk-sensitive safe sets, and an algorithm to compute these under-approximations. Define $\hat{\mathcal{S}}_\alpha^r$
+for the confidence level, $\alpha \in (0,1)$, and the risk level, $r \in \mathbb{R}$,
+\begin{subequations}\label{under}\begin{equation}
+\hat{\mathcal{S}}_\alpha^r := 
+\Big\{x \in \mathbb{R}^n \Big| {\underset{\pi \in \Pi}\inf} \text{ CVaR}_\alpha \big[ \beta Y_x^\pi \big] < \beta e^{m\cdot r} \Big\},
+\end{equation}
+where
+\begin{equation}
+Y_x^\pi := \overset{N}{\underset{k=0}\sum} e^{m\cdot g(x_k)},
+\end{equation}
+\end{subequations}
+such that the state trajectory $(x_0, x_1, ..., x_N)$
+evolves according to the dynamics model~\eqref{sys} with the initial state, $x_0 := x$, under the admissible policy, $\pi \in \Pi$;
+$\beta > 0$ and $m > 0$ are constants.
+\begin{lemma}\label{lemma2}
+$\hat{\mathcal{S}}_\alpha^r$ is a subset of the risk-sensitive set, $\mathcal{S}_\alpha^r$. 
+Also, the gap between $\hat{\mathcal{S}}_\alpha^r$ and $\mathcal{S}_\alpha^r$ can be made smaller by increasing $m$.
+\end{lemma}
+\begin{proof}
+The proof relies on two facts. The first fact is,
+\begin{equation}\begin{aligned}
+\max\{x_1, \dots, x_p\} & \leq \log( e^{x_1}+ \dots +e^{x_p} ) \\
+						& \leq \max\{x_1, \dots, x_p\} + \log p,
+\end{aligned}\end{equation}
+for any $x \in \mathbb{R}^p$; see~\cite{boyd2004convex}, Sec. 3.1.5 Examples.
+Using this fact, one can show the following,
+\begin{subequations}\label{related}
+\begin{equation}\begin{aligned}
+\max\{y_1, \dots, y_p\} & \leq \frac{1}{m}\log( e^{my_1}+ \dots +e^{my_p} ) \\
+						& \leq \max\{y_1, \dots, y_p\} + \frac{\log p}{m},
+\end{aligned}\end{equation}
+for any $y \in \mathbb{R}^p$, $m > 0$. So, as $m \rightarrow \infty$,
+\begin{equation}
+\frac{1}{m}\log( e^{my_1}+ \dots +e^{my_p} ) \rightarrow \max\{y_1, \dots, y_p\}.
+\end{equation}
+\end{subequations}
+The second fact is that Conditional Value-at-Risk is a \textit{coherent risk measure},
+so it satisfies useful properties. 
+In particular, CVaR is positively homogeneous, i.e., 
+$$\text{CVaR}_\alpha[\lambda Z] = \lambda\text{CVaR}_\alpha[Z],$$ 
+for any $\lambda \geq 0$ and random variable $Z$,
+and monotonic, i.e.,
+$$\text{CVaR}_\alpha[Y] \leq \text{CVaR}_\alpha[Z],$$
+for any random variables, $Y \leq Z$; see~\cite{kisiala2015conditional}, Sec. 2.2.
+Further, CVaR can be expressed as the supremum expectation over a particular set of probability density functions;
+see~\cite{shapiro2009lectures}, Equations 6.40 and 6.70.
+Using this property and the fact, $\mathbb{E}[\log(Z)] \leq \log \left(\mathbb{E}[Z]\right)$,
+one can show,
+\begin{equation}
+\text{CVaR}_\alpha[\log(Z)] \leq \log \left(\text{CVaR}_\alpha[Z]\right),
+\label{logeq}\end{equation}
+for any random variable, $Z$, with finite expectation.
+By monotonicity, positive homogeneity,~\eqref{related}, and~\eqref{logeq},
+\begin{equation}\begin{aligned}
+\text{CVaR}_\alpha\big[ Z_x^\pi \big] & \leq \frac{1}{m} \text{CVaR}_\alpha\big[ \log\left( Y_x^\pi \right) \big] \\
+& \leq \frac{1}{m} \log \left(\text{CVaR}_\alpha\big[ Y_x^\pi \big] \right).
+\end{aligned}\label{12}\end{equation}
+If $x \in \hat{\mathcal{S}}_\alpha^r$, then $\exists \pi \in \Pi$ such that,\footnotemark
+\begin{equation*}\begin{aligned}
+\text{CVaR}_\alpha \big[ \beta Y_x^\pi \big] & < \beta e^{m\cdot r} && \iff \\
+\text{CVaR}_\alpha \big[ Y_x^\pi \big] & < e^{m\cdot r} && \iff \\
+\frac{1}{m}\log \left( \text{CVaR}_\alpha \big[ Y_x^\pi \big] \right) & < r && \implies \\
+\text{CVaR}_\alpha\big[ Z_x^\pi \big] & < r,
+\end{aligned}\end{equation*}
+\footnotetext{The minimum is attained because the random variables in this paper have finite expectation.} 
+where the last line comes from~\eqref{12}. So, $x \in \mathcal{S}_\alpha^r$.
+\end{proof}
+\begin{remark}
+The parameter, $\beta$, is included in~\eqref{under} to counter numerical issues that may arise if $m$ is chosen very large.
+\end{remark}
+
+Next, we will provide a dynamic programming algorithm to compute our under-approximation, $\hat{\mathcal{S}}_\alpha^r$,
+at different levels of confidence and risk. The algorithm is based on the insights provided by Chow et al.~\cite{chow2015risk}.
+\subsection{Algorithm}
+The value function that characterizes~\eqref{under},
+\begin{equation}
+V_0^*(x,\alpha) := {\underset{\pi \in \Pi}\inf} \text{ CVaR}_\alpha \big[ \beta Y_x^\pi \big],
+\label{V0}
+\end{equation}
+encodes the minimum risk of cumulative scaled constraint violation of the state trajectory, starting at the initial state, $x$, 
+and the initial confidence level, $\alpha$. Eq.~\eqref{V0} can be computed by considering 
+the evolution of a fully observable \textit{augmented state} that consists of the state of the system~\eqref{sys} and the confidence level,
+$z := (x,\alpha) \in \mathbb{R}^n \times (0,1)$. We define the augmented set of admissible control policies for the sub-problem starting at time $k$,
+\begin{equation}\begin{aligned}
+\bar{\Pi}_k & := \{ (\mu_k, \mu_{k+1}, \dots, \mu_{N-1}), \mu_i: \mathbb{R}^n \times (0,1) \rightarrow U \},\\
+ & k = 0, \dots, N-1,
+\end{aligned}\label{augpi}\end{equation}
+where both the state of the system and the confidence level at time $t$ are arguments of $\mu_t$. 
+We will provide an algorithm that explicitly computes the value function that is optimized over the augmented policy space,
+\begin{equation}
+J_0^*(x,\alpha) := {\underset{\pi \in \bar{\Pi}_0}\inf} \text{ CVaR}_\alpha \big[ \beta Y_x^\pi \big].
+\label{J0}
+\end{equation}
+
+The algorithm depends on an existing result that provides the next confidence level based on the current confidence level, the system's current state, and 
+the system's control policy for the sub-problem starting at the current time.
+
+\begin{lemma}\label{decomlemma}
+Lemma 22 of Pflug and Pichler~\cite{pflug2016time} implies the following CVaR-decomposition for the system~\eqref{sys}
+subject to the augmented policy, $\pi_k \in \bar{\Pi}_k$, 
+\begin{equation}\label{decomp}\begin{aligned}
+\text{CVaR}_\alpha \Big[ Z^{\pi_k} \Big| x_k \Big] & = {\underset{R \in \mathcal{R}(\alpha, \mathbb{P})}\max} \mathbb{E}\Big[ R\cdot \text{CVaR}_{\alpha R}\big[ Z^{\pi_k} \big| x_{k+1}\big] \Big| x_k, \alpha \Big] \\
+Z^{\pi_k} & := \sum_{i=k+1}^N c(x_i) \\
+\mathcal{R}(\alpha, \mathbb{P}) & := \Big\{ R : D \rightarrow \Big[0, \frac{1}{\alpha}\Big] \text{ such that } \mathbb{E}[R] = 1 \Big\}, \\
+\end{aligned}\end{equation}
+where $c : \mathbb{R}^n \rightarrow \mathbb{R}$ is a stage cost.
+\end{lemma}
+\begin{remark}
+The term, $\text{CVaR}_\alpha \big[ Z^{\pi_k} \big| x_k \big]$, is the risk of 
+the random cumulative cost, $Z^{\pi_k}$, of the state trajectory, $(x_k, \dots, x_{N})$, where $x_k$ is the given initial condition, 
+and $\pi_k \in \bar{\Pi}_k$ is the given policy.
+\end{remark}
+\begin{remark}
+For the system~\eqref{sys},
+\begin{equation*}\begin{aligned}
+\mathbb{E}\Big[ R\cdot \text{CVaR}_{\alpha R} & \big[ Z^{\pi_k} \big| x_{k+1}\big] \Big| x_k, \alpha \Big] = \\
+& \textstyle\sum_{j=1}^W r_j \cdot \text{CVaR}_{\alpha \cdot r_j}\big[ Z^{\pi_k} \big| x_{k+1}^j \big] \cdot \mathbb{P}[w_k = d_j],\\
+\end{aligned}\end{equation*}
+and 
+$$\mathbb{E}\big[ R ] = \textstyle \sum_{j=1}^W r_j \cdot \mathbb{P}[w_k = d_j],$$
+such that $r_j = R(d_j) \in \big[0, \frac{1}{\alpha}\big]$ is the $j$\textsuperscript{th} realization of the random variable, $R \in \mathcal{R}(\alpha, \mathbb{P})$, and 
+$x_{k+1}^j = f(x_k, \mu_k(x_k, \alpha), d_j)$ is the $j$\textsuperscript{th} realization of the state
+of the system at time $k+1$ under the control, $u_k = \mu_k(x_k, \alpha)$, where $w_k = d_j$ is given.
+\end{remark}
+\begin{remark}
+Chow et al.~\cite{chow2015risk} first interpreted Lemma 22 of Pflug and Pichler~\cite{pflug2016time} 
+in the context of Markov Decision Processes.
+Lemma~\ref{decomlemma} restates the result in the context of stochastic dynamic systems.
+\end{remark}
+
 
 \section{Numerical Example}\label{ex}
 
 \section{Conclusion}\label{conc}
-
-
-
-
 
 
 \begin{figure}[thpb]
@@ -245,136 +437,7 @@ The collection of admissible control policies is,
       \label{cvar}
 \end{figure}
 
-We are now ready to define the risk-sensitive safe set formally.
-Let $\xi_y^\pi(k) \in S$ be the random state of the system at time $k$ that satisfies~\eqref{sys} under a given control policy $\pi \in \Pi$,
-starting from a given (non-random) state $y \in S$ at time 0.  
-The maximum extent of constraint violation attained by the system under policy $\pi \in \Pi$, starting from initial condition $y \in S$, 
-is given by the random variable,
-\begin{equation}
-X_y^\pi = {\underset{k \in \{0, \dots, T\}}\max} \Big\{ g\big(\xi_y^\pi(k)\big) \Big\},
-\label{xpiy}\end{equation}
-where $g$ satisfies~\eqref{g}.
-For any $\delta \in (0,1)$, the risk-sensitive safe set is,
-\begin{equation} \begin{aligned}
-\mathcal{U}_\delta := &  \Big\{y \in S\text{ }|\text{ }\exists \pi \in \Pi \text{ such that } \text{CVaR}_\delta\left(X_y^\pi\right) < 0 \Big\} \\
-= & \Big\{y \in S \text{ }|\text{ } {\underset{\pi \in \Pi}\min}\text{ } \big\{\text{CVaR}_\delta\left(X_y^\pi\right)\big\} < 0 \Big\},
-\label{U}\end{aligned}\end{equation}
-where the random variable, $X_y^\pi$, is defined in~\eqref{xpiy},
-and the conditional value-at-risk is taken with respect to the probability distribution of $(w_0, \dots, w_{T-1})$. 
-To summarize, the risk-sensitive safe set is the set of initial conditions from which
-the risk of large constraint violations can be made small by an appropriate control policy.
-The problem addressed in this paper is how to compute~\eqref{U}.
-
-\section{Properties of $\mathcal{U}_\delta$}
-Here we present two key properties of the risk-sensitive safe set.
-The first property is that every state in $\mathcal{U}_\delta$ enjoys a probabilistic safety guarantee.
-To prove this property, we need the following result adopted from~\cite{shapiro2009lectures}.\\
-\textcolor{blue}{SJ: The simplified proof is using $\delta = 1 - \alpha$. I suggest we use this notation throughout the paper. }\\
-\begin{lemma}\label{lemma1}
- Let $\delta \in (0,1)$, and $Z$ be a random variable. If $\text{CVaR}_\delta(Z) < 0$, then $\mathbb{P}[Z\geq 0] < \delta$ (see~\cite{shapiro2009lectures}, Sec. 6.2.4).\footnotemark
-\end{lemma}
-\textcolor{blue}{\begin{proof} SJ: simplifying the proof below. 
-\begin{align}
-& \text{CVaR}_{1-\alpha}(Z) < 0 \nonumber \\ 
-\iff & \frac{1}{1-\alpha} \mathbb{E}\big[\max\{Z-c,0\}\big] < -c \nonumber \\
-\iff & \exists c \in \mathbb{R} \;\; c + \frac{1}{1-\alpha}\mathbb{E}\big[\max\{Z-c,0\}\big] < 0 \; [\text{using }~\eqref{cvareqn}] \nonumber \\
-\iff & \mathbb{E}\big[\max\{Z-c,0\}\big] < -c(1-\alpha) \label{proofeqn1}
-\end{align} 
-Now, the LHS of the inequality,  $\mathbb{E}\big[\max\{Z-c,0\}\big] \geq 0$ because the expectation of non-negative values cannot be negative. Consequently, the RHS of the inequality must also be non-negative, that is, $-c(1-\alpha) \geq 0$, that is, $c \leq 0$ since $1-\alpha \geq 0$. So, we can rewrite  inequality~\eqref{proofeqn1} using $ a = -c \geq 0$ as follows: 
-\begin{align}
-& \mathbb{E}\big[\max\{Z+a,0\}\big] < a(1-\alpha), \; \text{where} \; a \geq 0 \nonumber \\
-\iff & \; \frac{1}{a}\mathbb{E}\big[\max\{Z+a,0\}\big] < 1-\alpha, \; \text{where}  \; a \geq 0 \label{proofeqn2}
-\end{align}
-Using Markov's Inequality,
-$\mathbb{P}\big[\max\{Z+a,0\} \geq a \big] \leq  \frac{1}{a}\mathbb{E}\big[\max\{Z+a,0\}\big]$. Combining with inequality~\eqref{proofeqn2},\\
-\begin{align}
-& \mathbb{P}\big[\max\{Z+a,0\} \geq a \big] \leq  \frac{1}{a}\mathbb{E}\big[\max\{Z+a,0\}\big] < 1-\alpha \nonumber \\
-\Rightarrow \;\; & \mathbb{P}\big[\max\{Z+a,0\} \geq a \big] < 1-\alpha \label{proofeqn3}
-\end{align}
-Now, $Z \geq 0 \iff Z+a \geq a \iff \max\{Z+a,0\} \geq a $ since $a \geq 0$, and so,\\
-$\mathbb{P}\big[Z \geq 0\big] = \mathbb{P}\big[\max\{Z+a,0\} \geq a\big]$.
-Combining with the inequality~\eqref{proofeqn3},
-\begin{align*}
-& \mathbb{P}\big[Z \geq 0\big] = \mathbb{P}\big[\max\{Z+a,0\} \geq a\big] < 1-\alpha \\
-\iff \;\; & \mathbb{P}\big[Z \geq 0\big] < 1-\alpha 
-\end{align*}
-\end{proof}
-The only one-sided implication is in the use of Markov's Inequality to get inequality~\eqref{proofeqn2}, and this corresponds to the approximation gap in using 
- $\text{CVaR}_{1-\alpha}(Z) < 0$
- to approximate $\mathbb{P}[Z\geq 0] < 1-\alpha$.\\}
-%% sj: end new proof
-\footnotetext{Ref.~\cite{shapiro2009lectures} indicates that the constraint, $\text{CVaR}_\delta(Z) \leq 0$, gives a conservative approximation of the chance constraint, $\mathbb{P}[Z > 0] \leq \delta$. %pp. 257-258 
-$\text{CVaR}_\delta(Z) \leq 0$ is written as ``$\text{AV@R}_\alpha(Z_x) \leq 0$'' in~\cite{shapiro2009lectures}, see (6.24).
-$\mathbb{P}[ Z > 0] \leq \delta$ is equivalent to $\mathbb{P}[ Z\leq 0] \geq 1 - \delta$, 
-which is written as ``$\text{Pr}(Z_x \leq 0) \geq 1 - \alpha$" in~\cite{shapiro2009lectures}, see text below (6.18).}
-The next corollary indicates that every state in $\mathcal{U}_\delta$ enjoys a probabilistic safety guarantee.
-\begin{corollary}
-$\mathcal{U}_\delta$, as defined in~\eqref{U}, is a subset of $\mathcal{S}_\delta$,
-\begin{equation}
-\mathcal{S}_\delta := \Big\{y \in S\text{ }|\text{ }\exists \pi \in \Pi\text{, } \mathbb{P}\left[\forall k \in \mathbb{T}\text{, }\xi_y^\pi(k) \in \mathcal{K} \right]  > 1-\delta \Big\}, \\
-\label{S}\end{equation}
-where $\mathbb{P}$ is the probability measure for the state trajectory, and $\mathbb{T} = \{0, 1, \dots, T\}$ is the time horizon.
-\end{corollary}
-\begin{proof}
-\textcolor{blue}{may want to remove this proof b/c it's not very important?}
-Take $y \in \mathcal{U}_\delta$. Then, there exists $\pi \in \Pi$ such that $\text{CVaR}_\delta(X_y^\pi) < 0$, 
-which implies $\mathbb{P}[X_y^\pi \geq 0] < \delta$ by Lemma~\ref{lemma1}.
-After some algrebra using~\eqref{g} and~\eqref{xpiy},
-\begin{equation}
-\mathbb{P}[X_y^\pi \geq 0] = 1 - \mathbb{P}\left[\forall k \in \mathbb{T}\text{, } \xi_y^\pi(k) \in \mathcal{K} \right].
-\end{equation}
-So, $\exists \pi \in \Pi$ such that $\mathbb{P}\left[\forall k \in \mathbb{T}\text{, } \xi_y^\pi(k) \in \mathcal{K} \right] > 1- \delta$, implying that $y \in \mathcal{S}_\delta$.
-\end{proof}
-The second key property of the risk-sensitive safe set, $\mathcal{U}_\delta$, is, as $\delta$ decreases,
-the states of $\mathcal{U}_\delta$ enjoy a stronger probabilistic safety guarantee, and $\mathcal{U}_\delta$ becomes smaller.
-\begin{lemma}\label{lemma2}
-Let $1>\delta_1 \geq \delta_2>0$. Then, $\mathcal{S}_{\delta_2} \supset \mathcal{S}_{\delta_1}$,
-and $\mathcal{U}_{\delta_2} \supset \mathcal{U}_{\delta_1}$, where $\mathcal{U}_{\delta}$ is given by~\eqref{U}
-and $\mathcal{S}_{\delta}$ is given by~\eqref{S}. 
-\end{lemma}
-\begin{remark}{Remark}
-
-\end{remark}
-
-
-
-
-Please see Table~\ref{terms} for a summary of relevant notation.
-
-\textit{Problem 1}. An important problem is to compute the set of initial states for which there exists an admissible control policy that keeps
-the system inside the constraint set over time with sufficiently high probability. The \textit{safe set} with confidence $1-\delta \in (0,1)$ is defined as,
-\begin{equation}
-\mathcal{S}(\delta) := \{ x \in S\text{ }|\text{ } \exists \pi \in \Pi \text{ such that } \mathbb{P}[ \forall k \in \mathbb{T}\text{, } \xi_x^\pi(k)\in \mathcal{K}] > 1-\delta \}.
-\end{equation}
-
-\begin{table}
-\begin{center}
-\caption{}
-\begin{tabular}{| p{1.5cm} | p{6cm} | p{7cm} |}
-\hline
-Symbol & Definition & Expression (if applicable) \\ \hline
-$g$ & Surface function that characterizes the constraint set, $\mathcal{K}$ & $x \in \mathcal{K} \iff g(x) < 0$ \\ \hline
-$C$ & Set of possible values for the control input & \\ \hline
-$D_k$ & Sample space for the random disturbance input at time $k$ & $D_k := \{d_1^k, d_2^k, \dots, d_N^k\}$ \\ \hline
-$S$ & Set of (continuous) states  & $S := \mathbb{R}^n$ \\ \hline
-$\mathcal{K}$ & Constraint set & $\mathcal{K} \subset S$ \\ \hline
-$\Pi$ & Set of admissible control policies & $\Pi := \{ (\mu_0, \mu_1, \dots, \mu_{T-1}), \text{ such that } \mu_k: S\rightarrow C \}$ \\ \hline
-$\mathbb{P}$ & The probability measure with respect to $(w_0, w_1, \dots, w_{T-1})$ & \\ \hline
-$\mathbb{T}$ & Finite discrete time horizon & $\mathbb{T} := \{0, 1, \dots, T\}$ \\ \hline
-$\xi_x^\pi(k)$ & Random state at time $k$ under (fixed) policy $\pi$, starting from (fixed) initial condition, $x \in S$, at time 0 &  \\ \hline
-\end{tabular}
-\begin{flushleft}\end{flushleft}
-\label{terms}
-\end{center}
-\end{table}
-
-\section{Relation between Probablistic Safety and CVaR safety}\label{lemmaconnection}
-
-
-
-
-
-
+the conditional value-at-risk is taken with respect to the probability distribution of $(w_0, \dots, w_{T-1})$. 
 
 \section{Conclusion}\label{conclusion}
 -inform the cost-effective design of infrastructure that must withstand rare extreme storms,
