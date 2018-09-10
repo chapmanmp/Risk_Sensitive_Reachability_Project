@@ -25,7 +25,8 @@ nd = length(ws); % # of possible values that disturbance can take on
 [ As, bs ] = getLMIs_pond( x, u, ws, xs, ls, J_kPLUS1, dt, area_pond ); % As{i} & bs{i} are column vectors; 
 % Each LMI encodes the linear interpolation of y*J_k+1( x_k+1, y ) versus y, at fixed x_k+1
 
-for j = 1 : 2 % allow for at most 2 tries
+cvx_solver mosek;
+for j = 1 : 2 % allow for 2 different solvers
     
     cvx_begin
 
@@ -46,7 +47,7 @@ for j = 1 : 2 % allow for at most 2 tries
     
     cvx_end
     
-    if strcmpi(cvx_status, 'Solved') || strcmpi(cvx_status, 'Inaccurate/Solved'), cvx_solver sdpt3; break;
+    if strcmpi(cvx_status, 'Solved') || strcmpi(cvx_status, 'Inaccurate/Solved'), break;
         
     else
         

@@ -12,7 +12,9 @@ function P = getProbDist( ws )
 
 nw = length(ws);
 
-cvx_begin quiet
+cvx_solver sdpt3;
+
+cvx_begin
 
     variables p(nw,1)
 
