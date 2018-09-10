@@ -397,6 +397,11 @@ Z^{\pi_k} & := \sum_{i=k+1}^N c(x_i) \\
 \end{aligned}\end{equation}
 where $c : \mathbb{R}^n \rightarrow \mathbb{R}$ is a stage cost.
 \end{lemma}
+\begin{proof}
+The proof relies on the measure-theoretic definition of conditional expectation, and the fact that 
+the next state of the system~\eqref{sys} is given by the current state, the current control action, and the current realization of the disturbance.
+\textcolor{blue}{please provide more details here}
+\end{proof}
 \begin{remark}
 The term, $\text{CVaR}_\alpha \big[ Z^{\pi_k} \big| x_k \big]$, is the risk of 
 the random cumulative cost, $Z^{\pi_k}$, of the state trajectory, $(x_k, \dots, x_{N})$, where $x_k$ is the given initial condition, 

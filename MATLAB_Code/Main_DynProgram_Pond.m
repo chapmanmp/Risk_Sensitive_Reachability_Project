@@ -25,7 +25,7 @@ for k = N: -1: 1,  [ Js{k} , mus{k} ] = CVaR_Bellman_Backup_pond( Js{k+1}, X, L,
 % See Results
 for k = N+1: -1: 1
     
-    figure(k); FigureSettings; mesh( X, L, Js{k} ); title(['Dynamic programming, m = ', num2str(m)]);
+    figure(k); FigureSettings; mesh( X, L, Js{k} ); title(['Dyn. Programming (soft-max, m = ', num2str(m),')']);
     
     xlabel('State, x'); ylabel('Confidence level, y'); zlabel(['J_{', num2str(k-1), '}(x,y)']);
     

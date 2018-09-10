@@ -25,26 +25,40 @@ nd = length(ws); % # of possible values that disturbance can take on
 [ As, bs ] = getLMIs_pond( x, u, ws, xs, ls, J_kPLUS1, dt, area_pond ); % As{i} & bs{i} are column vectors; 
 % Each LMI encodes the linear interpolation of y*J_k+1( x_k+1, y ) versus y, at fixed x_k+1
 
-cvx_begin quiet
+for j = 1 : 2 % allow for at most 2 tries
+    
+    cvx_begin
 
-    variables Z(nd,1) t(nd,1)
+        variables Z(nd,1) t(nd,1)
     
-    maximize( P' * t / y )
+        maximize( P' * t / y )
     
-    subject to
+        subject to
     
-        % one LMI per disturbance realization (equivalently, per next state realization)
-        for i = 1 : nd,  As{i}*Z(i) + bs{i} >= t(i); end 
+            % one LMI per disturbance realization (equivalently, per next state realization)
+            for i = 1 : nd,  As{i}*Z(i) + bs{i} >= t(i); end 
           
-        Z <= 1;
+            Z <= 1;
     
-        Z >= 0;
+            Z >= 0;
     
-        P' * Z == y;
+            P' * Z == y;
     
-cvx_end
+    cvx_end
+    
+    if strcmpi(cvx_status, 'Solved') || strcmpi(cvx_status, 'Inaccurate/Solved'), cvx_solver sdpt3; break;
+        
+    else
+        
+        if j == 1, cvx_solver sedumi;
+            
+        else, error('maxExp.m: cvx not solved.');
+            
+        end
+        
+    end
 
-if ~strcmpi(cvx_status, 'Solved'), error('maxExp.m: cvx not solved.'); end
+end
 
 if isinf(cvx_optval) || isnan(cvx_optval), display(cvx_optval); error('maxExp.m: solution is inf or nan.'); end
 

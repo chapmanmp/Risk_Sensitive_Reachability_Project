@@ -30,7 +30,7 @@ nr = length(rs); % # discretized risk levels
 
 U = cell(nr, nl); S = U; figure; FigureSettings;
 
-for r_index = 1 : nr, r = rs(r_index); subplot(1, nr, r_index);
+for r_index = 1 : nr, r = rs(r_index); subplot(2, nr/2, r_index);
     
     for l_index = 1 : nl, y = ls(l_index); U_ry = []; S_ry = []; 
 
@@ -48,7 +48,9 @@ for r_index = 1 : nr, r = rs(r_index); subplot(1, nr, r_index);
         
     end
     
-    if r_index==1, ylabel('Confidence level, y'); end; title(['r = ', num2str(r)]); xlabel('State, x');
+    if r_index==1, legend('x \in U_y^r','x \in S_y^r'); end; % put legend for biggest rs, where U_ry is not empty
+    
+    title(['r = ', num2str(r)]); xlabel('State, x'); ylabel('Confidence level, y');
     
     axis([min(xs) max(xs) min(ls) max(ls)]); grid on; yticks(sort(ls)); xticks(xs);
     
@@ -56,8 +58,6 @@ for r_index = 1 : nr, r = rs(r_index); subplot(1, nr, r_index);
                      '','','','','2.5','','','','','3','','','','','3.5','','','','','4',...
                      '','','','','4.5','','','','','5','','','','','5.5','','','','','6','','','','','6.5'});   
 end
-legend('x \in U_y^r','x \in S_y^r');
-    
 
 
 
