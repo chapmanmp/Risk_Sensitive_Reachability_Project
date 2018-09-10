@@ -1,0 +1,10 @@
+Date: September 10, 2018
+
+Ran Main_Monte_Carlo.m
+
+nt = 100,000
+
+type_sum = 0
+
+added noise: SD = 10^(-12)
+

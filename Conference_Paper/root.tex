@@ -290,23 +290,23 @@ see~\cite{abate2008probabilistic}, Equations 9 and 11.
 \section{Computational Method}\label{alg}
 The computation of risk-sensitive safe sets is challenging due to the presence of the maximum (as opposed to a summation)
 and the use of Conditional Value-at-Risk (as opposed to an expectation). In this paper, we provide under-approximations 
-for risk-sensitive safe sets, and an algorithm to compute these under-approximations. Define $\hat{\mathcal{S}}_\alpha^r$
+for risk-sensitive safe sets, and an algorithm to compute these under-approximations. Define $\mathcal{U}_\alpha^r$
 for the confidence level, $\alpha \in (0,1)$, and the risk level, $r \in \mathbb{R}$,
 \begin{subequations}\label{under}\begin{equation}
-\hat{\mathcal{S}}_\alpha^r := 
-\Big\{x \in \mathbb{R}^n \Big| {\underset{\pi \in \Pi}\inf} \text{ CVaR}_\alpha \big[ \beta Y_x^\pi \big] < \beta e^{m\cdot r} \Big\},
+\mathcal{U}_\alpha^r := 
+\Big\{x \in \mathbb{R}^n \Big| {\underset{\pi \in \Pi}\inf} \text{ CVaR}_\alpha \big[ Y_x^\pi \big] < \beta e^{m\cdot r} \Big\},
 \end{equation}
 where
 \begin{equation}
-Y_x^\pi := \overset{N}{\underset{k=0}\sum} e^{m\cdot g(x_k)},
+Y_x^\pi := \overset{N}{\underset{k=0}\sum} \beta e^{m\cdot g(x_k)},
 \end{equation}
 \end{subequations}
 such that the state trajectory $(x_0, x_1, ..., x_N)$
 evolves according to the dynamics model~\eqref{sys} with the initial state, $x_0 := x$, under the admissible policy, $\pi \in \Pi$;
 $\beta > 0$ and $m > 0$ are constants.
 \begin{lemma}\label{lemma2}
-$\hat{\mathcal{S}}_\alpha^r$ is a subset of the risk-sensitive set, $\mathcal{S}_\alpha^r$. 
-Also, the gap between $\hat{\mathcal{S}}_\alpha^r$ and $\mathcal{S}_\alpha^r$ can be made smaller by increasing $m$.
+$\mathcal{U}_\alpha^r$ is a subset of the risk-sensitive set, $\mathcal{S}_\alpha^r$. 
+Also, the gap between $\mathcal{U}_\alpha^r$ and $\mathcal{S}_\alpha^r$ can be made smaller by increasing $m$.
 \end{lemma}
 \begin{proof}
 The proof relies on two facts. The first fact is,
@@ -328,10 +328,10 @@ for any $y \in \mathbb{R}^p$, $m > 0$. So, as $m \rightarrow \infty$,
 \end{subequations}
 The second fact is that Conditional Value-at-Risk is a \textit{coherent risk measure},
 so it satisfies useful properties. 
-In particular, CVaR is positively homogeneous, i.e., 
+In particular, CVaR is positively homogeneous,
 $$\text{CVaR}_\alpha[\lambda Z] = \lambda\text{CVaR}_\alpha[Z],$$ 
 for any $\lambda \geq 0$ and random variable $Z$,
-and monotonic, i.e.,
+and monotonic,
 $$\text{CVaR}_\alpha[Y] \leq \text{CVaR}_\alpha[Z],$$
 for any random variables, $Y \leq Z$; see~\cite{kisiala2015conditional}, Sec. 2.2.
 Further, CVaR can be expressed as the supremum expectation over a particular set of probability density functions;
@@ -344,14 +344,14 @@ one can show,
 for any random variable, $Z$, with finite expectation.
 By monotonicity, positive homogeneity,~\eqref{related}, and~\eqref{logeq},
 \begin{equation}\begin{aligned}
-\text{CVaR}_\alpha\big[ Z_x^\pi \big] & \leq \frac{1}{m} \text{CVaR}_\alpha\big[ \log\left( Y_x^\pi \right) \big] \\
-& \leq \frac{1}{m} \log \left(\text{CVaR}_\alpha\big[ Y_x^\pi \big] \right).
+\text{CVaR}_\alpha\big[ Z_x^\pi \big] & \leq \frac{1}{m} \text{CVaR}_\alpha\big[ \log\left( Y_x^\pi/\beta \right) \big] \\
+& \leq \frac{1}{m} \log \left(\text{CVaR}_\alpha\big[ Y_x^\pi/\beta \big] \right).
 \end{aligned}\label{12}\end{equation}
-If $x \in \hat{\mathcal{S}}_\alpha^r$, then $\exists \pi \in \Pi$ such that,\footnotemark
+If $x \in \mathcal{U}_\alpha^r$, then $\exists \pi \in \Pi$ such that,\footnotemark
 \begin{equation*}\begin{aligned}
-\text{CVaR}_\alpha \big[ \beta Y_x^\pi \big] & < \beta e^{m\cdot r} && \iff \\
-\text{CVaR}_\alpha \big[ Y_x^\pi \big] & < e^{m\cdot r} && \iff \\
-\frac{1}{m}\log \left( \text{CVaR}_\alpha \big[ Y_x^\pi \big] \right) & < r && \implies \\
+\text{CVaR}_\alpha \big[ Y_x^\pi \big] & < \beta e^{m\cdot r} && \iff \\
+\text{CVaR}_\alpha \big[ Y_x^\pi /\beta \big] & < e^{m\cdot r} && \iff \\
+\frac{1}{m}\log \left( \text{CVaR}_\alpha \big[  Y_x^\pi /\beta \big] \right) & < r && \implies \\
 \text{CVaR}_\alpha\big[ Z_x^\pi \big] & < r,
 \end{aligned}\end{equation*}
 \footnotetext{The minimum is attained because the random variables in this paper have finite expectation.} 
@@ -426,8 +426,27 @@ Lemma~\ref{decomlemma} restates the result in the context of stochastic dynamic 
 \end{remark}
 Using Lemma~\ref{decomlemma}, the next result provides a dynamic programming value-iteration that computes~\eqref{J0}.
 \begin{theorem}
-Define the functions, $J_{N-1}$, \dots, $J_0$, recursively as follows, $\forall (x_k, y_k) \in \mathbb{R}^n \times (0,1)$
+Define the functions, $J_{N-1}$, \dots, $J_0$, recursively as follows, $\forall (x_k, y_k) \in \mathbb{R}^n \times (0,1)$,
+\begin{equation}\begin{aligned}
+& J_k(x_k,y_k) := \\
+& {\underset{u_k \in U}\min} \Bigg\{ c(x_k) + {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max} \mathbb{E}\Big[ R J_{k+1}(x_{k+1}, y_k R) \Big| (x_k, y_k), u_k \Big] \Bigg\}, \\
+& k = N-1, \dots, 0,
+\end{aligned}\end{equation}
+with the initialization, $J_N(x_k, y_k) := c(x_k)$. 
+Then, $J_0^*(x,\alpha)$, as defined in~\eqref{J0}, is given by $J_0(x, \alpha)$, 
+the function at the last step of the recursion evaluated at $(x,\alpha)$.
 \end{theorem}
+\begin{remark}
+the functions J's are well-defined and finite because D is a finite set
+$x_{k+1}$ is given by~\eqref{sys}, and $\mathcal{R}(y_k, \mathbb{P})$ is defined in~\eqref{decomp}
+We choose $c(x) := $
+\end{remark}
+\begin{remark}
+Chow proposed bellman operator (infinite time/discounted case). no switch min/max required in ours.
+\end{remark}
+\begin{remark}
+we do not show that policy is optimal...exploring the techniques...
+\end{remark}
 
 
 
