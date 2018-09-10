@@ -15,20 +15,20 @@
         % at y = ls(l_index), x = xs(x_index)
     % beta: small positive number
 % OUTPUT: plots of U(y,r), S(y,r) as well as
-    % U{l_index}{r_index} = U(y,r), where y = ls(l_index), r = rs(r_index)
-    % S{l_index}{r_index} = S(y,r), where y = ls(l_index), r = rs(r_index)
+    % U{r_index}{l_index} = U(y,r), where y = ls(l_index), r = rs(r_index)
+    % S{r_index}{l_index} = S(y,r), where y = ls(l_index), r = rs(r_index)
 % NOTE: xtick labels are hard-coded. Should be a function of xs
 % AUTHOR: Margaret Chapman
 % DATE: August 30, 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [ U, S ] = getRiskySets_pond( ls, xs, rs, m, J0_cost_sum, J0_cost_max, beta )
+function [ U, S ] = getRiskySets_pond( ls, xs, rs, m, J0_cost_sum, J0_cost_max, beta, fignum )
 
 nl = length(ls); % # discretized confidence levels
 
 nr = length(rs); % # discretized risk levels
 
-U = cell(nr, nl); S = U; figure; FigureSettings;
+U = cell(nr, nl); S = U; figure(fignum); FigureSettings;
 
 for r_index = 1 : nr, r = rs(r_index); subplot(2, nr/2, r_index);
     
@@ -52,11 +52,14 @@ for r_index = 1 : nr, r = rs(r_index); subplot(2, nr/2, r_index);
     
     title(['r = ', num2str(r)]); xlabel('State, x'); ylabel('Confidence level, y');
     
-    axis([min(xs) max(xs) min(ls) max(ls)]); grid on; yticks(sort(ls)); xticks(xs);
+    % xs(51) = 5ft, upper bound of constraint set for dx = 1/10
+    index_x5 = 51; xs_short = xs(1: index_x5);
+    
+    axis([min(xs) max(xs_short) min(ls) max(ls)]); grid on; yticks(sort(ls)); xticks(xs_short);
     
     xticklabels({'0','','','','','0.5','','','','','1','','','','','1.5','','','','','2',... % hard-coded
                      '','','','','2.5','','','','','3','','','','','3.5','','','','','4',...
-                     '','','','','4.5','','','','','5','','','','','5.5','','','','','6','','','','','6.5'});   
+                     '','','','','4.5','','','','','5'});   
 end
 
 

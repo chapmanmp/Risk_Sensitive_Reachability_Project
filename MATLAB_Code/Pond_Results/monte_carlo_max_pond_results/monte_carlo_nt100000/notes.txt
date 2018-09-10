@@ -8,3 +8,5 @@ type_sum = 0
 
 added noise: SD = 10^(-12)
 
+signed distance function = x - 5
+

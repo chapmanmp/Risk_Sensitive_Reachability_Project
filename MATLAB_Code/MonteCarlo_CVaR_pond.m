@@ -27,7 +27,7 @@ for i = 1 : nw, tick_P(i+1) = tick_P(i) + P(i); end                 % tick_P = [
 
 nl = length(ls); nx = length(xs); J0 = zeros( nl, nx );
 
-nt = 1000000;                                                       % number of trials per grid point
+nt = 100000;                                                        % number of trials per grid point
 
 for l_index = 1 : nl                                                % for each grid point
 for x_index = 1 : nx

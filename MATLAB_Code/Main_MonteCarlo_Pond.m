@@ -21,8 +21,6 @@ if type_sum, title(['Monte Carlo (soft max, m = ', num2str(m), ')']); else, titl
 
 xlabel('State, x'); ylabel('Confidence level, y'); zlabel(['J_0', '(x,y)']);
 
-%index_clip = 56; %xs(56) = 5.5ft, clip so we don't analyze inaccuracies near boundary of grid?
-% mesh( X(:,1:index_clip), L(:,1:index_clip), J0_MonteCarlo(:,1:index_clip) );
 
 
 
