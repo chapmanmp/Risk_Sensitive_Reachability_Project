@@ -4,7 +4,46 @@
 % DATE: September 6, 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Compares [Monte Carlo, max] vs. [Dynamic Programming, soft-max] 
+%% Compare [Monte Carlo, max] vs. [Dynamic Programming, soft-max], improved P & ws
+
+close all; clearvars; clc;
+
+load('Pond_Results\more_accurate_probdist\monte_carlo\monte_carlo_max_sept112018.mat');
+% Results from Main_MonteCarlo_Pond.m, type_sum = 0, g(x) = x - 5, nt = 100,000, improved P & ws 
+% J0(x,y) := min_pi CVaR_y[ max{ g(xk) : k = 0,...,N } | x0 = x, pi ] via Monte Carlo for pond example
+
+J0_cost_max = J0_MonteCarlo;
+
+load('Pond_Results\more_accurate_probdist\dyn_prog\dyn_prog_results_sept112018.mat');
+% Results from Main_DynProgram_Pond.m, m = 10, beta = 10^(-3), g(x) = x - 5, improved P & ws
+% J0(x,y) := min_pi CVaR_y[ beta*exp(m*g(x0)) + ... + beta*exp(m*g(xN)) | x0 = x, pi ] via dyn. prog. for pond example
+
+J0_cost_sum = Js{1}; beta = 10^(-3); % see stage_cost_pond.m
+
+rs = linspace( 1, 0.25, 6 ); % risk levels to be plotted, choose min to be slightly bigger than min(min(J0_cost_max))
+
+[ U, S ] = getRiskySets_pond( ls, xs, rs, m, J0_cost_sum, J0_cost_max, beta, 1 );
+
+%% Compare [Monte Carlo, soft-max] vs. Dynamic Programming, soft-max] to justify nt = 100,000
+
+% m = 10, beta = 10^(-3), g(x) = x - 5, improved P & ws
+% J0(x,y) := min_pi CVaR_y[ beta*exp(m*g(x0)) + ... + beta*exp(m*g(xN)) | x0 = x, pi ]
+
+close all; clearvars; clc;
+
+load('Pond_Results\more_accurate_probdist\dyn_prog\dyn_prog_results_sept112018.mat');
+% Results from Main_DynProgram_Pond.m
+J0_DP = Js{1};
+
+load('Pond_Results\more_accurate_probdist\monte_carlo\monte_carlo_sum_sept112018.mat');
+% Results from Main_MonteCarlo_Pond.m, nt = 100000; ~N(0, small_sd = 10^(-7)), add small Gaussian noise 
+J0_MC = J0_MonteCarlo;
+
+diff = abs( J0_DP - J0_MC );
+
+max_diff = max( diff(:) ); % 5.1535e+04 = small enough relative to the order of magnitude of J0_DP ~ 10^5
+
+%% OLD: Compares [Monte Carlo, max] vs. [Dynamic Programming, soft-max] 
 
 close all; clearvars; clc;
 

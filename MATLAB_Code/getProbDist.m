@@ -1,35 +1,37 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% DESCRIPTION: Generates finite probability distribution of surface runoff rate [ft^3/s] into pond
-% INPUT: 
-    % ws(i): = ith possible value of wk
-% OUTPUT: 
-    % P(i): probability that wk = ws(i)
-% AUTHOR: Margaret Chapman
-% DATE: September 5, 2018
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Script to generate probability distribution of surface runoff into first pond using design storm stats
+% Pr{wk = ws(i)} = P(i)
+% Fix possible values of wk & expected value of wk to generate P
+% Author: Victoria Cheng
 
-function P = getProbDist( ws )
+function myP = getProbDist( ws, Mymean, Myvariance, Myskewness )
 
 nw = length(ws);
 
-cvx_solver sdpt3;
+cvx_solver mosek;
 
 cvx_begin
 
-    variables p(nw,1)
+variables P(nw,1)
 
-        maximize ( p(2)+p(nw-3)+p(nw-2)+p(nw-1)+p(nw) ) % fat tail
+    minimize ( 1 )
 
-        subject to
+    subject to
     
-            ws*p == 10; % expected value of wk [ft^3/s]
+        ws*P == Mymean; % expected value of ws
+        (ws-Mymean).^2*P == Myvariance; %variance of ws
+        (ws-Mymean).^3*P == Myskewness*Myvariance^(3/2); %skewness of ws 
+        %(ws-mean).^4*P == kurtosis*variance^2; %kurtosis of ws
         
-            p>=0.01;
+        P>=0.0001;
         
-            p<=1;
+        P<=1;
         
-            sum(p) == 1;
+        sum(P) == 1;
     
 cvx_end
 
-P = p;
+myP = P;
+
+end
+
+

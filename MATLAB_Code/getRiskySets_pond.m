@@ -52,14 +52,13 @@ for r_index = 1 : nr, r = rs(r_index); subplot(2, nr/2, r_index);
     
     title(['r = ', num2str(r)]); xlabel('State, x'); ylabel('Confidence level, y');
     
-    % xs(51) = 5ft, upper bound of constraint set for dx = 1/10
-    index_x5 = 51; xs_short = xs(1: index_x5);
+    % xs(26) = 2.5ft, to remove some white space from graph
+    index_xup = 26; xs_short = xs(1: index_xup);
     
     axis([min(xs) max(xs_short) min(ls) max(ls)]); grid on; yticks(sort(ls)); xticks(xs_short);
     
-    xticklabels({'0','','','','','0.5','','','','','1','','','','','1.5','','','','','2',... % hard-coded
-                     '','','','','2.5','','','','','3','','','','','3.5','','','','','4',...
-                     '','','','','4.5','','','','','5'});   
+    % hard-coded
+    xticklabels({'0','','','','','0.5','','','','','1','','','','','1.5','','','','','2','','','','','2.5'});   
 end
 
 

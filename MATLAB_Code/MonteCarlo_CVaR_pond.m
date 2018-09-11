@@ -44,12 +44,18 @@ for x_index = 1 : nx
     
         myTraj = sample_traj( uStar, x, xs, ws, N, dt, area_pond, tick_P ); % get trajectory sample
                                                                             % myTraj(1) = x0, myTraj(2) = x1, ..., myTraj(N+1) = xN
-        
-        if type_sum,    sample_costs(q) = cost_sum_pond( myTraj, m ); % get cost of trajectory sample
-        else,           sample_costs(q) = cost_max_pond( myTraj );
+                                                                            
+        % get cost of trajectory sample
+        if type_sum, sample_costs(q) = cost_sum_pond( myTraj, m ); small_sd = 10^(-7); 
+        % max{ sample_cost } = (N+1)*beta*exp(m*1.5) = 1.6*10^5, since m = 10, beta = 10^(-3), N = 48
+            
+        else, sample_costs(q) = cost_max_pond( myTraj ); small_sd = 10^(-12); 
+        % max{ sample_cost } = max( g(x) ) = 1.5, since x <= 6.5
+
         end
         
-        sample_costs(q) = sample_costs(q) + 10^(-12)*randn(1); % + ~N(0, sigma=10^(-12)), add small Gaussian noise so we can use CVaR estimator for continuous random variables
+        % + ~N(0, small standard deviation), add small Gaussian noise so we can use CVaR estimator for continuous random variables
+        sample_costs(q) = sample_costs(q) + small_sd*randn(1);
         
     end
     

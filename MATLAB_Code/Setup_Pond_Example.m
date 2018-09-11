@@ -21,9 +21,10 @@ T = 4*3600;                             % Design storm length [sec], 4h = 4h*360
 
 N = T/dt;                               % Time horizon: {0, 1, 2, ..., N} = {0, 5min, 10min, ..., 240min} = {0, 300sec, 600sec, ..., 14400sec}
 
-ws = [8:12, 14, 18, 20];                % ws(i): ith possible value of wk (ft^3/s)
+surface_runoff_stats;                   % Provides possible values of surface runoff (ws) & moments
+                                        % ws(i): ith possible value of wk (ft^3/s)
 
-P = getProbDist(ws);                    % P(i): probability that wk = ws(i)
+P = getProbDist(ws, Mymean, Myvariance, Myskewness); % P(i): probability that wk = ws(i)
 
 m = 10;                                 % soft-max parameter
 
