@@ -25,7 +25,6 @@ diff = abs( J0_cost_max_MORE - J0_cost_max_LESS ); mc_max_diff = max( diff(:) );
 load('Pond_Results\dyn_prog_m10_beta10minus3_mosektry\dyn_prog_m10_beta10minus3_gline.mat');
 J0_cost_sum = Js{1}; beta = 10^(-3); % see stage_cost_pond.m
 
-
 rs = [ 1, 0.5, 0.25, 0, -0.25, -0.5 ]; % risk levels to be plotted
 
 [ U, S_MORE ] = getRiskySets_pond( ls, xs, rs, m, J0_cost_sum, J0_cost_max_MORE, beta, 1 );

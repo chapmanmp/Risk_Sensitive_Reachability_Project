@@ -302,7 +302,7 @@ Y_x^\pi := \overset{N}{\underset{k=0}\sum} \beta e^{m\cdot g(x_k)},
 \end{equation}
 \end{subequations}
 such that the state trajectory $(x_0, x_1, ..., x_N)$
-evolves according to the dynamics model~\eqref{sys} with the initial state, $x_0 := x$, under the admissible policy, $\pi \in \Pi$;
+satisfies~\eqref{sys} with the initial state, $x_0 := x$, under the policy, $\pi \in \Pi$;
 $\beta > 0$ and $m > 0$ are constants.
 \begin{lemma}\label{lemma2}
 $\mathcal{U}_\alpha^r$ is a subset of the risk-sensitive set, $\mathcal{S}_\alpha^r$. 
@@ -349,108 +349,133 @@ By monotonicity, positive homogeneity,~\eqref{related}, and~\eqref{logeq},
 \end{aligned}\label{12}\end{equation}
 If $x \in \mathcal{U}_\alpha^r$, then $\exists \pi \in \Pi$ such that,\footnotemark
 \begin{equation*}\begin{aligned}
-\text{CVaR}_\alpha \big[ Y_x^\pi \big] & < \beta e^{m\cdot r} && \iff \\
-\text{CVaR}_\alpha \big[ Y_x^\pi /\beta \big] & < e^{m\cdot r} && \iff \\
-\frac{1}{m}\log \left( \text{CVaR}_\alpha \big[  Y_x^\pi /\beta \big] \right) & < r && \implies \\
-\text{CVaR}_\alpha\big[ Z_x^\pi \big] & < r,
+& \text{CVaR}_\alpha \big[ Y_x^\pi /\beta \big] < e^{m\cdot r} \iff \frac{1}{m}\log \left( \text{CVaR}_\alpha \big[  Y_x^\pi /\beta \big] \right) < r \\
+& \implies \text{CVaR}_\alpha\big[ Z_x^\pi \big] < r, \\
 \end{aligned}\end{equation*}
 \footnotetext{The minimum is attained because the random variables in this paper have finite expectation.} 
-where the last line comes from~\eqref{12}. So, $x \in \mathcal{S}_\alpha^r$.
+where the last line holds by~\eqref{12}. So, $x \in \mathcal{S}_\alpha^r$.
 \end{proof}
 \begin{remark}
-The parameter, $\beta$, is included in~\eqref{under} to counter numerical issues that may arise if $m$ is chosen very large.
+$\beta$ is included in~\eqref{under} to help counter numerical issues that may arise if $m$ is chosen very large.
 \end{remark}
 
-Next, we will provide a dynamic programming algorithm to compute our under-approximation, $\hat{\mathcal{S}}_\alpha^r$,
-at different levels of confidence and risk. The algorithm is based on the insights provided by Chow et al.~\cite{chow2015risk}.
+Next, we provide an algorithm to compute the under-approximation, $\mathcal{U}_\alpha^r$,
+at different levels of confidence and risk, that is based on insights by Chow et al.~\cite{chow2015risk}.
 \subsection{Algorithm}
-The value function that characterizes~\eqref{under},
+The value function of $\mathcal{U}_\alpha^r$~\eqref{under},
 \begin{equation}
-V_0^*(x,\alpha) := {\underset{\pi \in \Pi}\inf} \text{ CVaR}_\alpha \big[ \beta Y_x^\pi \big],
+V_0^*(x,\alpha) = {\underset{\pi \in \Pi}\min} \text{ CVaR}_\alpha \big[ Y_x^\pi \big],
 \label{V0}
 \end{equation}
-encodes the minimum risk of cumulative scaled constraint violation of the state trajectory, starting at the initial state, $x$, 
-and the initial confidence level, $\alpha$. Eq.~\eqref{V0} can be computed by considering 
-the evolution of a fully observable \textit{augmented state} that consists of the state of the system~\eqref{sys} and the confidence level,
-$z := (x,\alpha) \in \mathbb{R}^n \times (0,1)$. We define the augmented set of admissible control policies for the sub-problem starting at time $k$,
+is the smallest risk at the confidence level, $\alpha$, of the cumulative scaled constraint violation of the state trajectory that satisfies~\eqref{sys} with $x_0 := x$.
+Eq.~\eqref{V0} can be computed by considering 
+an observable \textit{augmented state}, $(x,\alpha)$, that consists of the original state and the confidence level,
+and the augmented set of control policies,
 \begin{equation}\begin{aligned}
-\bar{\Pi}_k & := \{ (\mu_k, \mu_{k+1}, \dots, \mu_{N-1}), \mu_i: \mathbb{R}^n \times (0,1) \rightarrow U \},\\
- & k = 0, \dots, N-1,
+& \bar{\Pi}_k := \{ (\mu_k, \mu_{k+1}, \dots, \mu_{N-1}), \mu_i: \mathbb{R}^n \times (0,1) \rightarrow U \},\\
+& k = 0, \dots, N-1.
 \end{aligned}\label{augpi}\end{equation}
-where both the state of the system and the confidence level at time $t$ are arguments of $\mu_t$. 
-We will provide an algorithm that explicitly computes the value function that is optimized over the augmented policy space,
+Our algorithm computes a value function that is optimized over the augmented policy space,
 \begin{equation}
-J_0^*(x,\alpha) := {\underset{\pi \in \bar{\Pi}_0}\inf} \text{ CVaR}_\alpha \big[ \beta Y_x^\pi \big].
+J_0^*(x,\alpha) := {\underset{\pi \in \bar{\Pi}_0}\inf} \text{ CVaR}_\alpha \Big[ \textstyle\sum_{k=0}^N c(x_k) \Big],
 \label{J0}
 \end{equation}
-
-The algorithm depends on an existing result that provides the next confidence level based on the current confidence level, the system's current state, and 
-the system's control policy for the sub-problem starting at the current time.
+where $c: \mathbb{R}^n \rightarrow \mathbb{R}$ is a stage cost.\footnotemark
+\footnotetext{We set $c(x) := \beta e^{m g(x)}$ in this paper.}
+The algorithm is based on a prior result that provides the confidence level dynamics.
 
 \begin{lemma}\label{decomlemma}
-Lemma 22 of Pflug and Pichler~\cite{pflug2016time} implies the following CVaR-decomposition for the system~\eqref{sys}
-subject to the augmented policy, $\pi_k \in \bar{\Pi}_k$, 
-\begin{equation}\label{decomp}\begin{aligned}
-\text{CVaR}_\alpha \Big[ Z^{\pi_k} \Big| x_k \Big] & = {\underset{R \in \mathcal{R}(\alpha, \mathbb{P})}\max} \mathbb{E}\Big[ R\cdot \text{CVaR}_{\alpha R}\big[ Z^{\pi_k} \big| x_{k+1}\big] \Big| x_k, \alpha \Big] \\
-Z^{\pi_k} & := \sum_{i=k+1}^N c(x_i) \\
-\mathcal{R}(\alpha, \mathbb{P}) & := \Big\{ R : D \rightarrow \Big[0, \frac{1}{\alpha}\Big] \text{ such that } \mathbb{E}[R] = 1 \Big\}, \\
+Lemma 22 of~\cite{pflug2016time} implies the following CVaR-decomposition for the system~\eqref{sys} at time $k$,
+under a given policy, $\pi_k := (\mu_k, \pi_{k+1}) \in \bar{\Pi}_k$,
+\begin{subequations}\label{decomp}\begin{equation}\begin{aligned}
+& \text{CVaR}_\alpha \Big[ Z \Big| x_k, \pi_k \Big] \\
+& = {\underset{R \in \mathcal{R}(\alpha, \mathbb{P})}\max} \mathbb{E}\Big[ R \cdot \text{CVaR}_{\alpha R}\big[ Z \big| x_{k+1}, \pi_{k+1} \big] \Big| (x_k, \alpha), \mu_k \Big], \\
 \end{aligned}\end{equation}
-where $c : \mathbb{R}^n \rightarrow \mathbb{R}$ is a stage cost.
+where 
+\begin{equation}
+\mathcal{R}(\alpha, \mathbb{P}) := \Bigg\{ R : D \rightarrow \big[0,\alpha^{-1}\big], \sum_{j=1}^W R(d_j)\mathbb{P}[w_k = d_j] = 1 \Bigg\}\\
+\end{equation}\end{subequations}
+is a set of discrete random variables, 
+and $Z := \textstyle \sum_{i=k+1}^N c(x_i)$ is the random cumulative cost starting at time $k+1$.
 \end{lemma}
-\begin{proof}
-The proof relies on the measure-theoretic definition of conditional expectation, and the fact that 
-the next state of the system~\eqref{sys} is given by the current state, the current control action, and the current realization of the disturbance.
-\textcolor{blue}{please provide more details here}
-\end{proof}
 \begin{remark}
-The term, $\text{CVaR}_\alpha \big[ Z^{\pi_k} \big| x_k \big]$, is the risk of 
-the random cumulative cost, $Z^{\pi_k}$, of the state trajectory, $(x_k, \dots, x_{N})$, where $x_k$ is the given initial condition, 
-and $\pi_k \in \bar{\Pi}_k$ is the given policy.
+The proof of Lemma~\ref{decomlemma}, which we do not provide due to lack of space, relies on the measure-theoretic definition of conditional expectation, and the fact that 
+the system~\eqref{sys} is Markov. \textcolor{blue}{please provide more details here}
+\end{remark}
+\begin{remark}
+$\text{CVaR}_\alpha \big[ \textstyle \sum_{i=k+1}^N c(x_i) \big| x_k, \pi_k \big]$ is the risk of 
+the cumulative cost starting at time $k+1$ of the trajectory that starts at time $k$, is initialized at the state, $x_k \in \mathbb{R}^n$, 
+and evolves under the policy, $\pi_k \in \bar{\Pi}_k$.
 \end{remark}
 \begin{remark}
 For the system~\eqref{sys},
 \begin{equation*}\begin{aligned}
-\mathbb{E}\Big[ R\cdot \text{CVaR}_{\alpha R} & \big[ Z^{\pi_k} \big| x_{k+1}\big] \Big| x_k, \alpha \Big] = \\
-& \textstyle\sum_{j=1}^W r_j \cdot \text{CVaR}_{\alpha \cdot r_j}\big[ Z^{\pi_k} \big| x_{k+1}^j \big] \cdot \mathbb{P}[w_k = d_j],\\
+& \mathbb{E}\Big[ R \cdot \text{CVaR}_{\alpha R}\big[ Z \big| x_{k+1}, \pi_{k+1} \big] \Big| (x_k, \alpha), \mu_k \Big] \\
+& = \textstyle\sum_{j=1}^W v_j \cdot \text{CVaR}_{\alpha v_j}\big[ Z \big| x_{k+1}^j, \pi_{k+1} \big] \cdot \mathbb{P}[w_k = d_j]\text{, where}\\
+& x_{k+1}^j = f(x_k, \mu_k(x_k, \alpha), d_j).
 \end{aligned}\end{equation*}
-and 
-$$\mathbb{E}\big[ R ] = \textstyle \sum_{j=1}^W r_j \cdot \mathbb{P}[w_k = d_j],$$
-such that $r_j = R(d_j) \in \big[0, \frac{1}{\alpha}\big]$ is the $j$\textsuperscript{th} realization of the random variable, $R \in \mathcal{R}(\alpha, \mathbb{P})$, and 
-$x_{k+1}^j = f(x_k, \mu_k(x_k, \alpha), d_j)$ is the $j$\textsuperscript{th} realization of the state
-of the system at time $k+1$ under the control, $u_k = \mu_k(x_k, \alpha)$, where $w_k = d_j$ is given.
+In words, $x_{k+1}^j$ is the $j$\textsuperscript{th} sample of the state at time $k+1$, given the control at time $k$, $\mu_k(x_k, \alpha) \in U$, 
+and the disturbance at time $k$, $w_k = d_j$.
+Further, $v_j = R(d_j)$ is the $j$\textsuperscript{th} sample of the random variable, $R \in \mathcal{R}(\alpha, \mathbb{P})$. 
 \end{remark}
 \begin{remark}
-Chow et al.~\cite{chow2015risk} first interpreted Lemma 22 of Pflug and Pichler~\cite{pflug2016time} 
-in the context of Markov Decision Processes.
-Lemma~\ref{decomlemma} restates the result in the context of stochastic dynamic systems.
+Chow et al.~\cite{chow2015risk} interpreted Lemma 22 of~\cite{pflug2016time} for Markov Decision Processes.
+Lemma~\ref{decomlemma} restates the result for stochastic dynamic systems.
 \end{remark}
-Using Lemma~\ref{decomlemma}, the next result provides a dynamic programming value-iteration that computes~\eqref{J0}.
-\begin{theorem}
+
+Next, we use Lemma~\ref{decomlemma} to provide a dynamic programming value-iteration that computes~\eqref{J0}.
+\begin{theorem}\label{thm}
 Define the functions, $J_{N-1}$, \dots, $J_0$, recursively as follows, $\forall (x_k, y_k) \in \mathbb{R}^n \times (0,1)$,
 \begin{equation}\begin{aligned}
 & J_k(x_k,y_k) := \\
 & {\underset{u_k \in U}\min} \Bigg\{ c(x_k) + {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max} \mathbb{E}\Big[ R J_{k+1}(x_{k+1}, y_k R) \Big| (x_k, y_k), u_k \Big] \Bigg\}, \\
 & k = N-1, \dots, 0,
-\end{aligned}\end{equation}
-with the initialization, $J_N(x_k, y_k) := c(x_k)$. 
+\end{aligned}\label{bell}\end{equation}
+where $J_N(x_k, y_k) := c(x_k)$, $x_{k+1}$ satisfies~\eqref{sys}, and $\mathcal{R}(y_k, \mathbb{P})$ is defined in~\eqref{decomp}.  
 Then, $J_0^*(x,\alpha)$, as defined in~\eqref{J0}, is given by $J_0(x, \alpha)$, 
-the function at the last step of the recursion evaluated at $(x,\alpha)$.
+the value of the function at the last step of the recursion evaluated at $(x,\alpha) \in \mathbb{R}^n \times (0,1)$.
 \end{theorem}
 \begin{remark}
-the functions J's are well-defined and finite because D is a finite set
-$x_{k+1}$ is given by~\eqref{sys}, and $\mathcal{R}(y_k, \mathbb{P})$ is defined in~\eqref{decomp}
-We choose $c(x) := $
+The functions, $J_{N-1}$, \dots, $J_0$, are well-defined and finite because $D$ is a finite set (see~\cite{bertsekas2005dynamic}, Sec. 1.5).
 \end{remark}
 \begin{remark}
-Chow proposed bellman operator (infinite time/discounted case). no switch min/max required in ours.
-\end{remark}
-\begin{remark}
-we do not show that policy is optimal...exploring the techniques...
+Chow et al. proposed the recursion~\eqref{bell} and applied it to the infinite-time discounted problem~\cite{chow2015risk}. 
+The part of their proof that addresses the finite time case assumes that the min/max can be exchanged(see~\cite{chow2015risk}, Theorem 4),
+which our proof does not assume. 
 \end{remark}
 
+Our proof of Theorem~\ref{thm} is provided in the Appendix.
+The idea is to use a sub-optimal value function as machinery to demonstrate that each $J_k$, as defined recursively in~\eqref{bell},
+is sufficiently close to the optimal cost-to-go of the sub-problem that starts at time $k$,
+\begin{equation}
+J_k^*(x_k, y_k) := {\underset{\pi_k \in \bar{\Pi}_k}\min} \text{ CVaR}_{y_k} \Big[ \textstyle\sum_{i=k}^N c(x_i) \Big| (x_k, y_k), \pi_k \Big],
+\end{equation}
+via induction. This technique is also used to prove the suitability of the classic finite-time dynamic programming algorithm, 
+where the value function is the expected cumulative cost (see~\cite{bertsekas2005dynamic}, Sec. 1.5).
+We recommend the reader to review this proof before proceeding to ours. 
 
+In this paper, we do not explicitly construct an optimal policy for practical use.
+This is an important step for future work and may require different arguments 
+than those used by~\cite{chow2015risk} (see Theorem 5). In particular, this policy would likely depend 
+on the history of the states and the initial confidence level. However, the policy given by the algorithm~\eqref{bell}
+requires the availability of the current state and the current confidence level. 
+This subtle distinction deserves careful study that is out of scope of the current paper.
 
 \section{Numerical Example}\label{ex}
+We demonstrate the utility of computing approximate risk-sensitive safe sets on a practical example.
+We consider the problem of evaluating the efficacy of a candidate design for a stormwater detention pond.
+Stormwater management facilities, such as detention ponds, are required to operate safely 
+in the presence of precipitation uncertainty, but must be designed within the scope of public resources (e.g., money, land). 
+Evaluating candidate designs under the assumption of worst-case rainfall (e.g., via minimax reachability formulations) 
+is not practical due to the limits of public resources.
+Standard design practices assess the simulated response of a system to a given \textit{design storm},
+which is a synthetic storm that is based on historical rainfall. 
+In our prior work, we proposed the use of reachability analysis to inform the design of stormwater infrastructure, but we 
+treated the surface runoff generated by the design storm as a deterministic signal for simplicity~\cite{sustech}.
+In practice, the surface runoff generated by a given storm is stochastic because it is impossible to characterize how land 
+responds to rainfall with certainty. In this paper, 
+
+
 
 \section{Conclusion}\label{conc}
 
@@ -478,11 +503,12 @@ and to increase the amount of time that an autonomous vehicle can operate safely
 % Want to quantify varying degrees of safety in a way that realistically (rather than pessimistically) appreciates/prepares for low-probability extreme events through the use of a financial risk measure (i.e., a ``robustified" expected value).
 
 \section*{ACKNOWLEDGMENT}
-We thank Mo Chen and Jaime Fisac for discussions.
+We thank Sumeet Singh, Mo Chen, and Murat Arcak for discussions.
 M.C. is supported in part by a NSF Graduate Research Fellowship.
 This work is supported in part by NSF CPS 1740079.
 
-%\section*{APPENDIX}\label{appendix}
+\section*{APPENDIX}\label{appendix}
+Here we provide the proof of Theorem~\ref{thm}. \textcolor{blue}{please fill in}
 
 \addtolength{\textheight}{-2cm}   % This command serves to balance the column lengths
                                   % on the last page of the document manually. It shortens
