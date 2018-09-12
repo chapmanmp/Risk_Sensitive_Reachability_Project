@@ -30,7 +30,7 @@ nr = length(rs); % # discretized risk levels
 
 U = cell(nr, nl); S = U; figure(fignum); FigureSettings;
 
-for r_index = 1 : nr, r = rs(r_index); subplot(2, nr/2, r_index);
+for r_index = 1 : nr, r = rs(r_index); subplot(nr/2, 2, r_index);
     
     for l_index = 1 : nl, y = ls(l_index); U_ry = []; S_ry = []; 
 

@@ -295,11 +295,11 @@ and the use of Conditional Value-at-Risk (as opposed to an expectation). In this
 for risk-sensitive safe sets, and an algorithm to compute these under-approximations. Define $\mathcal{U}_\alpha^r$
 for the confidence level, $\alpha \in (0,1)$, and the risk level, $r \in \mathbb{R}$,
 \begin{subequations}\label{under}\begin{equation}
-\mathcal{U}_\alpha^r := \{x \in \mathbb{R}^n \mid V_0^*(x,\alpha) < \beta e^{m\cdot r} \},
+\mathcal{U}_\alpha^r := \{x \in \mathbb{R}^n \mid J_0^*(x,\alpha) < \beta e^{m\cdot r} \},
 \end{equation}
 where
 \begin{equation}\begin{aligned}
-& V_0^*(x,\alpha) := {\underset{\pi \in \Pi}\inf} \text{ CVaR}_\alpha \big[ Y_x^\pi \big],\\
+& J_0^*(x,\alpha) := {\underset{\pi \in \Pi}\inf} \text{ CVaR}_\alpha \big[ Y_x^\pi \big],\\
 & Y_x^\pi := \textstyle\sum_{k=0}^N \beta e^{m\cdot g(x_k)},
 \end{aligned}\end{equation}
 \end{subequations}
@@ -364,7 +364,7 @@ $\beta$ is included in~\eqref{under} to help counter numerical issues that may a
 Next, we provide an algorithm to compute the under-approximation, $\mathcal{U}_\alpha^r$,
 at different levels of confidence and risk, that is based on insights by Chow et al.~\cite{chow2015risk}.
 \subsection{Algorithm}
-The value function, $V_0^*(x,\alpha)$, defined in~\eqref{under},
+The value function, $J_0^*(x,\alpha)$, defined in~\eqref{under},
 is the smallest risk at the confidence level, $\alpha$, of the cumulative scaled constraint violation of the state trajectory that satisfies~\eqref{sys} with $x_0 := x$.
 This value function can be computed by considering 
 an observable \textit{augmented state}, $(x,\alpha)$, that consists of the original state and the confidence level,
@@ -373,18 +373,19 @@ and the augmented set of control policies,
 & \bar{\Pi}_k := \{ (\mu_k, \mu_{k+1}, \dots, \mu_{N-1}), \mu_i: \mathbb{R}^n \times (0,1) \rightarrow U \},\\
 & k = 0, \dots, N-1.
 \end{aligned}\label{augpi}\end{equation}
-Our algorithm computes an analogue of $V_0^*(x,\alpha)$ that is optimized over the augmented policy space,
+In particular, the following equality holds,
 \begin{equation}
-J_0^*(x,\alpha) := {\underset{\pi \in \bar{\Pi}_0}\inf} \text{ CVaR}_\alpha \Big[ \textstyle\sum_{k=0}^N c(x_k) \Big],
+J_0^*(x,\alpha) = {\underset{\pi \in \bar{\Pi}_0}\inf} \text{ CVaR}_\alpha \Big[ \textstyle\sum_{k=0}^N \beta e^{m g(x_k)} \Big],
 \label{J0}
 \end{equation}
-where $c: \mathbb{R}^n \rightarrow \mathbb{R}$ is a stage cost.\footnotemark
-\footnotetext{We set $c(x) := \beta e^{m g(x)}$ in this paper.}
-The algorithm is based on a prior result that provides the confidence level dynamics.
+where the optimization is over the augmented policy space.
+We provide an algorithm that computes the right-hand-side of~\eqref{J0}.
+The algorithm is based on a prior result that provides the dynamics of the confidence level.
+Subsequently, we let $c: \mathbb{R}^n \rightarrow \mathbb{R}$ be any stage cost; e.g., $c(x) = \beta e^{m g(x)}$ in~\eqref{J0}.  
 
 \begin{lemma}\label{decomlemma}
 Lemma 22 of~\cite{pflug2016time} implies the following CVaR-decomposition for the system~\eqref{sys} at time $k$,
-under a given policy, $\pi_k := (\mu_k, \pi_{k+1}) \in \bar{\Pi}_k$,
+under any (augmented) policy, $\pi_k := (\mu_k, \pi_{k+1}) \in \bar{\Pi}_k$,
 \begin{subequations}\label{decomp}\begin{equation}\begin{aligned}
 & \text{CVaR}_\alpha \Big[ Z \Big| x_k, \pi_k \Big] \\
 & = {\underset{R \in \mathcal{R}(\alpha, \mathbb{P})}\max} \mathbb{E}\Big[ R \cdot \text{CVaR}_{\alpha R}\big[ Z \big| x_{k+1}, \pi_{k+1} \big] \Big| (x_k, \alpha), \mu_k \Big], \\
@@ -430,7 +431,7 @@ Define the functions, $J_{N-1}$, \dots, $J_0$, recursively as follows, $\forall 
 & k = N-1, \dots, 0,
 \end{aligned}\label{bell}\end{equation}
 where $J_N(x_k, y_k) := c(x_k)$, $x_{k+1}$ satisfies~\eqref{sys}, and $\mathcal{R}(y_k, \mathbb{P})$ is defined in~\eqref{decomp}.  
-Then, $J_0^*(x,\alpha)$, as defined in~\eqref{J0}, is given by $J_0(x, \alpha)$, 
+Then, $J_0^*(x,\alpha)$, see~\eqref{J0}, is given by $J_0(x, \alpha)$, 
 the value of the function at the last step of the recursion evaluated at $(x,\alpha) \in \mathbb{R}^n \times (0,1)$.
 \end{theorem}
 \begin{remark}
@@ -438,7 +439,7 @@ The functions, $J_{N-1}$, \dots, $J_0$, are well-defined and finite because $D$ 
 \end{remark}
 \begin{remark}
 Chow et al. proposed the recursion~\eqref{bell} and applied it to the infinite-time discounted problem~\cite{chow2015risk}. 
-The part of their proof that addresses the finite time case assumes that the min/max can be exchanged(see~\cite{chow2015risk}, Theorem 4),
+The part of their proof that addresses the finite time case assumes that the min/max can be exchanged (see~\cite{chow2015risk}, Theorem 4),
 which our proof does not assume. 
 \end{remark}
 
@@ -480,41 +481,31 @@ and $w_k \in D := \{d_1, \dots, d_{10}\}$ is the random surface runoff in feet-c
 and $E = 1$ft is the elevation of the outlet. Some of the parameter names are changed from~\cite{sustech} to avoid abuse of notation.} 
 We estimated a finite probability distribution for $w_k$ using the surface runoff samples that we previously generated from a time-varying design storm~\cite{sustech}. 
 We averaged each sample over time and solved for a distribution
-that satisfied the empirical statistics of the time-averaged samples (Tables~\ref{stats},~\ref{dist}). 
+that satisfied the empirical statistics of the time-averaged samples (Table~\ref{dist}). 
 We set $\triangle t := 300$ seconds, and $N := 48$ to yield a 4-hour horizon.
 We set the constraint set, $\mathcal{K} := [0, 5\text{ft})$, and $g(x) := x - 5$.
 
 \begin{table}
 \begin{center}
 \caption{}
-\begin{tabular}{| p{2cm} | p{2cm} |}
+\begin{tabular}{| p{3.5cm} | p{3.5cm} |}
 \hline
 \bf{Sample moment} & \bf{Value}  \\ \hline
-Mean & 12.16 ft\textsuperscript{3}/s \\ \hline
-Variance & 3.22 ft\textsuperscript{6}/s\textsuperscript{2} \\ \hline
-Skewness & 1.68 ft\textsuperscript{9}/s\textsuperscript{3} \\ \hline
-\end{tabular}
-\begin{flushleft} \end{flushleft}
-\label{stats}
-\end{center}
-\end{table}
-
-\begin{table}
-\begin{center}
-\caption{}
-\begin{tabular}{| p{3cm} | p{3cm} |}
-\hline
-\bf{Disturbance sample} & \bf{Probability} \\ \hline
-$d_1 = 8.57$ ft\textsuperscript{3}/s & $\mathbb{P}[w_k = d_1] = 0.0236$ \\ \hline
-$d_2 = 9.47$ ft\textsuperscript{3}/s & $\mathbb{P}[w_k = d_2] = 10^{-4}$ \\ \hline
-$d_3 = 10.37$ ft\textsuperscript{3}/s & $\mathbb{P}[w_k = d_3] = 10^{-4}$ \\ \hline
-$d_4 = 11.26$ ft\textsuperscript{3}/s & $\mathbb{P}[w_k = d_4] = 0.5249$ \\ \hline
-$d_5 = 12.16$ ft\textsuperscript{3}/s & $\mathbb{P}[w_k = d_5] = 0.3272$ \\ \hline
-$d_6 = 13.06$ ft\textsuperscript{3}/s & $\mathbb{P}[w_k = d_6] = 10^{-4}$ \\ \hline
-$d_7 = 13.95$ ft\textsuperscript{3}/s & $\mathbb{P}[w_k = d_7] = 10^{-4}$ \\ \hline
-$d_8 = 14.85$ ft\textsuperscript{3}/s & $\mathbb{P}[w_k = d_8] = 10^{-4}$ \\ \hline
-$d_9 = 15.75$ ft\textsuperscript{3}/s & $\mathbb{P}[w_k = d_9] = 10^{-4}$ \\ \hline
-$d_{10} = 16.65$ ft\textsuperscript{3}/s & $\mathbb{P}[w_k = d_{10}] = 0.1237$ \\ \hline
+Mean & 12.16 ft\textsuperscript{3}/s \\ 
+Variance & 3.22 ft\textsuperscript{6}/s\textsuperscript{2} \\ 
+Skewness & 1.68 ft\textsuperscript{9}/s\textsuperscript{3} \\ 
+\hline 
+\textbf{Disturbance sample}, $d_j$ ft\textsuperscript{3}/s & \textbf{Probability}, $\mathbb{P}[w_k = d_j]$ \\ \hline
+$8.57$ 		& $0.0236$ \\
+$9.47$ 		& $10^{-4}$ \\
+$10.37$ 		& $10^{-4}$ \\
+$11.26$  & $0.5249$ \\ 
+$12.16$ & $0.3272$ \\ 
+$13.06$  & $10^{-4}$ \\ 
+$13.95$  & $10^{-4}$ \\ 
+$14.85$  & $10^{-4}$ \\ 
+$15.75$  & $10^{-4}$ \\ 
+$16.65$  & $0.1237$ \\ \hline
 \end{tabular}
 \begin{flushleft} \end{flushleft}
 \label{dist}
@@ -524,53 +515,62 @@ $d_{10} = 16.65$ ft\textsuperscript{3}/s & $\mathbb{P}[w_k = d_{10}] = 0.1237$ \
 We computed risk-sensitive safe sets, $\{\mathcal{S}_y^r\}$~\eqref{myS}, using a Monte Carlo procedure 
 and the under-approximations, $\{\mathcal{U}_y^r\}$~\eqref{under}, using the dynamic programming algorithm~\eqref{bell}.
 The risk-sensitive sets and the under-approximations are shown for various confidence and risk levels in Fig.~\ref{compare}.
-We performed the computations on a grid of states, $x \in G_s := \{0, 0.1\text{ft}, \dots, 6.4\text{ft}, 6.5\text{ft}\}$,
-and confidence levels, $\alpha \in G_c := \{0.999, 0.95, 0.80, \dots, 0.20, 0.05, 0.001\}$; $G := G_s \times G_c$.
+We performed the computations over a grid of states, $x \in G_s := \{0, 0.1\text{ft}, \dots, 6.4\text{ft}, 6.5\text{ft}\}$,
+and confidence levels, $\alpha \in G_c := \{0.999, 0.95, 0.80, \dots, 0.20, 0.05, 0.001\}$; let $G = G_s \times G_c$.
 Since the initial state, $x_0$, is non-negative and the smallest value of $w_k$ is about 8.5ft\textsuperscript{3}/s, 
 $x_{k+1}\geq x_k$ for all $k$; see~\eqref{watersys} and Table~\ref{dist}. 
 If $x_{k+1} > 6.5\text{ft}$ during our computations, we set $x_{k+1} := 6.5\text{ft}$ to stay within the grid.
-All computations were done in MATLAB R2016b (The MathWorks, Inc., Natick, MA), and the code is here~\cite{mycode}.
+All computations were done in MATLAB.\footnotemark 
+\footnotetext{MATLAB R2016b, The MathWorks, Inc., Natick, MA}
+Our code is available here~\cite{mycode}.
 
 \textit{Dynamic programming implementation.}
-To compute the under-approximations, $\{\mathcal{U}_y^r\}$~\eqref{under}, in Fig.~\ref{compare}, we estimated the value function, $J_0^*$~\eqref{J0}, over the grid, $G$,
-using the algorithm~\eqref{bell}, and then extracted the $\beta e^{m r}$-sublevel sets.
+To compute the under-approximations, $\{\mathcal{U}_y^r\}$, 
+we solved for the value function, $J_0^*$, as expressed in~\eqref{J0},
+using the value-iteration algorithm~\eqref{bell} over our grid, and then extracted the $\beta e^{m \cdot r}$-sublevel sets, see~\eqref{under}.
 We used the interpolation method over the confidence levels proposed by Chow et al.~\cite{chow2015risk} 
 to approximate the expectation in~\eqref{bell}
 as a piecewise linear concave function, which we maximized by solving a linear program.\footnotemark
 \footnotetext{The linear programs were solved using MOSEK (Copenhagen, Denmark) with CVX~\cite{grant2008cvx}.}
 Further, we used multi-linear interpolation to approximate the value of $J_{k+1}(x_{k+1}, \alpha)$ at each $\alpha \in G_c$.
-Although the backwards recursion at step $k$ provides the value of $J_{k+1}(x, \alpha)$ for each $(x,\alpha) \in G$,
-$x_k \in G_s$ does \textit{not} imply $x_{k+1} \in G_s$, since the state space for the pond dynamics is continuous~\eqref{watersys}.
-We set $m := 10$ and $\beta := 10^{-3}$.
-The function, $J_0$, generated by the algorithm~\eqref{bell} with $c(x) := \beta e^{m g(x)}$, is provided in Fig.~\ref{J0dp}.
-$J_0$ estimates $J_0^*$, as defined in~\eqref{J0}.  
+Although at step $k$ of the algorithm~\eqref{bell} the value of $J_{k+1}$ is known at each grid point,
+$x_{k+1}$ is not necessarily in the grid, since the state space for the pond dynamics is continuous~\eqref{watersys}.
+The function, $J_0$, generated by the algorithm~\eqref{bell}, is provided in Fig.~\ref{J0dp},
+where $c(x) := \beta e^{m g(x)}$, $\beta := 10^{-3}$, $m := 10$, and $g(x):= x - 5$.
+$J_0$ estimates $J_0^*$, which we expressed in~\eqref{J0} and originally defined in~\eqref{under}.  
 The computation is inexact due to the interpolations over the grid.
 
 \textit{Monte Carlo implementation.}
-To compute the risk-sensitive safe sets, $\{\mathcal{S}_y^r\}$~\eqref{myS}, in Fig.~\ref{compare}, 
-we estimated the value function, $W_0^*$~\eqref{myS}, over the grid, $G$, using a Monte Carlo procedure,
+To compute the risk-sensitive safe sets, $\{\mathcal{S}_y^r\}$,
+we solved for the value function, $W_0^*$, as defined in~\eqref{myS}, using a Monte Carlo procedure over our grid,
 and then extracted the $r$-sublevel sets.
+This computation is also inexact due to the nature of random sampling. 
 The computational burden was manageable since an optimal control policy was known \textit{a priori}.
-Since $x_{k+1}\geq x_k$ for all $k$, and the only way to leave the constraint set is if $x_k \geq 5$ft,
+As $x_{k+1}\geq x_k$ for all $k$, and the only way to exit the constraint set is if $x_k \geq 5$ft,
 the optimal control policy is to keep the valve open over time, regardless of the current state or confidence level.
 For each $(x,\alpha) \in G$, we sampled 100,000 trajectories starting from $x_0 := x$, subject to keeping the valve open over time.
 For each trajectory sample $i$, we computed the cost sample, $z_i := \max\{g(x_k^i)\}$, and estimated the Conditional Value-at-Risk
 of the 100,000 cost samples at the confidence level, $\alpha$. 
 We used the CVaR estimator, $\hat{\text{CVaR}}_\alpha[Z] := \frac{1}{\alpha M}\sum_{i=1}^M z_i \textbf{1}_{\{z_i\geq \hat{Q}_\alpha\}}$,
-where $\hat{Q}_\alpha$ is the $(1-\alpha)$-quantile of the empirical distribution of the samples, $\{z_i\}_{i=1}^M$; see~\cite{shapiro2009lectures}, Sec. 6.5.1.
+where $\hat{Q}_\alpha$ is the $(1-\alpha)$-quantile of the empirical distribution of the samples, $\{z_i\}_{i=1}^M$,
+and $M := 100,000$ is the number of samples; see~\cite{shapiro2009lectures}, Sec. 6.5.1.
 Since the estimator is designed for continuous distributions, which was not valid for every grid point,
 we added zero-mean Gaussian noise with a small standard deviation ($\sigma := 10^{-12}$) to each cost sample prior to computing the CVaR.
 The Monte Carlo estimate of $W_0^*$, as defined in~\eqref{myS}, is provided in Fig.~\ref{W0mc}.
-100,000 samples per grid point appears to be sufficient. We also used the Monte Carlo procedure to estimate $J_0^*$, as defined in~\eqref{J0},
-with 100,000 samples per grid point and small additive zero-mean Gaussian noise ($\sigma := 10^{-7}$). 
-The results from the Monte Carlo, see Fig.~\ref{J0mc}, and the dynamic programming algorithm, see Fig.~\ref{J0dp}, are comparable
-in most regions of the grid. The Monte Carlo procedure, however, does not capture the higher costs at the smallest level of confidence, $\alpha := 0.001$,
+
+One hundred thousand samples per grid point appears to be sufficient. We also used a Monte Carlo procedure to estimate $J_0^*$, see~\eqref{J0},
+with 100,000 samples per grid point.\footnotemark
+\footnotetext{We also added zero-mean Gaussian noise with a small standard deviation ($\sigma := 10^{-7}$)
+to each cost sample prior to computing the CVaR. This standard deviation was chosen because the magnitude of $J_0$, see Fig.~\ref{J0dp}, is 
+about $10^5$ times greater than the magnitude of $W_0$, see Fig.~\ref{W0mc}.}
+The results of the Monte Carlo method, see Fig.~\ref{J0mc}, and the dynamic programming algorithm, see Fig.~\ref{J0dp}, are comparable
+in most regions of the grid. The Monte Carlo procedure, however, does not capture the higher costs at the smallest level of confidence, $\alpha = 0.001$,
 that are evident using the dynamic programming algorithm.   
 
 \begin{figure}[thpb]
       \centering
-      \includegraphics[scale=0.3]{output_CompareScript_Sept112018.pdf}
-      \caption{ Risk-sensitive safe sets, $\mathcal{S}_y^r$~\eqref{myS}, and their under-approximations, $\mathcal{U}_y^r$~\eqref{under}
+      \includegraphics[scale=0.5]{output_CompareScript_Sept112018.pdf}
+      \caption{ Risk-sensitive safe sets, $\mathcal{S}_y^r$~\eqref{myS}, and their under-approximations, $\mathcal{U}_y^r$~\eqref{under},
 		are shown for various levels of confidence and risk. } 
       \label{compare}
 \end{figure}
@@ -579,14 +579,14 @@ that are evident using the dynamic programming algorithm.
       \centering
       \includegraphics[scale=0.5]{dyn_prog_J0_sept112018.pdf}
       \caption{$J_0(x,\alpha)$ versus $(x, \alpha) \in G$ generated by the dynamic programming algorithm~\eqref{bell} for the pond system is shown.
-	  $J_0$ estimates $J_0^*$, as defined in~\eqref{J0}, where $c(x) := \beta e^{m g(x)}$, $\beta := 10^{-3}$, $m := 10$, $\mathcal{K} := [0, 5\text{ft})$, and $g(x) := x-5$.}
+	  $J_0$ estimates $J_0^*$, see~\eqref{J0}, where $c(x) := \beta e^{m g(x)}$, $\beta := 10^{-3}$, $m := 10$, $\mathcal{K} := [0, 5\text{ft})$, and $g(x) := x-5$.}
       \label{J0dp}
 \end{figure}
 
 \begin{figure}[thpb]
       \centering
       \includegraphics[scale=0.5]{monte_carlo_max_sept112018.pdf}
-      \caption{The Monte Carlo estimate of $W_0^*(x,\alpha)$, as defined in~\eqref{myS}, versus $(x, \alpha) \in G$ is shown for the pond system.
+      \caption{A Monte Carlo estimate of $W_0^*(x,\alpha)$, as defined in~\eqref{myS}, versus $(x, \alpha) \in G$ is shown for the pond system.
 	  100,000 samples were generated per grid point, $g(x) := x - 5$, and $\mathcal{K} := [0, 5\text{ft})$. 
 	  The maximum is 1.5ft because the system state was prevented from exceeding 6.5ft.}
       \label{W0mc}
@@ -595,28 +595,18 @@ that are evident using the dynamic programming algorithm.
 \begin{figure}[thpb]
       \centering
       \includegraphics[scale=0.5]{monte_carlo_sum_sept112018.pdf}
-      \caption{The Monte Carlo estimate of $J_0^*(x,\alpha)$, as defined in~\eqref{J0}, versus $(x, \alpha) \in G$ is shown for the pond system.
+      \caption{A Monte Carlo estimate of $J_0^*(x,\alpha)$ versus $(x, \alpha) \in G$ is shown for the pond system, see~\eqref{J0}.
 	  $c(x) := \beta e^{m g(x)}$, $\beta := 10^{-3}$, $m := 10$, $\mathcal{K} := [0, 5\text{ft})$, and $g(x) := x-5$.
 	  100,000 samples were generated per grid point. See also Fig.~\ref{J0dp}.}
       \label{J0mc}
 \end{figure}
 
-
-
-
-
-%Computing safe sets under the assumption of worst-case rainfall (e.g., via minimax reachability formulations) is impractical due to the limits of public resources.
-
-
-
-
 \section{Conclusion}\label{conc}
+In this paper, we propose the notion of a risk-sensitive safe set and provide a value-iteration algorithm 
+that computes an under-approximation. We illustrate our method on a pond system that must be designed to operate safely 
+in the presence of uncertain rainfall. Our results suggest that the current pond parameters (e.g., value of the surface area) are 
+not sufficient to withstand the design storm. Indeed, keep filling in... 
 
-
-
-the conditional value-at-risk is taken with respect to the probability distribution of $(w_0, \dots, w_{T-1})$. 
-
-\section{Conclusion}\label{conclusion}
 -inform the cost-effective design of infrastructure that must withstand rare extreme storms,
 -possible other applications: to reduce overly conservative error bounds that arise in safe dynamic motion planning (e.g.,~\cite{herbert2017fastrack}), 
 and to increase the amount of time that an autonomous vehicle can operate safely while simultaneously optimizing for performance.
@@ -624,6 +614,7 @@ and to increase the amount of time that an autonomous vehicle can operate safely
 %every state contained in the risk-sensitive safe set that we will define enjoys a probabilistic safety guarantee, to be discussed in Sec.~\ref{lemmaconnection}. 
 %We are interested in developing a framework for risk-sensitive reachability theory to inform decision-making in an uncertain world, where it may not be sensible to ensure safety by assuming worst-case circumstances.
 % Want to quantify varying degrees of safety in a way that realistically (rather than pessimistically) appreciates/prepares for low-probability extreme events through the use of a financial risk measure (i.e., a ``robustified" expected value).
+%Computing safe sets under the assumption of worst-case rainfall (e.g., via minimax reachability formulations) is impractical due to the limits of public resources.
 
 
 

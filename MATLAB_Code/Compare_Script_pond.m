@@ -21,8 +21,9 @@ load('Pond_Results\more_accurate_probdist\dyn_prog\dyn_prog_results_sept112018.m
 J0_cost_sum = Js{1}; beta = 10^(-3); % see stage_cost_pond.m
 
 rs = linspace( 1, 0.25, 6 ); % risk levels to be plotted, choose min to be slightly bigger than min(min(J0_cost_max))
+rs = [rs(1), rs(4), rs(2), rs(5), rs(3), rs(6)]; % so risk levels decrease sequentially along each column in figure
 
-[ U, S ] = getRiskySets_pond( ls, xs, rs, m, J0_cost_sum, J0_cost_max, beta, 1 );
+[ U, S ] = getRiskySets_pond( ls, xs, rs, m, J0_cost_sum, J0_cost_max, beta, 2 );
 
 %% Compare [Monte Carlo, soft-max] vs. Dynamic Programming, soft-max] to justify nt = 100,000
 
