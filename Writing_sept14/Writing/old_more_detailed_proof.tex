@@ -1,0 +1,64 @@
+The first property is that every state in $\mathcal{U}_\delta$ enjoys a probabilistic safety guarantee.
+To prove this property, we need the following result adopted from~\cite{shapiro2009lectures}.\\
+\textcolor{blue}{SJ: The simplified proof is using $\delta = 1 - \alpha$. I suggest we use this notation throughout the paper. }\\
+\begin{lemma}\label{lemma1}
+ Let $\delta \in (0,1)$, and $Z$ be a random variable. If $\text{CVaR}_\delta(Z) < 0$, then $\mathbb{P}[Z\geq 0] < \delta$ (see~\cite{shapiro2009lectures}, Sec. 6.2.4).\footnotemark
+\end{lemma}
+\textcolor{blue}{\begin{proof} SJ: simplifying the proof below. 
+\begin{align}
+& \text{CVaR}_{1-\alpha}(Z) < 0 \nonumber \\ 
+\iff & \frac{1}{1-\alpha} \mathbb{E}\big[\max\{Z-c,0\}\big] < -c \nonumber \\
+\iff & \exists c \in \mathbb{R} \;\; c + \frac{1}{1-\alpha}\mathbb{E}\big[\max\{Z-c,0\}\big] < 0 \; [\text{using }~\eqref{cvareqn}] \nonumber \\
+\iff & \mathbb{E}\big[\max\{Z-c,0\}\big] < -c(1-\alpha) \label{proofeqn1}
+\end{align} 
+Now, the LHS of the inequality,  $\mathbb{E}\big[\max\{Z-c,0\}\big] \geq 0$ because the expectation of non-negative values cannot be negative. Consequently, the RHS of the inequality must also be non-negative, that is, $-c(1-\alpha) \geq 0$, that is, $c \leq 0$ since $1-\alpha \geq 0$. So, we can rewrite  inequality~\eqref{proofeqn1} using $ a = -c \geq 0$ as follows: 
+\begin{align}
+& \mathbb{E}\big[\max\{Z+a,0\}\big] < a(1-\alpha), \; \text{where} \; a \geq 0 \nonumber \\
+\iff & \; \frac{1}{a}\mathbb{E}\big[\max\{Z+a,0\}\big] < 1-\alpha, \; \text{where}  \; a \geq 0 \label{proofeqn2}
+\end{align}
+Using Markov's Inequality,
+$\mathbb{P}\big[\max\{Z+a,0\} \geq a \big] \leq  \frac{1}{a}\mathbb{E}\big[\max\{Z+a,0\}\big]$. Combining with inequality~\eqref{proofeqn2},\\
+\begin{align}
+& \mathbb{P}\big[\max\{Z+a,0\} \geq a \big] \leq  \frac{1}{a}\mathbb{E}\big[\max\{Z+a,0\}\big] < 1-\alpha \nonumber \\
+\Rightarrow \;\; & \mathbb{P}\big[\max\{Z+a,0\} \geq a \big] < 1-\alpha \label{proofeqn3}
+\end{align}
+Now, $Z \geq 0 \iff Z+a \geq a \iff \max\{Z+a,0\} \geq a $ since $a \geq 0$, and so,\\
+$\mathbb{P}\big[Z \geq 0\big] = \mathbb{P}\big[\max\{Z+a,0\} \geq a\big]$.
+Combining with the inequality~\eqref{proofeqn3},
+\begin{align*}
+& \mathbb{P}\big[Z \geq 0\big] = \mathbb{P}\big[\max\{Z+a,0\} \geq a\big] < 1-\alpha \\
+\iff \;\; & \mathbb{P}\big[Z \geq 0\big] < 1-\alpha 
+\end{align*}
+\end{proof}
+The only one-sided implication is in the use of Markov's Inequality to get inequality~\eqref{proofeqn2}, and this corresponds to the approximation gap in using 
+ $\text{CVaR}_{1-\alpha}(Z) < 0$
+ to approximate $\mathbb{P}[Z\geq 0] < 1-\alpha$.\\}
+%% sj: end new proof
+
+The next corollary indicates that every state in $\mathcal{U}_\delta$ enjoys a probabilistic safety guarantee.
+\begin{corollary}
+$\mathcal{U}_\delta$, as defined in~\eqref{U}, is a subset of $\mathcal{S}_\delta$,
+\begin{equation}
+\mathcal{S}_\delta := \Big\{y \in S\text{ }|\text{ }\exists \pi \in \Pi\text{, } \mathbb{P}\left[\forall k \in \mathbb{T}\text{, }\xi_y^\pi(k) \in \mathcal{K} \right]  > 1-\delta \Big\}, \\
+\label{S}\end{equation}
+where $\mathbb{P}$ is the probability measure for the state trajectory, and $\mathbb{T} = \{0, 1, \dots, T\}$ is the time horizon.
+\end{corollary}
+\begin{proof}
+\textcolor{blue}{may want to remove this proof b/c it's not very important?}
+Take $y \in \mathcal{U}_\delta$. Then, there exists $\pi \in \Pi$ such that $\text{CVaR}_\delta(X_y^\pi) < 0$, 
+which implies $\mathbb{P}[X_y^\pi \geq 0] < \delta$ by Lemma~\ref{lemma1}.
+After some algrebra using~\eqref{g} and~\eqref{xpiy},
+\begin{equation}
+\mathbb{P}[X_y^\pi \geq 0] = 1 - \mathbb{P}\left[\forall k \in \mathbb{T}\text{, } \xi_y^\pi(k) \in \mathcal{K} \right].
+\end{equation}
+So, $\exists \pi \in \Pi$ such that $\mathbb{P}\left[\forall k \in \mathbb{T}\text{, } \xi_y^\pi(k) \in \mathcal{K} \right] > 1- \delta$, implying that $y \in \mathcal{S}_\delta$.
+\end{proof}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+CAPTION FOR CVAR
+An illustration of $\text{CVaR}_\delta(Z) \in \mathbb{R}$, if $Z$ is a continuous random variable. 
+	  The graph shows the probability density function of $Z$ versus the realizations of $Z$.
+	  The area of the right portion under the curve, shown in red, is $\delta \in (0,1)$.	  
+	  The area of the left portion under the curve, shown in grey, is $1-\delta$.
+	  $\text{CVaR}_\delta(Z)$ is the expectation of the values along the right portion under the curve, indicated by a yellow circle
