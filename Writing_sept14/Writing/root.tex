@@ -79,7 +79,7 @@ can be made small via an appropriate control policy, where risk is quantified us
 We show that certain risk-sensitive safe sets enjoy probabilistic safety guarantees.
 We provide a dynamic programming algorithm to compute under-approximations of risk-sensitive safe sets
 and prove the correctness of the algorithm for finite probability spaces.
-Our proof is a novel contribution, as it does not require the assumption of strong duality, which was required in a previous paper.
+\textcolor{blue}{Our proof is a novel contribution, as it does not require the assumption of strong duality, which was required in a previous paper.}
 Finally, we demonstrate the utility of risk-sensitive reachability analysis on a numerical example.
 %as a design tool for stormwater infrastructure which is required to operate safely in the presence of rainfall uncertainty.
 \end{abstract}
@@ -170,15 +170,14 @@ CVaR has additional desirable properties that are of particular interest to rese
 
 The key contributions of this paper follow.
 We formulate a risk-sensitive reachability problem for safety of stochastic dynamic systems under non-adversarial disturbances
-over a finite time horizon. In particular, our formulation quantifies the non-binary distance between the boundary of the constraint set and the
+over a finite-time horizon. In particular, our formulation quantifies the non-binary distance between the boundary of the constraint set and the
 state trajectory for a stochastic dynamic system. This is an extension of stochastic 
 reachability methods (e.g.,~\cite{abate2008probabilistic},~\cite{summers2010verification}), which reduce this distance to a binary random variable.
 Further, in contrast to stochastic reachability methods, our formulation explicitly accounts for rare high-consequence events by posing the optimal control problem
-in terms of Conditional Value-at-Risk instead of expectation. This is the first use of risk measures in the reachability literature to our knowledge.
-In Sec.~\ref{sec::problem}, we define the notion of a \textit{risk-sensitive safe set} and formalize the problem statement.
-Sec.~\ref{sec::rationale} summarizes properties of risk-sensitive safe sets, including their relation to probabilistic safety.
-Sec.~\ref{sec::alg} provides a dynamic programming algorithm to compute under-approximations of risk-sensitive safe sets. %include proof?
-In Sec.~\ref{sec::ex}, we provide a numerical example in the context of the design of stormwater infrastructure. Sec.~\ref{conc} provides steps for future work.
+in terms of Conditional Value-at-Risk instead of the expectation operator. This is the first use of risk measures in the reachability literature to our knowledge.
+We formally define risk-sensitive safe sets in Sec.~\ref{sec::problem}, and provide rationale in Sec.~\ref{sec::rationale}.
+Sec.~\ref{sec::alg} presents a value-iteration algorithm that computes under-approximations for risk-sensitive safe sets. %include proof?
+We provide a numerical example in the context of design of stormwater infrastructure in Sec.~\ref{sec::ex}. Sec.~\ref{conc} provides steps for future work.
 % Extends upon HJ Reachability analysis~\cite{mitchell2005time}, \cite{bansal2017hamilton} - quantifies distance but for stochastic dynamic systems.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -226,7 +225,7 @@ For example, we may choose $g(x) := x - 5$ to characterize $\mathcal{K} := [0, 5
 $\mathcal{X} := [0, \infty)$.
 
 We define a \textit{risk-sensitive safe set} as a set of initial states from which 
-risk of extreme constraint violation over time can be made small using an admissible control policy~\eqref{pi}, where risk is quantified by the \textit{Conditional Value-at-Risk}~\eqref{cvareqn}.
+risk of extreme constraint violation over time can be made small using an admissible control policy~\eqref{pi}, where risk is quantified via \textit{Conditional Value-at-Risk}~\eqref{cvareqn}.
 Formally, the risk-sensitive safe set at the confidence level, $\alpha \in (0,1]$, and the risk level, $r \in \mathbb{R}$, is defined as,
 %
 \begin{subequations}
@@ -250,24 +249,26 @@ where
 such that the state trajectory $(x_0, x_1, ..., x_N)$
 evolves according to the dynamics model~\eqref{sys} with the initial state, $x_0 := x$, under the policy, $\pi \in \Pi$. 
 The surface function $g$ characterizes the constraint set, $\mathcal{K}$, according to~\eqref{g}. 
-Note that the minimum in the definition of $W_0^*(x,\alpha)$ is attained, as the following lemma states.
+Note that the minimum in the definition of $W_0^*(x,\alpha)$ is attained, as the next lemma states.
 %
 \begin{lemma}
 	\label{lemma::infeqmin}
-	For any initial state $x \in \mathcal{X}$ and any confidence level $\alpha \in (0,1]$, there exists a policy $\pi^* \in \Pi$ such that 
+	For any initial state, $x \in \mathcal{X}$, and any confidence level, $\alpha \in (0,1]$, there exists a policy, $\pi^* \in \Pi$, such that 
 	\begin{equation*}
 	\begin{split}
-	\text{ CVaR}_\alpha\big[ Z^{\pi^*}_{x} \big] &= {\underset{\pi \in \Pi}\inf} \text{ CVaR}_\alpha\big[ Z^\pi_{x} \big]\\
-	&={\underset{\pi \in \Pi}\min} \text{ CVaR}_\alpha\big[ Z^\pi_{x} \big].
+	\text{ CVaR}_\alpha\big[ Z^{\pi^*}_{x} \big] = {\underset{\pi \in \Pi}\inf} \text{ CVaR}_\alpha\big[ Z^\pi_{x} \big] ={\underset{\pi \in \Pi}\min} \text{ CVaR}_\alpha\big[ Z^\pi_{x} \big].
 	\end{split}
 	\end{equation*}
 \end{lemma}
 \begin{proof}
-	Fix an initial state $x \in \mathcal{X}$, and a confidence level $\alpha \in (0,1]$. Let $\mathcal{X}_N(x)$ be the set of states that are visited under a given control sequence, $u_{0:N-1} := (u_0, \hdots, u_{N-1}) \in U^{N}$, i.e., 
-	\begin{equation*}
-	\mathcal{X}_N(x) := \left\{ x \in \mathcal{X} \mid x_k = x \text{ for some } u_{0:N-1},\,k \leq N-1\right\}.
-	\end{equation*}
-	Since the control space $U$ and the disturbance space $D$ are finite, the set $\mathcal{X}_N(x)$ is finite. It follows that the sets of corresponding state histories $H_k(x) := (\mathcal{X}_N(x))^{k}$, for $0 \leq k \leq N-1$, are finite.  Then, a policy $\pi$ is a finite sequence of mappings from $H_k(x)$ (finite set) to $U$ (finite set). Hence, the corresponding set of policies is finite. Therefore, the infimum must be attained by some policy $\pi^*$.
+	\textcolor{blue}{Can we put this proof in one sentence? I'm tired and am getting confused.}
+	Fix an initial state, $x \in \mathcal{X}$, and a confidence level, $\alpha \in (0,1]$. 
+	Let $\mathcal{X}_N(x)$ be the set of states that can be visited under any control sequence, $(u_0, \hdots, u_{N-1}) \in U^{N}$,
+	and any disturbance sequence, $(w_0, \hdots, w_{N-1}) \in D^{N}$, starting from $x$.
+	The set, $\mathcal{X}_N(x)$, is finite because $U$, $D$, and $N$ are finite.
+	So, $H_k(x) \subseteq (\mathcal{X}_N(x))^{k}$, for each $0 \leq k \leq N-1$, is also finite.
+	Then, any policy, $\pi \in \Pi$, is a finite sequence of mappings from $H_k(x)$ (finite set) to $U$ (finite set). 
+	Hence, \textcolor{blue}{the corresponding set of policies, $\Pi$,} is finite. Therefore, the infimum must be attained by some policy, $\pi^*$.
 \end{proof}
 
 The goal of this paper is to compute a family of risk-sensitive safe sets at different levels of confidence, $\alpha \in (0,1]$, and risk, $r \in \mathbb{R}$.
@@ -301,7 +302,7 @@ under the admissible policy, $\pi \in \Pi$, and
 %
 \end{subequations}
 %
-Our framework generalizes the one proposed in~\cite{abate2008probabilistic}, in the case of non-hybrid systems. Indeed, if we choose $\alpha = 1$, $g(x) = \textbf{1}_\mathcal{\bar{K}}(x)$, and $r= \epsilon$ in~\eqref{myS}, then our formulation becomes the same as in~\cite{abate2008probabilistic}. Moreover, we can incorporate any surface function $g$ that penalizes the distance of the state $x_k$ to the constraint set $\mathcal{K}$. Further, our risk-sensitive formulation is more flexible, as it considers, in addition to the risk level $r$, a level of confidence $\delta$. 
+Our framework generalizes the one proposed in~\cite{abate2008probabilistic}, in the case of non-hybrid systems. Indeed, if we choose $\alpha = 1$, $g(x) = \textbf{1}_\mathcal{\bar{K}}(x)$, and $r= \epsilon$ in~\eqref{myS}, then our formulation becomes the same as in~\cite{abate2008probabilistic}. Moreover, we can incorporate any surface function $g$ that penalizes the distance of the state $x_k$ to the constraint set $\mathcal{K}$. Further, our risk-sensitive formulation is more flexible, as it considers, in addition to the risk level $r$, a level of confidence $\alpha$. 
 
 % What about the non-strict inequality in $S^*(\epsilon)$? 
 % J.L.: The non-strict equality could be discussed depending on the continuity of the probability distribution. However, I think that it is not worth discussing it. It would lead to technical, and irrelevant, complications.
@@ -354,24 +355,24 @@ for risk-sensitive safe sets and an algorithm to compute the under-approximation
 The computational method is inspired by Chow et al.~\cite{chow2015risk}.
 We consider an augmented state space, $\mathcal{X} \times \mathcal{Y}$, that consists of the original state space, $\mathcal{X}$, 
 and the space of confidence levels, $\mathcal{Y} := (0,1]$.
-We define the under-approximations for risk-sensitive safe sets in terms of the dynamics of the augmented state, $(x,y) \in \mathcal{X} \times \mathcal{Y}$. 
+The under-approximations for risk-sensitive safe sets are defined in terms of the dynamics of the augmented state, $(x,y) \in \mathcal{X} \times \mathcal{Y}$. 
+In the following section, we explain these dynamics in detail.
 
-Now, we explain the dynamics of the augmented state.
+\subsection{Dynamics of the Augmented State}
 Let $(x_0, y_0) := (x, \alpha)$ be a given initial condition.
 The augmented state at time $k+1$, $(x_{k+1}, y_{k+1})$, depends on the augmented state at time $k$, $(x_k, y_k)$, as follows.
 Given a control, $u_k \in U$, and a sampled disturbance, $w_k \in D$, the next state, $x_{k+1} \in \mathcal{X}$, satisfies the dynamics model~\eqref{sys}. 
 The next confidence level, $y_{k+1} \in \mathcal{Y}$, is given by,
 \begin{equation}
-y_{k+1} = \bar{R}(x_k) y_k,\label{Rbar}
+y_{k+1} = \bar{R}_{y_k}(x_k) \cdot y_k,\label{Rbar}
 \end{equation}
-where $\bar{R} : \mathcal{X} \to (0, \frac{1}{y_k}]$ is a known deterministic function, 
+where $\bar{R}_{y_k} : \mathcal{X} \to (0, \frac{1}{y_k}]$ is a known deterministic function, 
 which we will specify in Lemma~\ref{decomlemma}. 
 Note that the augmented state space, $\mathcal{X} \times \mathcal{Y}$, is fully observable.
 Indeed, the history of states and actions, $(x_0, u_0, \hdots, x_{k-1}, u_{k-1}, x_{k})$, is available at time $k$, according to~\eqref{sys}. 
 Also, the history of confidence levels, $(y_0, \hdots, y_k)$, is available at time $k$, since
-the function, $\bar{R}$ (see~\eqref{Rbar}), and the initial confidence level, $y_0 = \alpha$, are known.
-\textcolor{blue}{Jonathan, I think that the term, controller, is a little abstract, so I changed some of the wording above -- to not include this term. 
-What are your suggestions for further revisions?} 
+the function, $\bar{R}$, and the initial confidence level, $y_0 = \alpha$, are known.
+\textcolor{blue}{Any suggestions for revisions in the above lines following eq. 8? I removed the term, controller, b/c I think it's a little abstract.} 
 
 We define sets of \textit{deterministic, Markov} control policies in terms of the augmented state space as follows,
 %
@@ -397,149 +398,148 @@ Given $\bar{\pi}_0 \in \bar{\Pi}_0$, the control at time $k$ is $\bar{\mu}_k(x_k
 Define $\mu_k(x_0, x_1, \hdots, x_k) := \bar{\mu}_k( h_k( y_0, x_0, x_1, \hdots, x_k) )$ for all $y_0 \in \mathcal{Y}$.
 Note that $\mu_k$ is the control law at time $k$ for a particular $\pi \in \Pi$. 
 Thus, there is an injective function that maps $\bar{\Pi}_0$ to $\Pi$.
-\textcolor{blue}{Jonathan, can you please review/correct this footnote?}}
+\textcolor{blue}{Please review/correct this footnote}}
 
 The benefits of considering $\bar{\Pi}_0$ instead of $\Pi$ are two-fold. 
 First, the computational requirements are reduced when the augmented state at time $k$, $(x_k, y_k)$, 
 is processed instead of the initial confidence level and the state history up to time $k$, $(y_0, x_0, x_1, \hdots, x_k)$. 
-\textcolor{blue}{Jonathan, should we remove $y_0$ because $\Pi$ does not actually take in the initial confidence level?}
-Second, we are able to define and compute under-approximations
-for risk-sensitive safe sets using $\bar{\Pi}_0$.
-
-Define $\mathcal{U}_\alpha^r \subseteq \mathcal{X}$
+\textcolor{blue}{But, $\Pi$ does not explicitly incorporate $y_0$.}
+Second, we are able to define and compute an under-approximation
+for the risk-sensitive safe set given by~\eqref{myS}, using $\bar{\Pi}_0$, which we explain in the following sections.
+%
+\subsection{Under-Approximation for Risk-Sensitive Safe Set}
+Define the set, $\mathcal{U}_\alpha^r \subseteq \mathcal{X}$,
 at the confidence level, $\alpha \in (0,1]$, and the risk level, $r \in \mathbb{R}$,
-\begin{subequations}\label{under}\begin{equation}
+%
+\begin{equation}\label{under}
 \mathcal{U}_\alpha^r := \{x \in \mathcal{X} \mid J_0^*(x,\alpha) \leq \beta e^{m\cdot r} \},
 \end{equation}
+%
 where
+%
 \begin{equation}\begin{aligned}
 & J_0^*(x,\alpha) := {\underset{\pi \in \bar{\Pi}_0}\min} \text{ CVaR}_\alpha \big[ Y_x^\pi \big],\\
-& Y_x^\pi := \textstyle\sum_{k=0}^N \beta e^{m\cdot g(x_k)},
-\end{aligned}\end{equation}
-\end{subequations}
-such that the augmented state trajectory, $(x_0, y_0, \dots, x_{N-1}, y_{N-1}, x_N)$,
-satisfies~\eqref{sys} and~\eqref{Rbar} with the initial condition, $(x_0, y_0) := (x, \alpha)$, under the policy, $\pi \in \bar{\Pi}_0$.
-$\beta > 0$ and $m > 0$ are constants to be chosen that do not depend on $\alpha$ or $r$. 
-The next lemma states that the set, $\mathcal{U}_\alpha^r$, is an under-approximation for the risk-sensitive safe set, $\mathcal{S}_\alpha^r$.   
-\begin{lemma}\label{lemma2}
-$\mathcal{U}_\alpha^r$, as defined in~\eqref{under}, is a subset of $\mathcal{S}_\alpha^r$, as defined in~\eqref{myS}. 
-Also, the gap between $\mathcal{U}_\alpha^r$ and $\mathcal{S}_\alpha^r$ can be made smaller by increasing $m$.
-\end{lemma}
-\begin{remark} $\beta$ is included in~\eqref{under} to help counter numerical issues that may arise if $m$ is chosen very large. \end{remark}
-The proof of Lemma~\ref{lemma2} is provided in the Appendix.
-
-In the next section, we provide an algorithm to compute the under-approximation, $\mathcal{U}_\alpha^r$,
-at different levels of confidence and risk. This algorithm relies on an existing result that specifies the dynamics of the confidence level. START HERE!
+& Y_x^\pi := \textstyle\sum_{k=0}^N c(x_k),
+\end{aligned}\label{J0}\end{equation}
 %
-\subsection{State space augmentation}
-The value function, $J_0^*(x,\alpha)$, defined in~\eqref{under},
-is the smallest risk at confidence level $\alpha$ of the cumulative scaled constraint violation of the state trajectory that satisfies~\eqref{sys} with $x_0 := x$. 
-In order to compute $J_0^*(x,\alpha)$, we use a method directly inspired by the work of Chow et al.~\cite{chow2015risk}. 
-
-
-If we do not prove \textit{Conjecture 1}, we prove intermediary results along that way. 
-Further, we provide an algorithm to construct a policy $\pi^* \in \bar{\Pi}_0$ that, we conjecture, 
-attains the minimum in the right-hand side of \eqref{J0}. 
-Note that Chow et al.~\cite{chow2015risk} prove a result similar to \textit{Conjecture 1}. 
-However, their setting is different. 
-In particular, they consider an infite-horizon, discounted cumulative cost. 
-Their proofs are heavily based on fixed point results for contractive operators in Banach spaces, that we cannot use here. 
-Therefore, we believe that proving \textit{Conjecture 1} requires a different technical approach.
-
-\subsection{Algorithm}
-We provide an algorithm to estimate the right-hand-side of~\eqref{J0}.
-We let $c: \mathbb{R}^n \rightarrow \mathbb{R}$ be any stage cost; e.g., $c(x) = \beta e^{m g(x)}$ in~\eqref{J0}. 
+such that $c : \mathcal{X} \to \mathbb{R}$ is a stage cost, and the augmented state trajectory, $(x_0, y_0, \dots, x_{N-1}, y_{N-1}, x_N)$,
+satisfies~\eqref{sys} and~\eqref{Rbar} with the initial condition, $(x_0, y_0) := (x, \alpha)$, under the policy, $\pi \in \bar{\Pi}_0$.
+The next lemma states that if the stage cost takes a particular form, then $\mathcal{U}_\alpha^r$ is an under-approximation for the risk-sensitive safe set, $\mathcal{S}_\alpha^r$.   
+\begin{lemma}\label{lemma2}
+Choose the stage cost, $c(x) := \beta e^{m\cdot g(x)}$, where $\beta > 0$ and $m > 0$ are constants, and $g$ satisfies~\eqref{g}.
+Then, $\mathcal{U}_\alpha^r$, as defined in~\eqref{under}, is a subset of $\mathcal{S}_\alpha^r$, as defined in~\eqref{myS}. 
+Further, the gap between $\mathcal{U}_\alpha^r$ and $\mathcal{S}_\alpha^r$ can be made smaller by increasing $m$.
+\end{lemma}
+\begin{remark} $\beta$ is included in the definition of $c$ to help counter numerical issues that may arise if $m$ is very large. \end{remark}
+The proof of Lemma~\ref{lemma2} is provided in the Appendix.
+%
+\subsection{Temporal Decomposition of Conditional Value-at-Risk}
+Here we state an existing result that is key to deriving a dynamic programming algorithm
+that computes our under-approximation for the risk-sensitive safe set.
+In particular, the result specifies how the CVaR of a sum of costs can be partitioned over time and
+how the confidence level evolves over time, which we initially presented in~\eqref{Rbar}.
 %
 \begin{lemma}\label{decomlemma}
-Lemma 22 of~\cite{pflug2016time} implies the following CVaR-decomposition for the system~\eqref{sys} at time $k$,
-under any (augmented) policy, $\pi_k := (\mu_k, \pi_{k+1}) \in \bar{\Pi}_k$,
+Lemma 22 in~\cite{pflug2016time} implies the following CVaR-decomposition for the system~\eqref{sys} at time $k$,
+initialized at $x_k \in \mathcal{X}$, with the confidence level, $\alpha \in \mathcal{Y}$, 
+under a given policy, $\pi_k := (\mu_k, \pi_{k+1}) \in \bar{\Pi}_k$. Let $z_k := (x_k, \alpha)$. Then,
 %
 \begin{subequations}\label{decomp}
 \begin{equation}\begin{aligned}
-& \text{CVaR}_\alpha \Big[ Z \Big| x_k, \pi_k \Big] \\
-& = {\underset{R \in \mathcal{R}(\alpha, \mathbb{P})}\max} \mathbb{E}\Big[ R \cdot \text{CVaR}_{\alpha R}\big[ Z \big| x_{k+1}, \pi_{k+1} \big] \Big| (x_k, \alpha), \mu_k \Big], \\
-\end{aligned}\end{equation}
+& \text{CVaR}_\alpha [ Z | z_k, \pi_k ] = {\underset{R \in \mathcal{R}(\alpha, \mathbb{P})}\max} C(R, Z; z_k,\pi_k), \\
+& C(R, Z; z_k, \pi_k) := \mathbb{E}\big[ R \cdot \text{CVaR}_{\alpha R}[ Z | x_{k+1}, \pi_{k+1} ] \big| z_k, \mu_k \big],
+\end{aligned}
+\end{equation}
 %
 where 
 %
-\begin{equation}
-\mathcal{R}(\alpha, \mathbb{P}) := \Bigg\{ R : D \rightarrow \big[0,\alpha^{-1}\big] \mathrel{\bigg|} \sum_{j=1}^W R(d_j)\mathbb{P}[w_k = d_j] = 1 \Bigg\}\\
-\end{equation}
+\begin{equation}\begin{aligned}
+& \mathcal{R}(\alpha, \mathbb{P}) := \big\{ R : D \to (0,\textstyle\frac{1}{\alpha}\big] \mathrel{\big|} \textstyle\sum_{j=1}^WR(d_j)\mathbb{P}[w_k = d_j] = 1 \big\}, \\
+& Z := \textstyle \sum_{i=k+1}^N c(x_i),
+\end{aligned}\end{equation}
 \end{subequations}
+such that $c: \mathcal{X} \to \mathbb{R}$ is a stage cost.
 %
-is a set of discrete random variables, 
-and $Z := \textstyle \sum_{i=k+1}^N c(x_i)$ is the random cumulative cost starting at time $k+1$.
+Further, given the control, $u_k := \mu_k(z_k)$, the function that was introduced in~\eqref{Rbar}, $\bar{R}_\alpha : \mathcal{X} \to (0,\frac{1}{\alpha}]$, satisfies,
+\begin{equation}
+\bar{R}_\alpha(x_k) = \text{arg}{\underset{R \in \mathcal{R}(\alpha, \mathbb{P})}\max} C(R, Z; z_k, \pi_k).\\
+\end{equation}
+\textcolor{blue}{Please check the statement of Lemma 4. In particular, system (2) does not explicitly incorporate an initial confidence level. Should we add this as part of the definition of (2)?} 
 \end{lemma}
-%
+% 
 \begin{remark}
-The proof of Lemma~\ref{decomlemma}, which we do not provide due to lack of space, is however a straighforward application of Lemma 22 in~\cite{pflug2016time}. 
+The proof of Lemma~\ref{decomlemma}, which we leave out due to lack of space, is an application of Lemma 22 in~\cite{pflug2016time}. 
 \end{remark}
 %
 \begin{remark}
-$\text{CVaR}_\alpha \big[ \textstyle \sum_{i=k+1}^N c(x_i) \big| x_k, \pi_k \big]$ is the risk of 
-the cumulative cost starting at time $k+1$ of the trajectory that starts at time $k$, is initialized at the state, $x_k \in \mathcal{X}$, 
+$\text{CVaR}_\alpha [ Z | z_k, \pi_k ]$ is the risk of 
+the cumulative cost starting at time $k+1$ of the trajectory, $(x_k, \dots, x_N)$, that is initialized at $x_k$ 
 and evolves under the policy, $\pi_k \in \bar{\Pi}_k$.
 \end{remark}
 %
 \begin{remark}
 For the system~\eqref{sys},
+%
 \begin{equation*}\begin{aligned}
-& \mathbb{E}\Big[ R \cdot \text{CVaR}_{\alpha R}\big[ Z \big| x_{k+1}, \pi_{k+1} \big] \Big| (x_k, \alpha), \mu_k \Big] \\
-& = \textstyle\sum_{j=1}^W v_j \cdot \text{CVaR}_{\alpha v_j}\big[ Z \big| x_{k+1}^j, \pi_{k+1} \big] \cdot \mathbb{P}[w_k = d_j]\text{, where}\\
-& x_{k+1}^j = f(x_k, \mu_k(x_k, \alpha), d_j).
+C(R, Z&; (x_k, \alpha), \pi_k) = \\
+& \textstyle\sum_{j=1}^W v_j \cdot \text{CVaR}_{\alpha v_j}[ Z | x_{k+1}^j, \pi_{k+1} ] \cdot \mathbb{P}[w_k = d_j],\\
 \end{aligned}\end{equation*}
 %
-In words, $x_{k+1}^j$ is the $j$\textsuperscript{th} sample of the state at time $k+1$, given the control at time $k$, $\mu_k(x_k, \alpha) \in U$, 
-and the disturbance at time $k$, $w_k = d_j$.
-Further, $v_j = R(d_j)$ is the $j$\textsuperscript{th} sample of the random variable, $R \in \mathcal{R}(\alpha, \mathbb{P})$. 
+where $x_{k+1}^j = f(x_k, \mu_k(x_k, \alpha), d_j)$, and $v_j = R(d_j)$. In words, $x_{k+1}^j$ is the $j$\textsuperscript{th} realized state at time $k+1$, 
+given the control at time $k$, $u_k = \mu_k(x_k, \alpha)$, and the $j$\textsuperscript{th} realized disturbance at time $k$, $w_k = d_j$.
+Also, $v_j$ is the $j$\textsuperscript{th} realization of the random variable, $R \in \mathcal{R}(\alpha, \mathbb{P})$. 
 \end{remark}
 %
 \begin{remark}
-Chow et al.~\cite{chow2015risk} interpreted Lemma 22 of~\cite{pflug2016time} for Markov Decision Processes.
+Chow et al.~\cite{chow2015risk} interpreted Lemma 22 in~\cite{pflug2016time} for Markov Decision Processes.
 Lemma~\ref{decomlemma} restates the result for stochastic dynamic systems.
 \end{remark}
-
-Next, we use Lemma~\ref{decomlemma} to provide a dynamic programming value-iteration that estimates~\eqref{J0}.
+%
+\subsection{Value-Iteration Algorithm}
+In this section, we use Lemma~\ref{decomlemma} to derive a dynamic programming value-iteration algorithm that computes $J_0^*$, as defined in~\eqref{J0}.
+We will implement the algorithm with the stage cost, $c(x) := \beta e^{m \cdot g(x)}$, 
+to compute the under-approximation, $\mathcal{U}_\alpha^r$, for the risk-sensitive safe set, $\mathcal{S}_\alpha^r$, 
+at different levels of confidence, $\alpha \in (0, 1]$, and risk, $r \in \mathbb{R}$. 
+%
 \begin{theorem}\label{thm}
-Define the functions, $J_{N-1}$, \dots, $J_0$, recursively as follows, for all $(x_k, y_k) \in \mathcal{X} \times \mathcal{Y}$,
-\begin{equation}\begin{aligned}
-& J_k(x_k,y_k) := \\
-& {\underset{u_k \in U}\min} \Bigg\{ c(x_k) + {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max} \mathbb{E}\Big[ R J_{k+1}(x_{k+1}, y_k R) \Big| (x_k, y_k), u_k \Big] \Bigg\}, \\
-& k = N-1, \dots, 0,
-\end{aligned}\label{bell}\end{equation}
-where $J_N(x_k, y_k) := c(x_k)$, $x_{k+1}$ satisfies~\eqref{sys}, and $\mathcal{R}(y_k, \mathbb{P})$ is defined in~\eqref{decomp}.  
-Then, $J_0^*(x,\alpha)$, see~\eqref{J0}, is given by $J_0(x, \alpha)$, 
-the value of the function at the last step of the recursion evaluated at $(x,\alpha) \in \mathcal{X} \times \mathcal{Y}$.
+Define the functions, $J_{N-1}$, \dots, $J_0$, recursively as follows, $\forall z_k := (x_k, y_k) \in \mathcal{X} \times \mathcal{Y}$,
+\begin{equation}
+J_k(z_k) := {\underset{u_k \in U}\min} \Big\{ c(x_k) + {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max} \mathbb{E}\big[ R J_{k+1}(x', y_k R) \big| z_k, u_k \big] \Big\}, \\
+\label{bell}\end{equation}
+for $k = N-1, \dots, 0$, where $J_N(x_k, y_k) := c(x_k)$, $x' := x_{k+1}$ satisfies~\eqref{sys}, and $\mathcal{R}(y_k, \mathbb{P})$ is defined in~\eqref{decomp}.  
+Then, $J_0^*(x,\alpha)$, as defined in~\eqref{J0}, is equal to $J_0(x, \alpha)$, 
+which is the value of the function at the last step of the recursion, $J_0$, evaluated at the augmented state, $(x,\alpha)$.
 \end{theorem}
+%
 \begin{remark}
 The functions, $J_{N-1}$, \dots, $J_0$, are well-defined and finite because $D$ is a finite set (see~\cite{bertsekas2005dynamic}, Sec. 1.5).
 \end{remark}
+%
 \begin{remark}
-Chow et al. proposed the recursion~\eqref{bell} and applied it to the infinite-time discounted problem~\cite{chow2015risk}. 
-%The part of their proof that addresses the finite time case assumes that the min/max can be exchanged (see~\cite{chow2015risk}, Theorem 4),
-%which our proof does not assume. 
+Chow et al. proposed the recursion~\eqref{bell} and applied it to the infinite-time discounted problem~\cite{chow2015risk}.
+Their proofs are based on fixed-point results for contraction operators in Banach spaces, which cannot be used in the finite-time setting of the current paper.
+%The part of their proof that addresses the finite time case assumes that the min/max can be exchanged (see~\cite{chow2015risk}, Theorem 4), which our proof does not assume. 
 \end{remark}
+%
+\begin{remark}
+The policy given by~\eqref{bell} requires that the current state and the current confidence level are available.
+Constructing a policy that depends on the state history and the initial confidence level is important future work,
+which may require different arguments than those used by Chow et al.~\cite{chow2015risk} due to the finite-time setting of the current paper.  %see Theorem 5
+\end{remark} 
 
 Our proof of Theorem~\ref{thm} is provided in the Appendix.
-The idea is to use a sub-optimal value function as machinery to demonstrate that each $J_k$, as defined recursively in~\eqref{bell},
+The proof idea is to use a sub-optimal value function as machinery to demonstrate that each $J_k$, as defined recursively in~\eqref{bell},
 is sufficiently close to the optimal cost-to-go of the sub-problem that starts at time $k$,
 \begin{equation}
-J_k^*(x_k, y_k) := {\underset{\pi_k \in \bar{\Pi}_k}\min} \text{ CVaR}_{y_k} \Big[ \textstyle\sum_{i=k}^N c(x_i) \Big| (x_k, y_k), \pi_k \Big],
-\end{equation}
-via induction. This technique is also used to prove the suitability of the classic finite-time dynamic programming algorithm, 
+J_k^*(x_k, y_k) := {\underset{\pi_k \in \bar{\Pi}_k}\min} \text{ CVaR}_{y_k} \big[ \textstyle\sum_{i=k}^N c(x_i) \big| (x_k, y_k), \pi_k \big],
+\label{Jkstar}\end{equation}
+via induction. This technique is also used to prove the suitability of the classic finite-time value-iteration dynamic programming algorithm, 
 where the value function is the expected cumulative cost (see~\cite{bertsekas2005dynamic}, Sec. 1.5).
 We recommend the reader to review this proof before proceeding to ours. 
-
-In this paper, we do not explicitly construct an optimal policy for practical use.
-This is an important step for future work and may require different arguments 
-than those used by~\cite{chow2015risk} (see Theorem 5). In particular, this policy would likely depend 
-on the history of the states and the initial confidence level. However, the policy given by the algorithm~\eqref{bell}
-requires the availability of the current state and the current confidence level. 
-This subtle distinction deserves careful study that is out of scope of the current paper.
-
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%
 \section{Numerical Example}
 \label{sec::ex}
 We demonstrate the utility of computing approximate risk-sensitive safe sets on a practical example:
@@ -553,19 +553,19 @@ system behavior from a larger number of initial conditions, but we treated the s
 Here we consider the first pond from the example in our prior work as a stochastic discrete-time dynamic system,
 \begin{equation}\begin{aligned}
 & x_{k+1} = x_k + \frac{\triangle t}{A} (w_k - q_p(x_k, u_k)), \text{ }k = 0, \dots, N-1, \\
-& q_p(x_k,u_k) := \begin{cases} C_d \pi r^2 u_k \sqrt{ 2\gamma(x-E) } & \text{ if } x_k \geq E \\
+& q_p(x_k,u_k) := \begin{cases} C_d \pi r^2 u_k \sqrt{ 2\eta(x-E) } & \text{ if } x_k \geq E \\
 						0 & \text{ if } x_k < E, \end{cases}
 \end{aligned}\label{watersys}\end{equation}
 where $x_k \geq 0$ is the water level of the pond in feet at time $k$, $u_k \in \{0, 1\}$ is the valve setting at time $k$,
 and $w_k \in D := \{d_1, \dots, d_{10}\}$ is the random surface runoff in feet-cubed-per-second at time $k$~\cite{sustech}.\footnotemark
-\footnotetext{$\gamma = 32.2$ft/s\textsuperscript{2} is acceleration due to gravity, $\pi \approx 3.14$ is the usual constant, $r = 1/3$ft is the outlet radius, $A = 28,292$ft\textsuperscript{2} is the pond surface area, $C_d = 0.61$ is the discharge coefficient,
+\footnotetext{$\eta = 32.2$ft/s\textsuperscript{2} is acceleration due to gravity, $\pi \approx 3.14$ is the usual constant, $r = 1/3$ft is the outlet radius, $A = 28,292$ft\textsuperscript{2} is the pond surface area, $C_d = 0.61$ is the discharge coefficient,
 and $E = 1$ft is the elevation of the outlet. Some of the parameter names are changed from~\cite{sustech} to avoid abuse of notation.} 
 We estimated a finite probability distribution for $w_k$ using the surface runoff samples that we previously generated from a time-varying design storm~\cite{sustech}. 
 We averaged each sample over time and solved for a distribution
 that satisfied the empirical statistics of the time-averaged samples (Table~\ref{dist}). 
 We set $\triangle t := 300$ seconds, and $N := 48$ to yield a 4-hour horizon.
 We set the constraint set, $\mathcal{K} := [0, 5\text{ft})$, and $g(x) := x - 5$.
-
+%
 \begin{table}
 \begin{center}
 \caption{}
@@ -592,7 +592,7 @@ $16.65$  & $0.1237$ \\ \hline
 \label{dist}
 \end{center}
 \end{table}
-
+%
 We computed risk-sensitive safe sets, $\{\mathcal{S}_y^r\}$~\eqref{myS}, using a Monte Carlo procedure 
 and the under-approximations, $\{\mathcal{U}_y^r\}$~\eqref{under}, using the dynamic programming algorithm~\eqref{bell}.
 The risk-sensitive sets and the under-approximations are shown for various confidence and risk levels in Fig.~\ref{compare}.
@@ -697,25 +697,13 @@ and to increase the amount of time that an autonomous vehicle can operate safely
 % Want to quantify varying degrees of safety in a way that realistically (rather than pessimistically) appreciates/prepares for low-probability extreme events through the use of a financial risk measure (i.e., a ``robustified" expected value).
 %Computing safe sets under the assumption of worst-case rainfall (e.g., via minimax reachability formulations) is impractical due to the limits of public resources.
 
-
-
 \section*{ACKNOWLEDGMENT}
-We thank Sumeet Singh, Mo Chen, and Murat Arcak for discussions.
-M.C. is supported in part by a NSF Graduate Research Fellowship.
-This work is supported in part by NSF CPS 1740079.
+We thank Sumeet Singh, Mo Chen, and Murat Arcak for discussions. M.C. is supported in part by a NSF Graduate Research Fellowship. This work is supported by NSF CPS 1740079.
 
 \section*{APPENDIX}\label{appendix}
-Here we provide the proof of Lemma~\ref{lemma2}.\\
+We prove Lemma~\ref{lemma2} below.\\
 \begin{proof}
 The proof relies on two facts. The first fact is,
-%
-\begin{equation}\begin{aligned}
-\max\{x_1, \dots, x_p\} & \leq \log( e^{x_1}+ \dots +e^{x_p} ) \\
-						& \leq \max\{x_1, \dots, x_p\} + \log p,
-\end{aligned}\end{equation}
-%
-for any $x \in \mathbb{R}^p$; see~\cite{boyd2004convex}, Sec. 3.1.5 Examples.
-Using this fact, one can show the following,
 %
 \begin{subequations}\label{related}
 \begin{equation}\begin{aligned}
@@ -723,7 +711,8 @@ Using this fact, one can show the following,
 						& \leq \max\{y_1, \dots, y_p\} + \frac{\log p}{m},
 \end{aligned}\end{equation}
 %
-for any $y \in \mathbb{R}^p$, $m > 0$. So, as $m \rightarrow \infty$,
+for any $y \in \mathbb{R}^p$, $m > 0$.\footnotemark
+\footnotetext{Use the log-sum-exp relation stated in~\cite{boyd2004convex}, Sec. 3.1.5.} So, as $m \rightarrow \infty$,
 %
 \begin{equation}
 \frac{1}{m}\log( e^{my_1}+ \dots +e^{my_p} ) \rightarrow \max\{y_1, \dots, y_p\}.
@@ -732,11 +721,12 @@ for any $y \in \mathbb{R}^p$, $m > 0$. So, as $m \rightarrow \infty$,
 %
 The second fact is that Conditional Value-at-Risk is a \textit{coherent risk measure},
 so it satisfies useful properties. 
-In particular, CVaR is positively homogeneous, $$\text{CVaR}_\alpha[\lambda Z] = \lambda\text{CVaR}_\alpha[Z],$$ 
-for any $\lambda \geq 0$ and random variable $Z$,
-and monotonic, $$\text{CVaR}_\alpha[Y] \leq \text{CVaR}_\alpha[Z],$$ for any random variables, $Y \leq Z$; see~\cite{kisiala2015conditional}, Sec. 2.2.
-Further, CVaR can be expressed as the supremum expectation over a particular set of probability density functions;
-see~\cite{shapiro2009lectures}, Equations 6.40 and 6.70.
+In particular, CVaR is \textit{positively homogeneous}, $\text{CVaR}_\alpha[\lambda Z] = \lambda\text{CVaR}_\alpha[Z]$, 
+for any $\lambda \geq 0$,
+and \textit{monotonic}, $\text{CVaR}_\alpha[Y] \leq \text{CVaR}_\alpha[Z]$, for any random variables, $Y \leq Z$.\footnotemark
+\footnotetext{See~\cite{kisiala2015conditional}, Sec. 2.2}
+Also, CVaR can be expressed as the supremum expectation over a particular set of probability density functions.\footnotemark
+\footnotetext{See~\cite{shapiro2009lectures}, Eqs. 6.40 and 6.70}
 Using this property and the fact, $\mathbb{E}[\log(Z)] \leq \log \left(\mathbb{E}[Z]\right)$,
 one can show,
 %
@@ -747,27 +737,110 @@ for any random variable, $Z$, with finite expectation.
 By monotonicity, positive homogeneity,~\eqref{related}, and~\eqref{logeq},
 %
 \begin{equation}\begin{aligned}
-\text{CVaR}_\alpha\big[ Z_x^\pi \big] & \leq \frac{1}{m} \text{CVaR}_\alpha\big[ \log\left( Y_x^\pi/\beta \right) \big] \\
-& \leq \frac{1}{m} \log \left(\text{CVaR}_\alpha\big[ Y_x^\pi/\beta \big] \right).
+\text{CVaR}_\alpha\big[ Z_x^\pi \big] \leq \textstyle\frac{1}{m} \text{CVaR}_\alpha\big[ \log\left( \bar{Y}_x^\pi \right) \big] 
+\leq \textstyle\frac{1}{m} \log \left(\text{CVaR}_\alpha\big[ \bar{Y}_x^\pi \big] \right),
 \end{aligned}\label{12}\end{equation}
 %
-If $x \in \mathcal{U}_\alpha^r$, then
+where $\bar{Y}_x^\pi := Y_x^\pi/\beta$. Now, if $x \in \mathcal{U}_\alpha^r$, then
 %
 \begin{equation*}
 e^{m\cdot r} \geq {\underset{\pi \in \bar{\Pi}_0}\min}\text{ CVaR}_\alpha \big[ Y_x^\pi /\beta \big] \geq {\underset{\pi \in \Pi}\min}\text{ CVaR}_\alpha \big[ Y_x^\pi /\beta \big], 
 \end{equation*}
 %
-since $\bar{\Pi}_0$ is included in $\Pi$. So, $\exists \pi \in \Pi$ such that,\footnotemark
-\footnotetext{see Lemma~\ref{lemma::infeqmin}}
-\begin{equation*}\begin{aligned}
-& e^{m\cdot r} \geq \text{CVaR}_\alpha \big[ Y_x^\pi /\beta \big] \iff r \geq \frac{1}{m}\log \left( \text{CVaR}_\alpha \big[  Y_x^\pi /\beta \big] \right) \\
-& \implies r \geq \text{CVaR}_\alpha\big[ Z_x^\pi \big], \\
-\end{aligned}\end{equation*}
-where the last line holds by~\eqref{12}. So, $x \in \mathcal{S}_\alpha^r$.
+since $\bar{\Pi}_0$ is included in $\Pi$. \textcolor{blue}{By Lemma~\ref{lemma::infeqmin}, $\exists \pi \in \Pi$ such that},
+\begin{equation*}
+r \geq \textstyle\frac{1}{m}\log \left( \text{CVaR}_\alpha \big[  Y_x^\pi /\beta \big] \right) \geq \text{CVaR}_\alpha\big[ Z_x^\pi \big], \\
+\end{equation*}
+where the second inequality holds by~\eqref{12}. So, $x \in \mathcal{S}_\alpha^r$.
 \end{proof}
 
-Lastly, we provide the proof of Theorem~\ref{thm}. \textcolor{blue}{please fill in}
+Lastly, we prove Theorem~\ref{thm}.\\
+\begin{proof}
+Let $\epsilon > 0$. For all $k = 0, \dots, N-1$ and $z_k := (x_k, y_k) \in \mathcal{X} \times \mathcal{Y}$, let $\mu_k^\epsilon : \mathcal{X} \times \mathcal{Y} \to U$ satisfy,
+%
+\begin{equation} 
+c(x_k) + {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max} \mathbb{E}[ RJ_{k+1}(x_{k+1}, y_k R) | z_k, \mu_k^\epsilon] \leq J_k(z_k) + \epsilon.
+\label{first}\end{equation} 
+%
+Let $J_k^\epsilon$ be a sub-optimal cost-to-go starting at time $k$,
+%
+\begin{equation} 
+J_k^\epsilon(z_k) := \text{CVaR}_{y_k}\big[\textstyle \sum_{i=k}^N c(x_i) \big| z_k, \pi_k^\epsilon \big],
+\label{Jkeps}\end{equation}
+%
+where $\pi_k^\epsilon := (\mu_k^\epsilon,\dots,\mu_{N-1}^\epsilon) = (\mu_k^\epsilon, \pi_{k+1}^\epsilon)$. Recall $J_k$, as defined in~\eqref{bell}, and $J_k^*$, as defined in~\eqref{Jkstar}.
+We will show by induction, $\forall z_k := (x_k, y_k) \in \mathcal{X} \times \mathcal{Y}$ and $k = N-1, \dots, 0$,
+%
+\begin{subequations}\label{abc}
+\begin{equation}
+J_k(z_k) \leq J_k^\epsilon(z_k) \leq J_k(z_k) + (N-k)\epsilon, 
+\label{a}\end{equation}
+%
+\begin{equation}
+J_k^*(z_k) \leq J_k^\epsilon(z_k) \leq J_k^*(z_k) + (N-k)\epsilon, 
+\label{b}\end{equation}
+%
+\begin{equation}
+J_k(z_k) = J_k^*(z_k), 
+\label{c}\end{equation}
+\end{subequations}
+%
+which is the proof technique in~\cite{bertsekas2005dynamic}, Sec. 1.5. 
+One can show~\eqref{abc} for the base case, $k := N-1$, since $J_N$ is known.
+Assuming that~\eqref{abc} holds for index $k+1$ (induction hypothesis), we will show that~\eqref{abc} holds for index $k$ (induction step). The key 
+idea is to use the following recursion,
+%
+\begin{equation}
+J_k^\epsilon(z_k) = c(x_k) + {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max} \mathbb{E}[ R\cdot J^\epsilon_{k+1}(x_{k+1}, y_k R) | z_k, \mu_k^\epsilon],
+\label{Jkepsrec}\end{equation}
+%
+which we prove next. Let $Z := \sum_{i=k+1}^N c(x_i)$. 
+%
+\begin{equation*}\begin{aligned}
+J_k^\epsilon(z_k)& - c(x_k) = \text{CVaR}_{y_k}\big[ Z \big| z_k, \pi_k^\epsilon \big]\\
+& = {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max}\mathbb{E}\big[ R\cdot \text{CVaR}_{y_k R}[ Z | x_{k+1}, \pi^\epsilon_{k+1} ] \big| z_k, \mu_k^\epsilon \big] \\
+& = {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max}\mathbb{E}\big[ R\cdot J_{k+1}^\epsilon(x_{k+1},y_k R) \big| z_k, \mu_k^\epsilon \big],
+\end{aligned}\end{equation*}
+%
+where we use~\eqref{decomp},~\eqref{Jkeps}, and translation equivariance.\footnotemark 
+\footnotetext{For $a\in \mathbb{R}$, $\text{CVaR}_\alpha[a+Z] = a + \text{CVaR}_\alpha[Z]$; see~\cite{kisiala2015conditional}, Sec. 2.2.}
+We will show~\eqref{a} for index $k$ using~\eqref{Jkepsrec} and the induction hypothesis. Let $\bar{\epsilon}_k := (N-k-1)\epsilon$, and $x' := x_{k+1}$.
+%
+\begin{equation*}\begin{aligned}
+J_k^\epsilon(z_k) & \leq c(x_k) + {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max} \mathbb{E}\big[ R\big(J_{k+1}(x',y_k R) + \bar{\epsilon}_k\big) \big| z_k, \mu_k^\epsilon \big]\\
+& = c(x_k) + {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max} \mathbb{E}\big[ R J_{k+1}(x_{k+1},y_k R) \big| z_k, \mu_k^\epsilon \big] + \bar{\epsilon}_k\\ 
+& \leq J_k(z_k) + (N-k)\epsilon,
+\end{aligned}\end{equation*}
+%
+since $\mathbb{E}[R] = 1$, and by~\eqref{first}. By~\eqref{bell}, sub-optimality of $\mu_k^\epsilon(z_k) \in U$, $J_{k+1} \leq J^\epsilon_{k+1}$, and~\eqref{Jkepsrec},
+%
+\begin{equation*}\begin{aligned}
+J_k(z_k) & \leq c(x_k) + {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max} \mathbb{E}\big[ R J^\epsilon_{k+1}(x_{k+1},y_k R) \big| z_k, \mu_k^\epsilon \big]\\
+& = J_k^\epsilon(z_k). \end{aligned}\end{equation*}
+%
+The induction step for~\eqref{a} is complete. Next, we show~\eqref{b} for index $k$. $J_k^* \leq J_k^\epsilon$ by~\eqref{Jkstar} and~\eqref{Jkeps}.
+Let $\hat{\epsilon}_k := (N-k)\epsilon$, $x':=x_{k+1}$, $y' := y_kR$, and $Z := \sum_{i=k+1}^N c(x_i)$. For any $\pi_k := (\mu_k, \pi') \in \bar{\Pi}_k$,
+%
+\begin{equation*}\begin{aligned}
+J_k^\epsilon(z_k) & \leq J_k(z_k) + \hat{\epsilon}_k \\
+& \leq c(x_k) + {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max} \mathbb{E}\big[ RJ_{k+1}^*(x_{k+1},y_kR) \big| z_k, \mu_k \big] + \hat{\epsilon}_k\\
+& \leq c(x_k) + {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max} \mathbb{E}\big[ R\text{CVaR}_{y'} [Z|x', \pi' ] \big| z_k, \mu_k \big] + \hat{\epsilon}_k\\
+& = c(x_k) + \text{CVaR}_{y_k}[Z|z_k, \pi_k] + \hat{\epsilon}_k\\
+& = \text{CVaR}_{y_k}\big[\textstyle \sum_{i=k}^N c(x_k)|z_k, \pi_k\big] + (N-k)\epsilon.
+\end{aligned}\end{equation*}
+%
+\textcolor{blue}{Please check the above 5 statements.} The above statement implies,
+%
+\begin{equation*}\begin{aligned}
+J_k^\epsilon(z_k) & \leq {\underset{\pi \in \bar{\Pi}_k} \min} \text{ CVaR}_{y_k}\big[\textstyle \sum_{i=k}^N c(x_k)|z_k, \pi_k\big] + (N-k)\epsilon \\
+& = J_k^*(z_k) + (N-k)\epsilon, \\
+\end{aligned}\end{equation*}
+%
+which completes the induction step for~\eqref{b}. 
 
+We have shown that~\eqref{a} and~\eqref{b} hold for index $k$, for any $\epsilon>0$. So,~\eqref{c} holds for index $k$. 
+This completes the proof.
+\end{proof}
 \addtolength{\textheight}{-2cm}   % This command serves to balance the column lengths
                                   % on the last page of the document manually. It shortens
                                   % the textheight of the last page by a suitable amount.
