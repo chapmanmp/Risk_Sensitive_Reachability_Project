@@ -28,7 +28,7 @@ nd = length(ws); % # of possible values that disturbance can take on
 cvx_solver mosek;
 for j = 1 : 2 % allow for 2 different solvers
     
-    cvx_begin
+    cvx_begin quiet
 
         variables Z(nd,1) t(nd,1)
     
