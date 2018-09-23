@@ -140,14 +140,12 @@ because the optimal control problem is expressed as an expectation.
 In contrast, we leverage existing results on \textit{risk measures} to formulate an optimal control problem
 that explicitly encodes a realistic viewpoint on the possibility of rare high-consequence events: 
 harmful events are likely to occur at some point, but they are unlikely to occur always.
-A \textit{risk measure} is a function that maps a random variable, $Z$, representing loss into the real line,
+A \textit{risk measure} is a function that maps a random variable, $Z$, representing loss, into the real line,
 according to the risk associated with $Z$ (see~\cite{shapiro2009lectures}, Sec. 6.3; see~\cite{kisiala2015conditional}, Sec. 2.2).
 Risk-sensitive optimization
-is being studied in applied mathematics~\cite{ruszczynski2010risk}, reinforcement learning~\cite{osogami2012robustness},~\cite{chow2015risk},~\cite{ratliff2017risk}, and optimal control~\cite{chow2014framework}.\footnotemark
-\footnotetext{In risk-sensitive optimization, the risk of a cost is minimized, where risk is quantified using a risk measure.
-Conversely, in stochastic optimization, we usually minimize the expected value of a cost.} 
+is being studied in applied mathematics~\cite{ruszczynski2010risk}, reinforcement learning~\cite{osogami2012robustness},~\cite{chow2015risk},~\cite{ratliff2017risk}, and optimal control~\cite{chow2014framework}.
+%In risk-sensitive optimization, the risk of a cost is minimized, where risk is quantified using a risk measure. In stochastic optimization, the expected value of a cost is minimized, where the expectation operator is a risk-neutral measure.} 
 Risk-sensitive formulations have the potential to inform practical decision-making that also protects against damaging outcomes, where the level of conservatism can be modified as needed.
-%~\cite{serraino2013conditional} says "Cvar protects against outcomes that hurt the most", do i need citation in the sentence above? Kevin says no need
 
 We use a particular risk measure, called \textit{Conditional Value-at-Risk} (CVaR), in this paper.
 If $Z$ is a random cost with finite expectation, then the Conditional Value-of-Risk of $Z$ at confidence level $\alpha \in (0,1]$
@@ -158,8 +156,8 @@ is,
 \end{equation}
 see~\cite{shapiro2009lectures}, Equation 6.22.\footnotemark
 \footnotetext{Conditional Value-at-Risk is also called \textit{Average Value-at-Risk}, which is abbreviated as AV@R in~\cite{shapiro2009lectures}.}
-Note that $\text{CVaR}_\alpha[Z]$ increases from $\mathbb{E}[Z]$ to $\sup Z$, as $\alpha$ decreases from 1 to 0.\footnotemark
-\footnotetext{More exactly, $\text{CVaR}_\alpha[Z] \to \text{ess} \sup Z$ as $\alpha$ goes to $0$. Informally, the essential supremum $\text{ess} \sup Z$ is the supremum of the values a random variable $Z$ can take, with non-zero probability.}
+Note that $\text{CVaR}_\alpha[Z]$ increases from $\mathbb{E}[Z]$ to $\text{ess}\sup Z$, as $\alpha$ decreases from 1 to 0.\footnotemark
+\footnotetext{\textcolor{blue}{The essential supremum of a random variable, $Z$, is the supremum of the realizations of $Z$ that occur with non-zero probability.}}
 Further, there is a well-established relationship between CVaR and chance constraints
 that we use to obtain probabilistic safety guarantees. 
 Chow et al. provides tractable methods to compute the CVaR of a cumulative cost
@@ -172,7 +170,7 @@ over a finite-time horizon. In particular, our formulation \textcolor{blue}{appr
 state trajectory of a stochastic dynamic system. This is an extension of stochastic 
 reachability methods (e.g.,~\cite{abate2008probabilistic},~\cite{summers2010verification}), which \textcolor{blue}{replace this distance with a} binary random variable.
 Further, in contrast to stochastic reachability methods, our formulation explicitly accounts for rare high-consequence events by posing the optimal control problem
-in terms of Conditional Value-at-Risk instead of the expectation operator. This is the first use of risk measures in the reachability literature to our knowledge.
+in terms of Conditional Value-at-Risk instead of the expectation operator. This is the first use of \textcolor{blue}{(non-neutral)} risk measures in the reachability literature to our knowledge.
 We formally define risk-sensitive safe sets in Sec.~\ref{sec::problem} and justify our definition in Sec.~\ref{sec::rationale}.
 Sec.~\ref{sec::alg} presents a value-iteration algorithm \textcolor{blue}{with theoretical justification to compute tractable approximations} of risk-sensitive safe sets.
 Sec.~\ref{sec::ex} provides a numerical example in the domain of stormwater infrastructure design. Sec.~\ref{conc} concludes the paper.
@@ -183,8 +181,8 @@ Sec.~\ref{sec::ex} provides a numerical example in the domain of stormwater infr
 
 \section{Problem Statement}
 \label{sec::problem}
-We consider a fully observable stochastic discrete-time dynamic system over a finite-time horizon,\footnotemark
-\footnotetext{The system model is a special case of the model given by~\cite{bertsekas2005dynamic} in Sec. 1.2.}
+We consider a fully observable stochastic discrete-time dynamic system over a finite-time horizon (see~\cite{bertsekas2005dynamic}, Sec. 1.2),
+%\footnotetext{The system model is a special case of the model given by~\cite{bertsekas2005dynamic} in Sec. 1.2.}
 \begin{equation}
 x_{k+1} = f(x_k,u_k,w_k), \quad k = 0, 1, \dots, N-1,
 \label{sys}
@@ -192,13 +190,13 @@ x_{k+1} = f(x_k,u_k,w_k), \quad k = 0, 1, \dots, N-1,
 such that $x_k \in \mathcal{X} \subseteq \mathbb{R}^n$ is the state of the system at time $k$,
 $u_k \in U$ is the control at time $k$, and
 $w_k \in D$ is the random disturbance at time $k$. The control space, $U$, and disturbance space, $D$, are finite sets of real-valued vectors.
-The dynamics function, $f : \mathbb{R}^n \times U \times D \rightarrow \mathbb{R}^n$, is bounded and Lipschitz continuous.
+The dynamics function, $f : \mathcal{X} \times U \times D \rightarrow \mathcal{X}$, is bounded and Lipschitz continuous.
 The probability that the disturbance equals $d_j \in D$ at time $k$ is, $\mathbb{P}[w_k = d_j] = p_j$, 
-where $0 \leq p_j \leq 1$ and $\sum_{j=1}^W p_j = 1$.\footnotemark
-\footnotetext{We also assume that $w_k$ is independent of $x_k$, $u_k$, and disturbances at any other times.}  
+where $0 \leq p_j \leq 1$ and $\sum_{j=1}^W p_j = 1$.
+$w_k$ is independent of $x_k$, $u_k$, and disturbances at any other times.  
 The only source of randomness in the system is the disturbance.
 In particular, the initial state, $x_0$, is not random. 
-The collection of \textit{admissible, determistic, history-dependent control policies} is,
+The set of \textit{admissible, deterministic, history-dependent control policies} is,
 %
 \begin{equation}
 \Pi := \big\{ (\mu_0, \mu_1, \dots, \mu_{N-1}) \mid \mu_k: H_k \rightarrow U \big\}.
@@ -206,24 +204,25 @@ The collection of \textit{admissible, determistic, history-dependent control pol
 \end{equation}
 %
 where $H_k := \underbrace{\mathcal{X} \times \hdots \times \mathcal{X}}_{\text{(k+1) times}}$ is the set of state histories up to time $k$.
-We are given a constraint set, $\mathcal{K} \subset \mathbb{R}^n$, and the safety criterion that 
+We are given a constraint set, $\mathcal{K} \subseteq \mathcal{X}$, and the safety criterion that 
 the state of the system should stay inside $\mathcal{K}$ over time. 
 For example, if the system is a pond, then $x_k$ may be the water level of the pond at time $k$,
 and $\mathcal{K} := [0, 5\text{ft})$ indicates that the pond overflows if the water level exceeds 5ft.
 We quantify the extent of constraint violation/satisfaction using a surface function that characterizes the constraint set.
-Let $g: \mathbb{R}^n \rightarrow \mathbb{R}$ satisfy,
+Let $g: \mathcal{X} \rightarrow \mathbb{R}$ satisfy,
 %
 \begin{equation}
 x \in \mathcal{K} \iff g(x) < 0,
 \label{g}
 \end{equation}
 %
-where we adopt the convention provided by~\cite{EECS-2018-41} in Equation 2.3.
+which is also done by~\cite{EECS-2018-41} in Equation 2.3.
 For example, we may choose $g(x) := x - 5$ to characterize $\mathcal{K} := [0, 5\text{ft})$ on the state space, 
 $\mathcal{X} := [0, \infty)$.
 
-We define a \textit{risk-sensitive safe set} as a set of initial states from which 
-risk of extreme constraint violation over time can be made small using an admissible control policy~\eqref{pi}, where risk is quantified via \textit{Conditional Value-at-Risk}~\eqref{cvareqn}.
+A \textit{risk-sensitive safe set} is a set of initial states from which 
+the risk of extreme constraint violation over time can be made small using an admissible control policy, where we \textcolor{blue}{quantify} risk using the \textit{Conditional Value-at-Risk} measure.
+\textcolor{blue}{We use the term, \textit{risk level}, to mean the allowable level of risk of constraint violation.}
 Formally, the risk-sensitive safe set at the confidence level, $\alpha \in (0,1]$, and the risk level, $r \in \mathbb{R}$, is defined as,
 %
 \begin{subequations}
@@ -271,16 +270,18 @@ The goal of this paper is to compute a family of risk-sensitive safe sets at dif
 Computing risk-sensitive safe sets, as defined by~\eqref{myS}, is well-motivated for several reasons.
 Our formulation incorporates different confidence levels and non-binary distance to the constraint set. 
 In contrast, the stochastic reachability problem addressed by~\cite{abate2008probabilistic} 
-uses a single confidence level and an indicator function to measure distance to the constraint set.
-In particular, if we choose $\alpha := 1$, $r := \epsilon - \frac{1}{2} \in [-\frac{1}{2}, \frac{1}{2}]$, and $g(x) := \textbf{1}_{\bar{\mathcal{K}}}(x) - \frac{1}{2}$, where
+uses a single confidence level and an indicator function to measure distance to the constraint set,
+\textcolor{blue}{in order to quantify the probability of constraint violation}.
+In particular, \textcolor{blue}{let $\epsilon \in [0,1]$ be the maximum tolerable probability of constraint violation (called \textit{safety level} in~\cite{abate2008probabilistic})},
+and choose $\alpha := 1$, $r := \epsilon - \frac{1}{2}$, and $g(x) := \textbf{1}_{\bar{\mathcal{K}}}(x) - \frac{1}{2}$, where
 \begin{subequations}\begin{equation}
-\textbf{1}_\mathcal{\bar{K}}(x) := \begin{cases} 1 \text{ if } x \notin \mathcal{K} \\ 0 \text{ if } x \in \mathcal{K} \end{cases},
+\textbf{1}_\mathcal{\bar{K}}(x) := \begin{cases} 1 \text{ if } x \notin \mathcal{K} \\ 0 \text{ if } x \in \mathcal{K} \end{cases}.
 \end{equation}
-then the risk-sensitive safe set~\eqref{myS} is equal to, 
+Then, the risk-sensitive safe set~\eqref{myS} is equal to, 
 \begin{equation}
-\Big\{ x \in \mathcal{X} \text{ }\Big|\text{ }  {\underset{\pi \in \Pi}\min}\text{ }\mathbb{E}\big[ \max_{k = 0,\dots, N} \textbf{1}_\mathcal{\bar{K}}(x_k)  \big] \leq \epsilon \Big\}.
+\Big\{ x \in \mathcal{X} \text{ }\Big|\text{ }  {\underset{\pi \in \Pi}\min}\text{ }\mathbb{E}\big[ \max_{k = 0,\dots, N} \textbf{1}_\mathcal{\bar{K}}(x_k)  \big] \leq \epsilon \Big\},
 \label{simpleS}\end{equation}\end{subequations}
-Eq.~\eqref{simpleS} is the \textit{maximal probabilistic safe set}  at the safety level, $\epsilon \in [0, 1]$, that is computed by~\cite{abate2008probabilistic}, if
+which is the \textit{maximal probabilistic safe set} at the $\epsilon$-safety level in~\cite{abate2008probabilistic}, if
 we consider non-hybrid dynamic systems that evolve under history-dependent policies.\footnotemark
 \footnotetext{See ~\cite{abate2008probabilistic}, Equations 11 and 13.
 Note that ref.~\cite{abate2008probabilistic}  considers hybrid dynamic systems that evolve under Markov policies. }
@@ -303,15 +304,16 @@ If $x \in \mathcal{S}_\alpha^0$, then the probability that the state trajectory 
 less than or equal to $\alpha$, by an admissible control policy.
 \end{lemma}
 \begin{proof}
-The proof follows from the fact,\footnotemark \\
-\footnotetext{The constraint, $\text{CVaR}_\alpha[Z] \leq 0$, gives a conservative approximation of the chance constraint, $\mathbb{P}[Z \geq 0] \leq \alpha$,
-for any random variable $Z$ with finite expectation (see~\cite{shapiro2009lectures}, Sec. 6.2.4).
-We do not show $\text{CVaR}_\alpha[Z] \leq 0 \implies \mathbb{P}[Z\geq 0] \leq \alpha$ for brevity.} %pp. 257-258
-$\text{CVaR}_\alpha[Z_x^\pi] \leq 0 \implies \mathbb{P}[Z_x^\pi\geq 0] \leq \alpha$. \\
-Further, the event, $Z_x^\pi\geq 0$, is equivalent to the event that there exists a state, $x_k$, of the associated trajectory 
-that exits the constraint set, since $g(x) \geq 0 \iff x \notin \mathcal{K}$.\footnotemark
-\footnotetext{``Associated trajectory" refers to the trajectory that is initialized at $x$ and evolves under the policy, $\pi \in \Pi$,
-according to the dynamics model~\eqref{sys}.}
+The proof follows from the fact that $\text{CVaR}_\alpha[Z_x^\pi] \leq 0 \implies \mathbb{P}[Z_x^\pi\geq 0] \leq \alpha$ 
+(see~\cite{shapiro2009lectures}, Sec. 6.2.4).
+%
+%\footnotetext{The constraint, $\text{CVaR}_\alpha[Z] \leq 0$, gives a conservative approximation of the chance constraint, $\mathbb{P}[Z \geq 0] \leq \alpha$, for any random variable $Z$ with finite expectation (see~\cite{shapiro2009lectures}, Sec. 6.2.4, pp. 257-258).}
+%
+The event, $Z_x^\pi\geq 0$, is equivalent to the event that there is a state, $x_k$, of the associated trajectory
+that exits the constraint set, since $g(x_k) \geq 0 \iff x_k \notin \mathcal{K}$.
+%
+%``Associated trajectory" refers to the trajectory that is initialized at $x$ and evolves under the policy, $\pi \in \Pi$, according to the dynamics model~\eqref{sys}.}
+%
 \end{proof}
 \begin{remark}{}
 Lemma~\ref{mylemma1} indicates that $\mathcal{S}_\alpha^0$ is a subset of the \textit{maximal probabilistic safe set} at the safety level, $\alpha \in (0, 1]$, if we consider non-hybrid dynamic systems that evolve under history-dependent policies (see~\cite{abate2008probabilistic}, Equations 9 and 11).
@@ -455,7 +457,7 @@ and evolves under the policy, $\pi_k \in \bar{\Pi}_k$.
 \end{remark}
 
 \subsection{Value-Iteration Algorithm}
-In this section, we use Lemma~\ref{decomlemma} to \textcolor{blue}{derive} a value-iteration dynamic programming algorithm that computes a lower bound, $J_0$, on $J_0^*$.
+In this section, we use Lemma~\ref{decomlemma} to derive a value-iteration dynamic programming algorithm that computes a lower bound, $J_0$, on $J_0^*$.
 We will implement the algorithm with the stage cost, $c(x) := \beta e^{m \cdot g(x)}$, 
 \textcolor{blue}{to approximate the set, $\mathcal{U}_\alpha^r$, which is itself an under-approximation of the set, $\mathcal{S}_\alpha^r$, 
 at different levels of confidence, $\alpha \in (0, 1]$, and risk, $r \in \mathbb{R}$.} 
@@ -583,9 +585,9 @@ We set $J_{k+1}(x_{k+1}, \alpha) := \frac{(x_{k+1} - x_i) \cdot J_{k+1}(x^{i+1},
 where $x^i \in G_s$ and $x^{i+1} \in G_s$ are the two nearest grid points to $x_{k+1}$ that satisfy $x^i \leq x_{k+1} \leq x^{i+1}$.
 We chose the stage cost, $c(x) := \beta e^{m g(x)}$, such that $\beta := 10^{-3}$ and $m := 10$.
 The function, $J_0$, generated by the value-iteration algorithm, is provided in Fig.~\ref{J0dp}.
-\textcolor{blue}{The computation time was roughly ???, 
-which is fast given that at each time point an LP was solved for each grid point, yielding $N|G| = ???$ LPs in total.
-A more efficient implementation with $N$ LPs in total, where each LP involves the entire grid, is a future step.}
+\textcolor{blue}{The computation time was roughly 3h 6min, 
+which is fast given that at each time point an LP was solved for each grid point, yielding $N\cdot|G_s|\cdot|G_c| = 48\cdot66\cdot9 = 28,512$ LPs in total.
+A more efficient implementation with $N$ LPs in total, where each LP involves the entire grid, is for future work.}
 
 \textit{Monte Carlo implementation.}
 %The results for $\{\mathcal{S}_y^r\}$ are approximations due to the nature of random sampling. 
@@ -593,19 +595,19 @@ A more efficient implementation with $N$ LPs in total, where each LP involves th
 The computational burden was manageable since an optimal control policy was known \textit{a priori} for our one-pond system.
 \textcolor{blue}{(This would not be true in general, however, if the system consisted of several connected ponds.)} 
 As $x_{k+1}\geq x_k$ for all $k$, and the only way to exit the constraint set is if $x_k \geq 5$ft,
-the optimal control policy is to keep the valve open over time, regardless of the current state or confidence level.
+an optimal policy is to keep the valve open over time, regardless of the current history.
 For each $(x,\alpha) \in G$, we sampled 100,000 trajectories starting from $x_0 := x$, subject to keeping the valve open over time.
 For each trajectory sample $i$, we computed the cost sample, $z_i := \max\{g(x_k^i)\}$, and estimated the Conditional Value-at-Risk
 of the 100,000 cost samples at the confidence level, $\alpha$. 
 We used the CVaR estimator, $\widehat{\text{CVaR}}_\alpha[Z] := \frac{1}{\alpha M}\sum_{i=1}^M z_i \textbf{1}_{\{z_i\geq \hat{Q}_\alpha\}}$,
 where $\hat{Q}_\alpha$ is the $(1-\alpha)$-quantile of the empirical distribution of the samples, $\{z_i\}_{i=1}^M$,
 and $M := 100,000$ is the number of samples; see~\cite{shapiro2009lectures}, Sec. 6.5.1.
-Since the estimator is designed for continuous distributions, which was not valid for every grid point,
-we added zero-mean Gaussian noise with a small standard deviation ($\sigma := 10^{-12}$) to each cost sample prior to computing the CVaR.
+Since the estimator is designed for continuous distributions, %which was not valid for every grid point,
+we added zero-mean Gaussian noise with a small standard deviation, $\sigma := 10^{-12}$, to each cost sample prior to computing the CVaR.
 A Monte Carlo estimate of $W_0^*$, as defined in~\eqref{myS}, is provided in Fig.~\ref{W0mc}.
 
 100,000 samples per grid point appears to be sufficient. 
-Using this number of samples, we also estimated ${\underset{\pi \in \Pi}\min} \text{ CVaR}_\alpha \big[ Y_x^\pi \big]$ via Monte Carlo, where
+Using this number of samples, we also estimated ${\underset{\pi \in \Pi}\min}\text{ CVaR}_\alpha \big[ Y_x^{\pi} \big]$ via Monte Carlo, where
 $Y_x^\pi$ is defined in~\eqref{J0} (Fig.~\ref{J0mc}).\footnotemark
 \footnotetext{We also added zero-mean Gaussian noise with a small standard deviation ($\sigma := 10^{-7}$)
 to each cost sample prior to computing the CVaR. This standard deviation was chosen because the magnitude of $J_0$, see Fig.~\ref{J0dp}, is 
@@ -625,7 +627,7 @@ that are evident using the value-iteration algorithm.
       \centering
       \includegraphics[scale=0.5]{dyn_prog_J0_sept112018.pdf}
       \caption{$J_0(x,\alpha)$ versus $(x, \alpha) \in G$ via the value-iteration algorithm~\eqref{bell} for the pond system.
-	  We set $c(x) := \beta e^{m\cdot g(x)}$, $\beta := 10^{-3}$, $m := 10$, $\mathcal{K} := [0, 5\text{ft})$, and $g(x) := x-5$.}
+	  We set $c(x) := \beta e^{m\cdot g(x)}$, $\beta := 10^{-3}$, $m := 10$, and $g(x) := x-5$.}
       \label{J0dp}
 \end{figure}
 
