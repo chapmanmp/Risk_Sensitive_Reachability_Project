@@ -20,6 +20,8 @@
 %\usepackage{mathptmx} % assumes new font selection scheme installed
 %\usepackage{times} % assumes new font selection scheme installed
 \usepackage{amsmath} % assumes amsmath package installed
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
 \usepackage{amssymb}  % assumes amsmath package installed
 \usepackage{graphicx}
 \usepackage{url}
@@ -250,7 +252,7 @@ where
 \label{eq::rsobjective}
 \begin{aligned}
 & W_0^*(x,\alpha) := {\underset{\pi \in \Pi}\min} \text{ CVaR}_\alpha\big[ Z^\pi_{x} \big], \\
-& Z^\pi_{x} := \max \big\{ g(x_k) \mid k = 0, \dots, N \big\},
+& Z^\pi_{x} := {\underset{k = 0, \dots, N}\max} \big\{ g(x_k) \big\},
 \end{aligned}
 \end{equation}
 %
@@ -456,7 +458,7 @@ such that $c: \mathcal{X} \to \mathbb{R}$ is a stage cost.
 Further, given the current state, $(x_k, y_k)$, the current control, $u_k := \mu_k(x_k, y_k)$, and the next state, $x_{k+1}$, 
 the function that was introduced in~\eqref{Rbar}, $\bar{R}_{x_k,y_k} : D \to (0,\frac{1}{y_k}]$, is defined as,
 \begin{equation}\begin{aligned}
-& \bar{R}_{x_k,y_k}(w_k) = \text{arg}{\underset{R \in \mathcal{R}(y_k,\mathbb{P})}\max} C(R, Z; x_k, y_k, \pi_k).
+& \bar{R}_{x_k,y_k}(w_k) = {\underset{R \in \mathcal{R}(y_k,\mathbb{P})}\argmax} C(R, Z; x_k, y_k, \pi_k).
 \end{aligned}
 \end{equation}
 \end{lemma}
@@ -527,10 +529,10 @@ This conjecture is further supported by the numerical experiments presented next
 %
 \section{Numerical Experiments}\label{sec::ex}
 
-In this section, we provide empirical results that demonstrate the following: (1) a value-iteration estimate of $J_0$ is close to a Monte Carlo estimate of $J_0^*$,
-(2) a value-iteration estimate of $\hat{\mathcal{U}}_y^r$ is an under-approximation of a Monte Carlo estimate of $\mathcal{S}_y^r$, and
-(3) estimating $J_0$ (and $\hat{\mathcal{U}}_y^r$) via the value-iteration algorithm is tractable on a moderately large example.
-Item (1) provides empirical support for the conjecture. Items (2) and (3) provide empirical support for 
+In this section, we provide empirical results that demonstrate the following: 1) our value-iteration estimate of $J_0$ is close to a Monte Carlo estimate of $J_0^*$,
+2) our value-iteration estimate of $\hat{\mathcal{U}}_y^r$ is an under-approximation of a Monte Carlo estimate of $\mathcal{S}_y^r$, and
+3) estimating $J_0$ (and $\hat{\mathcal{U}}_y^r$) via the value-iteration algorithm is tractable on a moderately large example.
+Item 1 provides empirical support for the conjecture. Items 2 and 3 provide empirical support for 
 reducing the risk-sensitive-safe-set computation to a CVaR-MDP.
 %Stormwater management facilities, such as retention ponds, are required to operate safely 
 %in the presence of precipitation uncertainty, but must be designed within the scope of public resources (e.g., money, land). 
@@ -551,11 +553,11 @@ and $E = 1$ft is the elevation of the outlet.}
 \end{aligned}\label{watersys}\end{equation}
 where $x_k \geq 0$ is the water level of the pond in feet at time $k$, $u_k \in U := \{0, 1\}$ is the valve setting at time $k$,
 and $w_k \in D := \{d_1, \dots, d_{10}\}$ is the random surface runoff in feet-cubed-per-second at time $k$.
-We estimated a finite probability distribution for $w_k$ using the surface runoff samples that we previously generated from a time-varying design storm
+We estimated a finite probability distribution for $w_k$ using the surface runoff samples that we previously generated from a time-varying \textit{design storm}
 (a synthetic storm based on historical rainfall)~\cite{sustech}. 
 We averaged each sample over time and solved for a distribution that satisfied the empirical statistics of the time-averaged samples (Table~\ref{dist}). 
-We set $\triangle t := 300$ seconds, and $N := 48$ to yield a 4-hour horizon.
-We set the constraint set, $\mathcal{K} := [0, 5\text{ft})$, and $g(x) := x - 5$.
+We set $\triangle t := 300$ seconds, and $N := 48$ to yield a 4-hour time horizon.
+We chose the constraint set, $\mathcal{K} := [0, 5\text{ft})$, and $g(x) := x - 5$.
 %
 \begin{table}
 \begin{center}
@@ -587,22 +589,22 @@ $16.65$  & $0.1237$ \\ \hline
 We computed over a grid of states and confidence levels, $G := G_s \times G_c$, where  
 $G_s := \{0, 0.1\text{ft}, \dots, 6.4\text{ft}, 6.5\text{ft}\}$,
 and $G_c := \{0.999, 0.95, 0.80, \dots, 0.20, 0.05, 0.001\}$.
-Since the initial state, $x_0$, is non-negative and the smallest realization of $w_k$ is about 8.5$\frac{\text{ft}^3}{\text{s}}$, 
+Since the initial state, $x_0$, is non-negative, and the smallest realization of $w_k$ is about 8.5$\frac{\text{ft}^3}{\text{s}}$, 
 $x_{k+1}\geq x_k$ for all $k$. 
 If $x_{k+1} > 6.5\text{ft}$, we set $x_{k+1} := 6.5\text{ft}$ to stay within the grid.
 
 We were able to empirically assess the accuracy of our proposed approach because an optimal control policy is known \textit{a priori} for the one-pond system.
 Since $x_{k+1}\geq x_k$ for all $k$, and the only way to exit the constraint set is if $x_k \geq 5$ft,
-an optimal policy is to keep the valve open over time, regardless of the current state, the current confidence level, or the state history up to the current time.
+an optimal policy is to keep the valve open over all time, regardless of the current state, the current confidence level, or the state history up to the current time.
 
-A value-iteration estimate of the function, $J_0$, is shown in Fig.~\ref{J0dp}, and a Monte Carlo estimate of the function, $J_0^*$, is shown in Fig.~\ref{J0mc}.
+Our value-iteration estimate of the function, $J_0$, is shown in Fig.~\ref{J0dp}, and a Monte Carlo estimate of the function, $J_0^*$, is shown in Fig.~\ref{J0mc}.
 The estimates of $J_0$ and $J_0^*$ are similar in most regions of the grid (except near the smaller confidence levels),
 which provides empirical support for the conjecture.
  
 \begin{figure}[thpb]
       \centering
       \includegraphics[scale=0.5]{dyn_prog_J0_sept112018.pdf}
-      \caption{A value-iteration estimate of $J_0(x,\alpha)$ versus $(x, \alpha) \in G$ for the pond system, see~\eqref{bell}.
+      \caption{Our value-iteration estimate of $J_0(x,\alpha)$ versus $(x, \alpha) \in G$ for the pond system, see~\eqref{bell}.
 	  $c(x) := \beta e^{m\cdot g(x)}$, $\beta := 10^{-3}$, $m := 10$, and $g(x) := x-5$.}
       \label{J0dp}
 \end{figure}
@@ -616,7 +618,7 @@ which provides empirical support for the conjecture.
       \label{J0mc}
 \end{figure}
 
-A value-iteration estimate of the set, $\widehat{\mathcal{U}}_{\alpha}^r$, and a Monte Carlo estimate of the set, $\mathcal{S}_y^r$, are shown in Fig.~\ref{compare}
+Our value-iteration estimate of the set, $\widehat{\mathcal{U}}_{\alpha}^r$, and a Monte Carlo estimate of the set, $\mathcal{S}_y^r$, are shown in Fig.~\ref{compare}
 at different levels of confidence, $y$, and risk, $r$. 
 The empirical results indicate that $\widehat{\mathcal{U}}_{\alpha}^r$ is an under-approximation of $\mathcal{S}_y^r$.
 %which empirically supports reducing the risk-sensitive-safe-set computation to a CVaR-MDP.
@@ -625,8 +627,8 @@ We estimated the sets, $\{\mathcal{S}_y^r\}$, using a Monte Carlo estimate of th
 \begin{figure}[thpb]
       \centering
       \includegraphics[scale=0.5]{output_CompareScript_Sept112018.pdf}
-      \caption{ Approximations of $\{\widehat{\mathcal{U}}_y^r\}$ and $\{\mathcal{S}_y^r\}$ are shown for the pond system at various levels of confidence, $y$, and risk, $r$.
-	  Approximations of $\{\widehat{\mathcal{U}}_y^r\}$ were obtained from a value-iteration estimate of $J_0$ (see Fig.~\ref{J0dp}).
+      \caption{ Approximations of $\{\widehat{\mathcal{U}}_y^r\}$ and $\{\mathcal{S}_y^r\}$ are shown for the pond system at various levels of confidence, $y$, and risk, $r$. In the legend,  $\widehat{\mathcal{U}}_y^r$ is denoted by $\text{U}_y^r$, and $\mathcal{S}_y^r$ is denoted by $\text{S}_y^r$.
+	  Approximations of $\{\widehat{\mathcal{U}}_y^r\}$ were obtained from our value-iteration estimate of $J_0$ (see Fig.~\ref{J0dp}).
 	  Approximations of $\{\mathcal{S}_y^r\}$ were obtained from a Monte Carlo estimate of $W_0^*$ (see Fig.~\ref{W0mc}).} 
       \label{compare}
 \end{figure}
@@ -646,7 +648,7 @@ We deem this performance to be acceptable because
 2) the problem instance entailed a moderately large state space ($|G_s|\cdot|G_c| = 594$ grid points) and time horizon ($N = 48$ time points),
 and 3) our implementation is not yet optimized.
 We used MATLAB R2016b (The MathWorks, Inc., Natick, MA) and MOSEK (Copenhagen, Denmark) with CVX~\cite{grant2008cvx} on a
-standard laptop (64-bit OS, 16.0 GB RAM, Intel\textsuperscript{\textregistered} Core\textsuperscript{TM} i7-4700MQ CPU @ 2.40GHz).
+standard laptop (64-bit OS, 16GB RAM, Intel\textsuperscript{\textregistered} Core\textsuperscript{TM} i7-4700MQ CPU @ 2.40GHz).
 Our code is available at~\url{https://github.com/chapmanmp/Risk_Sensitive_Reachability_Project/tree/stormwater_example/MATLAB_Code}.
 
 Next, we provide implementation details.\\
@@ -660,10 +662,10 @@ where $x^i \in G_s$ and $x^{i+1} \in G_s$ are the two nearest grid points to $x_
 Fig.~\ref{J0dp} shows the approximation of $J_0$, generated by the value-iteration algorithm~\eqref{bell}, over the grid, $G$,
 using the interpolations just described.
 
-\textit{Monte Carlo implementation.}
+\textit{Monte Carlo implementations.}
 For each $(x,\alpha) \in G$, we sampled 100,000 trajectories starting from $x_0 := x$, subject to keeping the valve open over time,
 as this is an optimal policy.
-For each trajectory sample $i$, we computed the cost sample, $z_i := \max\{g(x_k^i)\}$, and estimated the Conditional Value-at-Risk
+For each trajectory sample $i$, we computed the cost sample, $z_i := \max_k\{g(x_k^i)\}$, and estimated the Conditional Value-at-Risk
 of the 100,000 cost samples at the confidence level, $\alpha$. 
 We used the CVaR estimator, $\widehat{\text{CVaR}}_\alpha[Z] := \frac{1}{\alpha M}\sum_{i=1}^M z_i \textbf{1}_{\{z_i\geq \hat{Q}_\alpha\}}$,
 where $\hat{Q}_\alpha$ is the $(1-\alpha)$-quantile of the empirical distribution of the samples, $\{z_i\}_{i=1}^M$,
@@ -671,9 +673,9 @@ and $M := 100,000$ is the number of samples~\cite[Sec. 6.5.1]{shapiro2009lecture
 Since this estimator is designed for continuous distributions, %which was not valid for every grid point,
 we added zero-mean Gaussian noise with a small standard deviation, $\sigma := 10^{-12}$, to each cost sample prior to computing the CVaR.
 Fig.~\ref{W0mc} provides a Monte Carlo estimate of $W_0^*$.
-To obtain a Monte Carlo estimate of $J_0^*$, we used an analogous procedure with the cost sample, 
+To obtain a Monte Carlo estimate of $J_0^*$, we used the same procedure but with the cost sample, 
 $z_i := \xi_i + \sum_{k=0}^N \beta e^{m\cdot g(x_k^i)}$, $\xi_i \sim \mathcal{N}(0, \sigma := 10^{-7})$,
-$m := 10$, and $\beta = 10^{-3}$; see Fig.~\ref{J0mc}.
+$m := 10$, and $\beta := 10^{-3}$; see Fig.~\ref{J0mc}.
 %
 %100,000 samples per grid point appears to be sufficient. 
 %Also using this number of samples, we estimated ${\underset{\pi \in \Pi}\min}\text{ CVaR}_\alpha \big[ Y_x^{\pi} \big]$ via an analogous Monte Carlo
@@ -706,9 +708,9 @@ and 3) develop an optimized toolbox for the computation of risk-sensitive safe s
 We are hopeful that with further development the concept of risk-sensitive reachability will become a valuable tool for the design of safety-critical systems.
 
 \section*{ACKNOWLEDGMENTS}
-We thank Dr. Sumeet Singh, Dr. Mo Chen, Dr. Murat Arcak, and Dr. Alessandro Abate for discussions. 
+We thank Dr. Sumeet Singh, Dr. Mo Chen, Dr. Murat Arcak, Dr. Alessandro Abate, and Dr. David Freyberg for discussions. 
 M.C. is supported by an NSF Graduate Research Fellowship and was supported by a Berkeley Fellowship for Graduate Studies. 
-This work is supported by NSF CPS 1740079 and NSF PIRE.
+This work is supported by NSF CPS 1740079 and NSF PIRE UNIV59732.
 
 \section*{APPENDIX}\label{appendix}
 
@@ -794,9 +796,9 @@ J_k(z_k) = J_k^*(z_k),
 \end{subequations}
 %
 which is the proof technique in~\cite[Sec. 1.5]{bertsekas2005dynamic}. 
-\textcolor{blue}{One can show~\eqref{abc} for the base case, $k := N-1$, since $J_N$ is known.}
-Assuming that~\eqref{abc} holds for index $k+1$ (induction hypothesis), we want to show that~\eqref{abc} holds for index $k$ (induction step). The key 
-idea is to use the following recursion,
+One can show~\eqref{abc} for the base case, $k := N-1$, since $J_N$ is known.
+Assuming~\eqref{abc} holds for index $k+1$ (induction hypothesis), we want to show that~\eqref{abc} holds for index $k$ (induction step). The key 
+idea is to use the recursion,
 %
 \begin{equation}
 J_k^\epsilon(z_k) = c(x_k) + {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max} \mathbb{E}[ R\cdot J^\epsilon_{k+1}(x_{k+1}, y_k R) | z_k, \mu_k^\epsilon],
@@ -828,9 +830,10 @@ since $\mathbb{E}[R] = 1$, and by~\eqref{first}. By~\eqref{bell}, sub-optimality
 %
 \begin{equation*}\begin{aligned}
 J_k(z_k) & \leq c(x_k) + {\underset{R \in \mathcal{R}(y_k, \mathbb{P})}\max} \mathbb{E}\big[ R J^\epsilon_{k+1}(x_{k+1},y_k R) \big| z_k, \mu_k^\epsilon \big]\\
-& \leq J_k^\epsilon(z_k). \end{aligned}\end{equation*}
+& = J_k^\epsilon(z_k), \end{aligned}\end{equation*}
 %
-The induction step for~\eqref{a} would be complete. Next, we show~\eqref{b} for index $k$. By definition, $J_k^*$ is the optimal risk-sensitive cost-to-go from stage $k$, thus, $J_k^* \leq J_k^\epsilon$.
+which would complete the induction step for~\eqref{a}, if~\eqref{Jkepsrec} holds.
+Next, we show~\eqref{b} for index $k$. By definition, $J_k^*$ is the optimal risk-sensitive cost-to-go from stage $k$, thus, $J_k^* \leq J_k^\epsilon$.
 Let $\hat{\epsilon}_k := (N-k)\epsilon$, $x':=x_{k+1}$, $y' := y_kR$, and $Z := \sum_{i=k+1}^N c(x_i)$. For any $\pi_k := (\mu_k, \pi') \in \bar{\Pi}_k$,
 %
 \begin{equation*}\begin{aligned}
@@ -848,9 +851,9 @@ J_k^\epsilon(z_k) & \leq {\underset{\pi \in \bar{\Pi}_k} \min} \text{ CVaR}_{y_k
 & = J_k^*(z_k) + (N-k)\epsilon, \\
 \end{aligned}\end{equation*}
 %
-which would complete the induction step for~\eqref{b}. 
+which completes the induction step for~\eqref{b}. 
 
-We have shown that~\eqref{a} and~\eqref{b} hold for index $k$, for any $\epsilon>0$. So,~\eqref{c} holds for index $k$. 
+Thus, if~\eqref{Jkepsrec} holds, then~\eqref{a} and~\eqref{b} hold for index $k$, for any $\epsilon>0$. So,~\eqref{c} would hold for index $k$. 
 Assuming the conjectured equality (a) is correct, this would complete the proof of the conjecture.
 \end{proof}
 \addtolength{\textheight}{-2cm}   % This command serves to balance the column lengths
