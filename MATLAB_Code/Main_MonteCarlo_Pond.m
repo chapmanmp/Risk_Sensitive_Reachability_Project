@@ -17,9 +17,9 @@ J0_MonteCarlo = MonteCarlo_CVaR_pond( type_sum, xs, ls, ws, P, m, N, dt, A );
 
 figure; FigureSettings; mesh( X, L, J0_MonteCarlo ); 
 
-if type_sum, title(['Monte Carlo (soft max, m = ', num2str(m), ')']); zlabel(['J_0', '(x,y)']);
+if type_sum, title(['Monte Carlo (soft max, m = ', num2str(m), ')']); zlabel('Estimate of J_0^*(x,y)');
 
-else, title('Monte Carlo (max)'); zlabel(['W_0', '(x,y)']);
+else, title('Monte Carlo (max)'); zlabel('Estimate of W_0^*(x,y)');
     
 end
 
