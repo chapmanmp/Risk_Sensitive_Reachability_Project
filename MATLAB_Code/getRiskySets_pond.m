@@ -36,9 +36,9 @@ for r_index = 1 : nr, r = rs(r_index); subplot(nr/2, 2, r_index);
 
         for x_index = 1 : length(xs)
     
-            if J0_cost_sum(l_index, x_index) < beta*exp(m*r),   U_ry = [ U_ry, xs(x_index) ]; end
+            if J0_cost_sum(l_index, x_index) <= beta*exp(m*r),   U_ry = [ U_ry, xs(x_index) ]; end
     
-            if J0_cost_max(l_index, x_index) < r,               S_ry = [ S_ry, xs(x_index) ]; end
+            if J0_cost_max(l_index, x_index) <= r,               S_ry = [ S_ry, xs(x_index) ]; end
     
         end
         
