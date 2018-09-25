@@ -40,9 +40,17 @@ load('Pond_Results\more_accurate_probdist\monte_carlo\monte_carlo_sum_sept112018
 % Results from Main_MonteCarlo_Pond.m, nt = 100000; ~N(0, small_sd = 10^(-7)), add small Gaussian noise 
 J0_MC = J0_MonteCarlo;
 
-diff = abs( J0_DP - J0_MC );
+diff_mc = abs( J0_DP - J0_MC )./J0_MC;      % element-wise difference normalized by mc estimate
 
-max_diff = max( diff(:) ); % 5.1535e+04 = small enough relative to the order of magnitude of J0_DP ~ 10^5
+avg_diff_mc = mean( diff_mc(:) );           % 1.4027
+
+max_diff_mc = max( diff_mc(:) );            % 18.6943
+
+diff_dp = abs( J0_DP - J0_MC )./J0_DP;      % element-wise difference normalized by dp estimate
+
+avg_diff_dp = mean( diff_dp(:) );           % 0.2331
+
+max_diff_dp = max( diff_dp(:) );            % 0.9492
 
 %% OLD: Compares [Monte Carlo, max] vs. [Dynamic Programming, soft-max] 
 
@@ -57,7 +65,7 @@ J0_cost_max_MORE = J0_MonteCarlo; % nt = 10^6, trials per (x,y)
 load('Pond_Results\monte_carlo_max_pond_results\monte_carlo_nt100000\monte_carlo_max_nt100000.mat');
 J0_cost_max_LESS = J0_MonteCarlo; % nt = 100 thousand, trials per (x,y) 
 
-diff = abs( J0_cost_max_MORE - J0_cost_max_LESS ); mc_max_diff = max( diff(:) ); % is equal to 0.0272
+diff_mc = abs( J0_cost_max_MORE - J0_cost_max_LESS ); mc_max_diff = max( diff_mc(:) ); % is equal to 0.0272
 
 
 % Results from Main_DynamicProgramming_Pond.m, m = 10, beta = 10^(-3), g(x) = x - 5
