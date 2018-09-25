@@ -47,10 +47,10 @@ for r_index = 1 : nr, r = rs(r_index); subplot(nr/2, 2, r_index);
         plot(S_ry, ones(size(S_ry))*y, 'ob', 'linewidth', 1); hold on; S{r_index}{l_index} = S_ry;
         
     end
+    % legend placement is hard-coded
+    if r_index==2, legend('x \in U_y^r','x \in S_y^r'); end; % put legend for an rs, where U_ry is not empty
     
-    if r_index==1, legend('x \in U_y^r','x \in S_y^r'); end; % put legend for biggest rs, where U_ry is not empty
-    
-    title(['r = ', num2str(r)]); xlabel('State, x'); ylabel('Confidence level, y');
+    title(['r = ', num2str(r)]); xlabel('Water level, x (ft)'); ylabel('Confidence level, y');
     
     % xs(26) = 2.5ft, to remove some white space from graph
     index_xup = 26; xs_short = xs(1: index_xup);
